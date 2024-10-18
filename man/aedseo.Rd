@@ -11,7 +11,7 @@ aedseo(
   disease_threshold = NA_integer_,
   family = c("poisson", "quasipoisson"),
   na_fraction_allowed = 0.4,
-  season = NULL
+  season_weeks = NULL
 )
 }
 \arguments{
@@ -35,9 +35,9 @@ Choose between "poisson," or "quasipoisson".}
 \item{na_fraction_allowed}{Numeric value between 0 and 1 specifying the
 fraction of observables in the window of size k that are allowed to be NA.}
 
-\item{season}{A numeric vector of length 2, \code{c(start,end)}, with the start
-and end weeks of the seasons to stratify the observations by. Must spand
-the new year; ex: \code{season = c(21,20)}. Default, \code{NULL}, is no
+\item{season_weeks}{A numeric vector of length 2, \code{c(start,end)}, with the
+start and end weeks of the seasons to stratify the observations by. Must
+spand the new year; ex: \code{season = c(21,20)}. Default, \code{NULL}, is no
 stratification by season.}
 }
 \value{
@@ -91,7 +91,7 @@ aedseo_results <- aedseo(
   disease_threshold = 200,
   family = "poisson",
   na_fraction_allowed = 0.4,
-  season = NULL
+  season_weeks = NULL
 )
 
 # Print the AEDSEO results
