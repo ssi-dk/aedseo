@@ -18,7 +18,7 @@
 #' previous seasons increases, the influence of older seasons diminishes exponentially.
 #' @param disease_threshold An integer specifying the threshold for considering a disease outbreak. It defines the per
 #' time-step disease threshold that has to be surpassed for the observation to be included in the calculations.
-#' #' @param n_peak A numeric value specifying the number of peak observations to be selected from each season in the
+#' @param n_peak A numeric value specifying the number of peak observations to be selected from each season in the
 #' intensity level calculations. The n_peak observations have to surpass the disease_threshold to be included.
 #' @param season_weeks A numeric vector of length 2, `c(start,end)`, with the start and end weeks of the seasons to
 #' stratify the observations by. Must span the new year; ex: `season_weeks = c(21, 20)`.
