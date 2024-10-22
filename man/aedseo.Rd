@@ -26,7 +26,7 @@ between 0 and 1.}
 \item{disease_threshold}{An integer specifying the threshold for considering
 a disease outbreak. It defines the per time-step disease threshold that has
 to be surpassed to possibly trigger a seasonal onset alarm. If the total
-number of cases in a window of size k exceeds  \code{disease_threshold * k},
+number of cases in a window of size k exceeds \code{disease_threshold * k},
 a seasonal onset alarm can be triggered.}
 
 \item{family}{A character string specifying the family for modeling.
@@ -37,7 +37,7 @@ fraction of observables in the window of size k that are allowed to be NA.}
 
 \item{season_weeks}{A numeric vector of length 2, \code{c(start,end)}, with the
 start and end weeks of the seasons to stratify the observations by. Must
-span the new year; ex: \code{season_weeks = c(21,20)}. Default, \code{NULL}, is no
+span the new year; ex: \code{season_weeks = c(21, 20)}. Default, \code{NULL}, is no
 stratification by season.}
 }
 \value{
@@ -88,7 +88,7 @@ aedseo_results <- aedseo(
   tsd = tsd_data,
   k = 3,
   level = 0.95,
-  disease_threshold = 200,
+  disease_threshold = 20,
   family = "poisson",
   na_fraction_allowed = 0.4,
   season_weeks = NULL
