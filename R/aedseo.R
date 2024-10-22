@@ -15,15 +15,15 @@
 #' @param disease_threshold An integer specifying the threshold for considering
 #' a disease outbreak. It defines the per time-step disease threshold that has
 #' to be surpassed to possibly trigger a seasonal onset alarm. If the total
-#' number of cases in a window of size k exceeds  `disease_threshold * k`,
+#' number of cases in a window of size k exceeds `disease_threshold * k`,
 #' a seasonal onset alarm can be triggered.
 #' @param family A character string specifying the family for modeling.
 #' Choose between "poisson," or "quasipoisson".
 #' @param na_fraction_allowed Numeric value between 0 and 1 specifying the
 #' fraction of observables in the window of size k that are allowed to be NA.
-#' @param season A numeric vector of length 2, `c(start,end)`, with the start
-#' and end weeks of the seasons to stratify the observations by. Must spand
-#' the new year; ex: `season = c(21,20)`. Default, `NULL`, is no
+#' @param season_weeks A numeric vector of length 2, `c(start,end)`, with the
+#' start and end weeks of the seasons to stratify the observations by. Must
+#' span the new year; ex: `season_weeks = c(21, 20)`. Default, `NULL`, is no
 #' stratification by season.
 #'
 #' @return A `aedseo` object containing:
@@ -47,7 +47,7 @@
 #' @export
 #'
 #' @examples
-#' # Create a tsibble object from sample data
+#' # Create a tibble object from sample data
 #' tsd_data <- tsd(
 #'   observed = c(100, 120, 150, 180, 220, 270),
 #'   time = as.Date(c(
@@ -66,10 +66,10 @@
 #'   tsd = tsd_data,
 #'   k = 3,
 #'   level = 0.95,
-#'   disease_threshold = 200,
+#'   disease_threshold = 20,
 #'   family = "poisson",
 #'   na_fraction_allowed = 0.4,
-#'   season = NULL
+#'   season_weeks = NULL
 #' )
 #'
 #' # Print the AEDSEO results
@@ -85,18 +85,18 @@ aedseo <- function(
       # TODO: #10 Include negative.binomial regressions. @telkamp7
     ),
     na_fraction_allowed = 0.4,
-    season = NULL) {
+    season_weeks = NULL) {
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
-  checkmate::assert_data_frame(tsd)
-  checkmate::assert_class(tsd, "aedseo_tsd")
-  checkmate::assert_names(colnames(tsd), identical.to = c("time", "observed"))
+  checkmate::assert_data_frame(tsd, add = coll)
+  checkmate::assert_class(tsd, "aedseo_tsd", add = coll)
+  checkmate::assert_names(colnames(tsd), identical.to = c("time", "observed"), add = coll)
   checkmate::assert_numeric(level, lower = 0, upper = 1, add = coll)
   checkmate::assert_numeric(na_fraction_allowed, lower = 0, upper = 1,
                             add = coll)
   checkmate::assert_integerish(k, add = coll)
   checkmate::assert_integerish(disease_threshold, add = coll)
-  checkmate::assert_integerish(season, len = 2, lower = 1, upper = 53,
+  checkmate::assert_integerish(season_weeks, len = 2, lower = 1, upper = 53,
                                null.ok = TRUE, add = coll)
   checkmate::reportAssertions(coll)
 
@@ -111,7 +111,7 @@ aedseo <- function(
   skipped_window <- base::rep(FALSE, base::nrow(tsd))
 
   # Add the seasons to tsd if available
-  if (!is.null(season)) {
+  if (!is.null(season_weeks)) {
     tsd <- tsd |> dplyr::mutate(season = epi_calendar(.data$time))
   } else {
     tsd <- tsd |> dplyr::mutate(season = "not_defined")
