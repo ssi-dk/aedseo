@@ -15,7 +15,7 @@
 #' @param disease_threshold An integer specifying the threshold for considering
 #' a disease outbreak. It defines the per time-step disease threshold that has
 #' to be surpassed to possibly trigger a seasonal onset alarm. If the total
-#' number of cases in a window of size k exceeds  `disease_threshold * k`,
+#' number of cases in a window of size k exceeds `disease_threshold * k`,
 #' a seasonal onset alarm can be triggered.
 #' @param family A character string specifying the family for modeling.
 #' Choose between "poisson," or "quasipoisson".
@@ -66,7 +66,7 @@
 #'   tsd = tsd_data,
 #'   k = 3,
 #'   level = 0.95,
-#'   disease_threshold = 200,
+#'   disease_threshold = 20,
 #'   family = "poisson",
 #'   na_fraction_allowed = 0.4,
 #'   season_weeks = NULL
@@ -88,9 +88,9 @@ aedseo <- function(
     season_weeks = NULL) {
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
-  checkmate::assert_data_frame(tsd)
-  checkmate::assert_class(tsd, "aedseo_tsd")
-  checkmate::assert_names(colnames(tsd), identical.to = c("time", "observed"))
+  checkmate::assert_data_frame(tsd, add = coll)
+  checkmate::assert_class(tsd, "aedseo_tsd", add = coll)
+  checkmate::assert_names(colnames(tsd), identical.to = c("time", "observed"), add = coll)
   checkmate::assert_numeric(level, lower = 0, upper = 1, add = coll)
   checkmate::assert_numeric(na_fraction_allowed, lower = 0, upper = 1,
                             add = coll)

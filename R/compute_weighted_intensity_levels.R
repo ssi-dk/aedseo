@@ -77,7 +77,7 @@ compute_weighted_intensity_levels <- function(
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_tibble(weighted_observations, add = coll)
-  checkmate::assert_numeric(conf_levels, lower = 0, upper = 1, len = 3)
+  checkmate::assert_numeric(conf_levels, lower = 0, upper = 1, len = 3, add = coll)
   checkmate::assert_names(colnames(weighted_observations),
                           identical.to = c("observation", "weight"), add = coll)
   checkmate::assert_numeric(lower_optim, add = coll)
