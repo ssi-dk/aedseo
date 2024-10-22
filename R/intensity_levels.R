@@ -4,7 +4,7 @@
 #' `r lifecycle::badge("stable")`
 #'
 #' This function calculates the intensity levels of time series observations that are stratified by season.
-#' It uses the previous seasons to calculate the intensity levels of the next coming season.
+#' It uses the previous seasons to calculate the intensity levels of the newest season.
 #' It can provide two different types of intensity levels, by using one of following functions:
 #' - `compute_weighted_intensity_levels` which calculates the lower, medium and high intensity levels.
 #' - `compute_even_log_intensity_levels` which calculates the very low, low, medium and high
