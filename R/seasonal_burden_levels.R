@@ -78,6 +78,7 @@ seasonal_burden_levels <- function(
   disease_threshold = 20,
   n_peak = 6,
   only_current_season = TRUE,
+  family = NULL,
   ...
 ) {
   # Check input arguments
@@ -127,7 +128,7 @@ seasonal_burden_levels <- function(
     # Run quantiles_fit function
     quantiles_fit <- weighted_seasonal_tsd |>
       dplyr::select("observation", "weight") |>
-      fit_quantiles(weighted_observations = _, conf_levels = conf_levels, ...)
+      fit_quantiles(weighted_observations = _, conf_levels = conf_levels, family = family, ...)
 
     # If method intensity_levels was chosen; use the high level from the `fit_quantiles` function as the high
     # level and the disease_threshold as the very low level. The low and medium levels are defined as the relative
