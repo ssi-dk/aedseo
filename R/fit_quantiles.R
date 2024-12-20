@@ -89,7 +89,7 @@ fit_quantiles <- function(
   init_par_fun <- function(family, observations) {
     init_params <- switch(family,
       weibull = log(c(1.5, mean(observations))),
-      lnorm = c(mean(log(observations)), stats::sd(log(observations))),
+      lnorm = c(mean(log(observations)), log(stats::sd(log(observations)))),
       exp = log(1.5)
     )
     return(init_params)
@@ -100,7 +100,7 @@ fit_quantiles <- function(
     log_probability <- switch(family,
       weibull = stats::dweibull(weighted_observations$observation, shape = exp(par[1]), scale = exp(par[2]),
                                 log = TRUE),
-      lnorm = stats::dlnorm(weighted_observations$observation, meanlog =  par[1], sdlog = par[2], log = TRUE),
+      lnorm = stats::dlnorm(weighted_observations$observation, meanlog =  par[1], sdlog = exp(par[2]), log = TRUE),
       exp = stats::dexp(weighted_observations$observation, rate = exp(par[1]), log = TRUE)
     )
     return(-sum(log_probability * weighted_observations$weight))
@@ -121,7 +121,7 @@ fit_quantiles <- function(
   # log-transformed during the optimisation process
   par_fit <- switch(family,
     weibull = exp(optim_obj$par),
-    lnorm = optim_obj$par,
+    lnorm = c(optim_obj$par[1], exp(optim_obj$par[2])),
     exp = c(exp(optim_obj$par), NA)
   )
 

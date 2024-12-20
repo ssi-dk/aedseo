@@ -19,6 +19,9 @@ test_that("Test if checkmate checks work", {
                                 optim_method = "Brent",
                                 lower_optim = 0,
                                 upper_optim = 1000))
+  # lnorm fit
+  expect_no_error(fit_quantiles(weighted_observations = peak_input,
+                                family = "lnorm"))
 
   expect_error(
     checkmate_err_msg(
