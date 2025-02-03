@@ -117,22 +117,72 @@ plot(seasonal_onset_results)
 
 ### Predicting Growth Rates
 
-The `predict` method for `tsd_onset` objects allows you to make predictions for future time steps based on the estimated growth rates. Here's how to use it:
+The `predict` method for `tsd_onset` objects allows you to make predictions for future time steps based on the estimated growth rates.
+Following is an example of predict observations for the next 5 weekly time steps.
 
 ```{r}
-# Example: Predict growth rates for the next 5 time steps
-(prediction <- predict(seasonal_onset_results, n_step = 5))
+prediction <- predict(seasonal_onset_results, n_step = 5)
 ```
 
-In the example above, we use the predict method to predict growth rates for the next 5 time steps.
-The n_step argument specifies the number of steps into the future you want to forecast.
-The resulting prediction object will contain estimates, lower bounds, and upper bounds for each time step.
+```{r, echo = FALSE}
+prediction <- prediction |>
+  dplyr::select(-t) |>
+  dplyr::rename(observation = estimate)
+
+# Extract two seasons for better visualisation:
+seasonal_onset_short <- seasonal_onset_results |>
+  dplyr::filter(season %in% c("2023/2024", "2024/2025"))
+
+# Plot observations and predictions
+autoplot(seasonal_onset_short)$observed +
+  # Add the prediction ribbon
+  ggplot2::geom_ribbon(
+    data = prediction,
+    ggplot2::aes(
+      x = reference_time,
+      ymin = lower,
+      ymax = upper,
+      fill = "Observations with \n Confidence intervals"
+    ),
+    alpha = 0.2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_line(
+    data = prediction,
+    ggplot2::aes(
+      x = reference_time,
+      y = observation,
+      color = "Observations with \n Confidence intervals"
+    ),
+    linewidth = 1,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::scale_color_manual(
+    name = "Predictions",
+    values = c("Observations with \n Confidence intervals" = "red")
+  ) +
+  ggplot2::scale_fill_manual(
+    name = "Predictions",
+    values = c("Observations with \n Confidence intervals" = "red")
+  ) +
+  ggplot2::coord_cartesian(
+    xlim = c(
+      min(seasonal_onset_short$reference_time),
+      max(prediction$reference_time)
+    )
+  )
+```
+
+In the example above, we use the predict method to predict growth rates for the next 5 time steps, according to the
+`time_interval = "week"` in the `tsd_onset` object.
+The `n_step` argument specifies the number of steps into the future you want to forecast.
+The resulting `tsd_predict` object contains observation estimates, lower bounds, and upper bounds for each time step.
 
 ### Summarising seasonal_onset results
 
-The summary method for `tsd_onset` objects provides a concise summary of your automated early detection of seasonal epidemic onset (seasonal_onset) analysis.
+The summary method for `tsd_onset` objects provides a concise summary of your automated early detection of `seasonal_onset` analysis.
 You can use it to retrieve important information about your analysis, including the latest growth warning, latest sum of cases warning
-(if a disease_specific threshold) has been defined, and the total number of growth warnings in the series:
+(if a disease-specific threshold has been defined), and the total number of growth warnings in the series:
 
 
 ```{r summary}
