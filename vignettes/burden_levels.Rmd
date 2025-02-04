@@ -195,7 +195,7 @@ Breakpoints are named `very low`, `low`, `medium` and `high` and define the uppe
   increases between the `very low` and `high` breakpoints.
 
 - `peak_levels` takes three percentiles as argument, representing the `low`, `medium` and `high` breakpoints.
-  The default percentiles are 40%, 90%, and 97.5% to align with the parameters used in [mem](https://github.com/lozalojo/mem).
+  The default percentiles are 40%, 90%, and 97.5% to align with the parameters used in `mem`.
   The disease-specific threshold defines the `very low` breakpoint.
 
 ## Applying the `seasonal_burden_levels()` algorithm
@@ -254,7 +254,7 @@ intensity_levels_n <- seasonal_burden_levels(
   method = "intensity_levels",
   conf_levels = 0.95
 )
-print(intensity_levels_n)
+summary(intensity_levels_n)
 ```
 
 ```{r, include = FALSE}
@@ -283,7 +283,7 @@ peak_levels_n <- seasonal_burden_levels(
   conf_levels = c(0.4, 0.9, 0.975),
   n_peak = 8
 )
-print(peak_levels_n)
+summary(peak_levels_n)
 ```
 
 ```{r, include = FALSE}
@@ -304,7 +304,18 @@ peak_levels_n_neg_t <- seasonal_burden_levels(
 )
 ```
 
-### Use the [Moving Epidemic Method (mem)](https://github.com/lozalojo/mem)
+## Compare `intensity_levels`, `peak_levels` and `mem` algorithms
+The same data is created with following combinations:
+
+- noise
+- noise and positive trend
+- noise and negative trend
+
+These combinations are selected as it is realistic for real world data to have noise, and differentiation between
+trend can occur declining or inclining between seasons.
+Breakpoints for season *2024/2025* calculated based on the three previous seasons.
+
+#### Use the [Moving Epidemic Method (mem)](https://github.com/lozalojo/mem)
 mem is run with default arguments.
 ```{r, include = FALSE}
 data_list <- list(
@@ -342,17 +353,6 @@ mem_thresholds <- purrr::map(data_list, ~ {
 | medium                    | 3902  |
 | high                      | 4206  |
 | very high                 | 4347  |
-
-## Compare `intensity_levels`, `peak_levels` and `mem` algorithms
-The same data is created with following combinations:
-
-- noise
-- noise and positive trend
-- noise and negative trend
-
-These combinations are selected as it is realistic for real world data to have noise, and differentiation between
-trend can occur declining or inclining between seasons.
-Breakpoints for season *2024/2025* calculated based on the three previous seasons.
 
 ### Aedseo levels
 ```{r, echo = FALSE, fig.width=10, fig.height=8, dpi=300}

@@ -182,12 +182,12 @@ Burden levels can not be calculated for the first season and needs at least two 
 
 Seasonal onset output can be extracted by:
 ```{r}
-seasonal_output$onset_output
+summary(seasonal_output$onset_output)
 ```
 
 Seasonal burden output can be extracted by:
 ```{r}
-seasonal_output$burden_output
+summary(seasonal_output$burden_output)
 ```
 
 ### Plot the `combined_seasonal_output` object

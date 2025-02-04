@@ -154,6 +154,17 @@ seasonal_onset <- function(                                     # nolint: cycloc
     )
   }
 
+  if (!is.na(disease_threshold)) {
+    # Extract seasons from onset_output and create seasonal_onset
+    res <- res |>
+      dplyr::mutate(
+        onset_flag = cumsum(.data$seasonal_onset_alarm),
+        seasonal_onset = .data$onset_flag == 1 & !duplicated(.data$onset_flag),
+        .by = "season"
+      ) |>
+      dplyr::select(!"onset_flag")
+  }
+
   # Turn the results into an `seasonal_onset` class
   ans <- tibble::new_tibble(
     x = res,

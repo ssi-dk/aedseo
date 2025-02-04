@@ -39,7 +39,8 @@ rd_seasonal_onset_return <- paste(
   "- 'sum_of_cases_warning': Logical. Does the Sum of Cases exceed the disease threshold?\n",
   "- 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?\n",
   "- 'skipped_window': Logical. Was the window skipped due to missing?\n",
-  "- 'converged': Logical. Was the IWLS judged to have converged?"
+  "- 'converged': Logical. Was the IWLS judged to have converged?",
+  "- 'seasonal_onset': Logical. The first seasonal onset in the season"
 )
 rd_seasonal_burden_levels_return <- paste(
   "\nA list containing:\n",

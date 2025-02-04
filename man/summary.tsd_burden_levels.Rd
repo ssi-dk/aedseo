@@ -16,7 +16,7 @@ containing the results of a \code{seasonal_burden_levels} analysis.}
 This function is used for its side effect, which is printing the burden levels.
 }
 \description{
-Summarize key results from a burden level analysis.
+Summarize key results from a seasonal burden levels analysis.
 }
 \examples{
 # Create a `tsd` object
