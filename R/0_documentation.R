@@ -69,6 +69,8 @@ rd_seasonal_burden_levels_return <- paste(
 rd_tsd <- "An object containing time series data with 'time' and 'observation.'"
 
 # Autoplot and generate data documentation
+rd_text_family <- "A character specifying the font family for the text labels."
+rd_legend_position <- "A character specifying the position of the legend on the plot."
 rd_line_width <- "A numeric specifying the width of line connecting observations."
 rd_obs_size <- "A numeric, specifying the size of observational points."
 rd_time_interval <- "A character vector specifying the time interval. Choose between 'day', 'week', or 'month'."

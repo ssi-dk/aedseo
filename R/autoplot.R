@@ -28,6 +28,7 @@ autoplot <- function(object, ...) {
 #' @param line_width `r rd_line_width`
 #' @param obs_size `r rd_obs_size`
 #' @param time_interval_step `r rd_time_interval_step`
+#' @param text_family `r rd_text_family`
 #' @param y_label `r rd_y_label`
 #' @param ... Additional arguments (not used).
 #'
@@ -48,6 +49,7 @@ autoplot.tsd <- function(
   object,
   line_width = 0.7,
   obs_size = 2,
+  text_family = "sans",
   time_interval_step = "5 weeks",
   y_label = "Weekly observations",
   ...
@@ -73,7 +75,12 @@ autoplot.tsd <- function(
       time_interval_step = time_interval_step
     ) +
     ggplot2::labs(y = y_label) +
-    ggplot2::theme_bw()
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      axis.text = ggplot2::element_text(size = 9, color = "black", family = text_family),
+      axis.title.x = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      axis.title.y = ggplot2::element_text(size = 11, color = "black", family = text_family),
+    )
 }
 #'
 #' Autoplot a `tsd_onset` object
@@ -85,6 +92,8 @@ autoplot.tsd <- function(
 #' seasonal_onset_alarm (first plot) or significantly positive growth rate (second plot).
 #' @param error_bar_width A numeric specifying the width of the error bar employed to show the
 #'  confidence interval of the growth rate estimate.
+#' @param text_family `r rd_text_family`
+#' @param legend_position `r rd_legend_position`
 #' @param time_interval_step `r rd_time_interval_step`
 #' @param y_label `r rd_y_label`
 #' @param ... Additional arguments (not used).
@@ -112,6 +121,8 @@ autoplot.tsd_onset <- function(
   obs_size = 2,
   alpha = 0.2,
   error_bar_width = 0.2,
+  text_family = "sans",
+  legend_position = "bottom",
   time_interval_step = "5 weeks",
   y_label = "Weekly observations",
   ...
@@ -146,7 +157,16 @@ autoplot.tsd_onset <- function(
       time_interval_step = time_interval_step
     ) +
     ggplot2::labs(y = y_label) +
-    ggplot2::theme_bw()
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      axis.text = ggplot2::element_text(size = 9, color = "black", family = text_family),
+      axis.title.x = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      axis.title.y = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      legend.text = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      legend.background = ggplot2::element_blank(),
+      legend.position = legend_position,
+      legend.box.margin = ggplot2::margin(0, 0, 0, 0)
+    )
 
   p2 <- object |>
     dplyr::filter(!is.na(.data$growth_warning)) |>
@@ -184,7 +204,16 @@ autoplot.tsd_onset <- function(
       time_interval_step = time_interval_step
     ) +
     ggplot2::labs(y = y_label) +
-    ggplot2::theme_bw()
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      axis.text = ggplot2::element_text(size = 9, color = "black", family = text_family),
+      axis.title.x = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      axis.title.y = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      legend.text = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      legend.background = ggplot2::element_blank(),
+      legend.position = legend_position,
+      legend.box.margin = ggplot2::margin(0, 0, 0, 0)
+    )
   # save plots
   list(observed = p1, growth_rate = p2)
 }
@@ -201,15 +230,14 @@ autoplot.tsd_onset <- function(
 #' @param fill_alpha A numeric vector specifying the transparency levels for the fill colors of burden levels.
 #' Must match the number of levels.
 #' @param text_burden_size A numeric specifying the size of the text labels.
-#' @param text_family A character specifying the font family for the text labels.
+#' @param text_family `r rd_text_family`
 #' @param line_color A character specifying the color of the line connecting observations.
 #' @param line_type A character specifying the line type for observation line.
 #' @param vline_color A character specifying the color of the vertical outbreak start lines.
 #' @param vline_linetype A character specifying the line type for outbreak start lines.
 #' @param y_scale_labels A function to format y-axis labels.
 #' @param theme_custom A function with a ggplot2 theme, specifying the theme to apply to the plot.
-#' @param legend_size A numeric specifying the size of the legend.
-#' @param legend_position A character specifying the position of the legend on the plot.
+#' @param legend_position `r rd_legend_position`
 #' @param ... Additional arguments (not used).
 #'
 #' @return A 'ggplot' object for visualizing the `tsd_onset_and_burden` data for the current season.
@@ -248,7 +276,6 @@ autoplot.tsd_onset_and_burden <- function(
   vline_linetype = "dashed",
   y_scale_labels = scales::label_comma(big.mark = ".", decimal.mark = ","),
   theme_custom = ggplot2::theme_bw(),
-  legend_size = 10,
   legend_position = "right",
   ...
 ) {
@@ -343,7 +370,7 @@ autoplot.tsd_onset_and_burden <- function(
       color = line_color
     ) +
     ggplot2::geom_vline(
-      data = virus_df |> dplyr::filter(seasonal_onset == TRUE),
+      data = virus_df |> dplyr::filter(.data$seasonal_onset == TRUE),
       ggplot2::aes(xintercept = .data$reference_time,
                    color = "Outbreak"),
       linetype = vline_linetype,
@@ -368,8 +395,10 @@ autoplot.tsd_onset_and_burden <- function(
     ) +
     ggplot2::labs(y = y_label) +
     ggplot2::theme(
-      legend.text = ggplot2::element_text(size = legend_size,
-                                          family = text_family),
+      axis.text = ggplot2::element_text(size = 9, color = "black", family = text_family),
+      axis.title.x = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      axis.title.y = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      legend.text = ggplot2::element_text(size = 11, color = "black", family = text_family),
       legend.background = ggplot2::element_blank(),
       legend.position = legend_position,
       legend.box.margin = ggplot2::margin(0, 0, 0, 0)

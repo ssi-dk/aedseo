@@ -137,7 +137,13 @@ significant_vs_obs |>
     x = "Rolling sum of positive cases (5 weeks)"
   ) +
   ggplot2::guides(linetype = "none") +
-  ggplot2::theme_bw()
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    legend.text = ggplot2::element_text(size = 11, color = "black"),
+    axis.text = ggplot2::element_text(size = 9, color = "black"),
+    axis.title.x = ggplot2::element_text(size = 11, color = "black"),
+    axis.title.y = ggplot2::element_text(size = 11, color = "black")
+  )
 ```
 
 To declare a seasonal onset, the number of cases must exceed a threshold within the five week window.
@@ -174,7 +180,8 @@ Detailed information about each function and their respective arguments can be f
 seasonal_output <- combined_seasonal_output(
   tsd = tsd_data,
   disease_threshold = 140,
-  method = "intensity_levels"
+  method = "intensity_levels",
+  family = "quasipoisson"
 )
 ```
 The default function calculates onset and burden for the current season. If it is desired to see calculations for all previous seasons, the `only_current_season` argument should be set to `FALSE`.

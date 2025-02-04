@@ -27,7 +27,7 @@ in the `vignette("aedseo")`. The plot below illustrates the two methods availabl
 
 The disease-specific threshold is the `very low` breakpoint for both methods. Breakpoints are named as the upper bounds for the burden levels.
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, dpi=300}
 withr::local_seed(222)
 # Construct an 'tsd' object with time series data
 tsd_data_clean <- generate_seasonal_data(
@@ -122,12 +122,12 @@ burden_levels_df |>
   ggplot2::facet_wrap(~ Method, ncol = 2) +
   ggplot2::theme_minimal() +
   ggplot2::theme(
-    axis.text.x = ggplot2::element_blank(),
-    axis.ticks.x = ggplot2::element_blank(),
     legend.position = "right",
     legend.key.width = grid::unit(2, "cm"),
-    axis.title = ggplot2::element_text(size = 12)
-
+    legend.text = ggplot2::element_text(size = 11, color = "black"),
+    strip.text = ggplot2::element_text(size = 11, color = "black"),
+    axis.text = ggplot2::element_text(size = 9, color = "black"),
+    axis.title.y = ggplot2::element_text(size = 11, color = "black")
   ) +
   ggplot2::scale_y_log10(
     breaks = y_tics,
@@ -199,6 +199,15 @@ Breakpoints are named `very low`, `low`, `medium` and `high` and define the uppe
   The disease-specific threshold defines the `very low` breakpoint.
 
 ## Applying the `seasonal_burden_levels()` algorithm
+The same data is created with following combinations:
+
+- noise
+- noise and positive trend
+- noise and negative trend
+
+These combinations are selected as it is realistic for real world data to have noise, and differentiation between
+trend can occur declining or inclining between seasons.
+Breakpoints for season *2024/2025* calculated based on the three previous seasons.
 
 To apply the `seasonal_burden_levels()` algorithm, data needs to be transformed into a `tsd` object.
 ```{r, include = FALSE}
@@ -305,15 +314,6 @@ peak_levels_n_neg_t <- seasonal_burden_levels(
 ```
 
 ## Compare `intensity_levels`, `peak_levels` and `mem` algorithms
-The same data is created with following combinations:
-
-- noise
-- noise and positive trend
-- noise and negative trend
-
-These combinations are selected as it is realistic for real world data to have noise, and differentiation between
-trend can occur declining or inclining between seasons.
-Breakpoints for season *2024/2025* calculated based on the three previous seasons.
 
 #### Use the [Moving Epidemic Method (mem)](https://github.com/lozalojo/mem)
 mem is run with default arguments.
@@ -354,7 +354,7 @@ mem_thresholds <- purrr::map(data_list, ~ {
 | high                      | 4206  |
 | very high                 | 4347  |
 
-### Aedseo levels
+### aedseo levels
 ```{r, echo = FALSE, fig.width=10, fig.height=8, dpi=300}
 #### Create data frames
 burden_levels_df <- tibble::tibble(
@@ -377,11 +377,11 @@ burden_levels_df <- tibble::tibble(
   ),
   Method = c(
     rep("Intensity Levels \n (noise)", 4),
-    rep("Intensity Levels \n (noise and \n positive trend)", 4),
-    rep("Intensity Levels \n (noise and \n negative trend)", 4),
+    rep("Intensity Levels \n (noise and positive trend)", 4),
+    rep("Intensity Levels \n (noise and negative trend)", 4),
     rep("Peak Levels \n (noise)", 4),
-    rep("Peak Levels \n (noise and \n positive trend)", 4),
-    rep("Peak Levels \n (noise and \n negative trend)", 4)
+    rep("Peak Levels \n (noise and positive trend)", 4),
+    rep("Peak Levels \n (noise and negative trend)", 4)
   )
 )
 
@@ -414,18 +414,41 @@ y_tics <- sapply(y_tics_levels, round_to_nearest)
 rounded_max_threshold <- round(max(burden_levels_df$Threshold) / 1000) * 1000
 y_tics <- c(y_tics[-5], rounded_max_threshold, rounded_max_threshold + 2000)
 
+# Merge observations
+all_observations <- dplyr::bind_rows(data_list, .id = "source") |>
+  dplyr::filter(time <= "2025-04-01") |>
+  dplyr::filter(time >= "2024-05-20") |>
+  dplyr::filter(!is.na(observation), observation > 100)
+
+all_points <- dplyr::bind_rows(
+  all_observations |> dplyr::mutate(Method = "Intensity"),
+  all_observations |> dplyr::mutate(Method = "Peak")
+)
+
+obs_method_df <- all_points |>
+  dplyr::mutate(
+    Method = dplyr::case_when(
+      source == "tsd_data_noise" & Method == "Intensity" ~ "Intensity Levels \n (noise)",
+      source == "tsd_data_noise_and_pos_trend" & Method == "Intensity" ~
+        "Intensity Levels \n (noise and positive trend)",
+      source == "tsd_data_noise_and_neg_trend" & Method == "Intensity" ~
+        "Intensity Levels \n (noise and negative trend)",
+      source == "tsd_data_noise" & Method == "Peak" ~ "Peak Levels \n (noise)",
+      source == "tsd_data_noise_and_pos_trend" & Method == "Peak" ~ "Peak Levels \n (noise and positive trend)",
+      source == "tsd_data_noise_and_neg_trend" & Method == "Peak" ~ "Peak Levels \n (noise and negative trend)",
+      TRUE ~ Method
+    )
+  )
+
 #### Plot
-burden_levels_df |>
-  ggplot2::ggplot(ggplot2::aes(x = 0, y = Threshold, linetype = Level, color = Level)) +
+obs_method_df |>
+  ggplot2::ggplot(ggplot2::aes(x = time, y = observation)) +
+  ggplot2::geom_point() +
+  ggplot2::labs(y = "Observations") +
   ggplot2::geom_hline(
+    data = burden_levels_df,
     ggplot2::aes(yintercept = Threshold, linetype = Level, color = Level),
     linewidth = 1
-  ) +
-  ggplot2::labs(
-    x = NULL,
-    y = "Observations",
-    linetype = "Aedseo levels",
-    color = "Aedseo levels"
   ) +
   ggplot2::scale_linetype_manual(
     values = c(
@@ -446,20 +469,28 @@ burden_levels_df |>
   ggplot2::facet_wrap(~ Method, nrow = 2) +
   ggplot2::theme_minimal() +
   ggplot2::theme(
-    axis.text.x = ggplot2::element_blank(),
-    axis.ticks.x = ggplot2::element_blank(),
     legend.position = "right",
-    legend.key.width = grid::unit(2, "cm")
+    legend.key.width = grid::unit(2, "cm"),
+    legend.text = ggplot2::element_text(size = 11, color = "black"),
+    strip.text = ggplot2::element_text(size = 11, color = "black"),
+    axis.text = ggplot2::element_text(size = 9, color = "black"),
+    axis.title.x = ggplot2::element_text(size = 11, color = "black"),
+    axis.title.y = ggplot2::element_text(size = 11, color = "black")
   ) +
   ggplot2::scale_y_log10(
     breaks = y_tics,
     limits = range(y_tics),
     labels = scales::label_comma(big.mark = ".", decimal.mark = ",")
+  ) +
+  aedseo:::time_interval_x_axis(
+    start_date = min(obs_method_df$time),
+    end_date = as.Date("2025-05-12"),
+    time_interval_step = "5 weeks"
   )
 ```
 
 ### mem levels
-```{r, echo = FALSE, fig.width=10, fig.height=4}
+```{r, echo = FALSE, fig.width=10, fig.height=4, dpi=300}
 mem_levels_df <- tibble::tibble(
   Level = names(
     c(mem_thresholds$tsd_data_noise,
@@ -474,8 +505,8 @@ mem_levels_df <- tibble::tibble(
   ),
   Method = c(
     rep("mem Levels \n (noise)", 5),
-    rep("mem Levels \n (noise and \n positive trend)", 5),
-    rep("mem Levels \n (noise and \n negative trend)", 5)
+    rep("mem Levels \n (noise and positive trend)", 5),
+    rep("mem Levels \n (noise and negative trend)", 5)
   )
 )
 
@@ -491,14 +522,26 @@ mem_levels_df$Level <- factor(
   )
 )
 
-mem_levels_df |>
-  ggplot2::ggplot(ggplot2::aes(x = 0, y = Threshold, linetype = Level, color = Level)) +
+# Merge observations
+mem_obs_method_df <- all_observations |>
+  dplyr::mutate(
+    Method = dplyr::case_when(
+      source == "tsd_data_noise" ~ "mem Levels \n (noise)",
+      source == "tsd_data_noise_and_pos_trend" ~ "mem Levels \n (noise and positive trend)",
+      source == "tsd_data_noise_and_neg_trend" ~ "mem Levels \n (noise and negative trend)"
+    )
+  )
+
+# Plot
+mem_obs_method_df |>
+  ggplot2::ggplot(ggplot2::aes(x = time, y = observation)) +
+  ggplot2::geom_point() +
   ggplot2::geom_hline(
+    data = mem_levels_df,
     ggplot2::aes(yintercept = Threshold, linetype = Level, color = Level),
     linewidth = 1
   ) +
   ggplot2::labs(
-    x = NULL,
     y = "Observations",
     linetype = "mem level",
     color = "mem level"
@@ -521,24 +564,34 @@ mem_levels_df |>
       "epidemic threshold \n (end)" = "#44ce1b"
     )
   ) +
-  ggplot2::facet_wrap(~ Method, ncol = 6) +
+  ggplot2::facet_wrap(~ Method, ncol = 3) +
   ggplot2::theme_minimal() +
   ggplot2::theme(
-    axis.text.x = ggplot2::element_blank(),
-    axis.ticks.x = ggplot2::element_blank(),
     legend.position = "right",
-    legend.key.width = grid::unit(2, "cm")
+    legend.key.width = grid::unit(2, "cm"),
+    legend.text = ggplot2::element_text(size = 11, color = "black"),
+    strip.text = ggplot2::element_text(size = 11, color = "black"),
+    axis.text = ggplot2::element_text(size = 9, color = "black"),
+    axis.title.x = ggplot2::element_text(size = 11, color = "black"),
+    axis.title.y = ggplot2::element_text(size = 11, color = "black")
   ) +
   ggplot2::scale_y_log10(
     breaks = y_tics,
     limits = range(y_tics),
     labels = scales::label_comma(big.mark = ".", decimal.mark = ",")
+  )  +
+  aedseo:::time_interval_x_axis(
+    start_date = min(mem_obs_method_df$time),
+    end_date = as.Date("2025-05-12"),
+    time_interval_step = "5 weeks"
   )
 ```
+In the plots, observations below 100 are filtered out to avoid warnings.
 
 Upon examining all methods and data combinations, it becomes clear that the `intensity_levels` approach establishes
 levels covering the entire set of observations from previous seasons. In contrast, the `peak_levels` and `mem` methods
-define levels solely based on the highest observations within each season.
+define levels solely based on the highest observations within each season, and are thus only relevant for comparing
+the height of peaks between seasons.
 
 The highest observations for the *2024/2025* season for each data set are:
 
@@ -552,22 +605,23 @@ In relation to these highest observations and upon further examination, we obser
 
 1. Plots with Noise and Noise with Positive Trend:
 
-- Both `peak_levels` and `mem` compress all the levels into rather high values. This occurs because observations
+- Both `peak_levels` and `mem` estimate very high breakpoints. This occurs because observations
 remain consistently elevated across all three seasons, causing these methods to overlook the remaining
 observations.
 
 2. Data with Noise and Positive Trend:
 
-- All three methods exhibit higher burden levels, indicating that they successfully capture the exponentially
+- All three methods exhibit higher breakpoints, indicating that they successfully capture the exponentially
 increasing trend between seasons.
 
 3. Data with Noise and Negative Trend:
 
 - As observations exponentially decrease between seasons (with the highest observation this season being 3,735),
-we expect the burden levels to be lower.  This expectation is met across all three methods. However, the weighting
-of seasons in `intensity_levels` and `peak_levels` leads to older seasons having less impact on the burden levels as
-we progress forward in time. On the other hand, `mem` includes all high observations from the previous 10 seasons
-without diminishing the importance of older seasons, which results in sustained `very high` burden levels.
+we expect the breakpoints to be the lowest of these examples.  This expectation is met across all three methods.
+However, the weighting of seasons in `intensity_levels` and `peak_levels` leads to older seasons having less
+impact on the breakpoints as we progress forward in time. On the other hand, `mem` includes all high observations
+from the previous 10 seasons without diminishing the importance of older seasons, which results in sustained
+very high breakpoints.
 
 - Notably, in the `mem` method, the epidemic thresholds are positioned above the `medium` burden level.
 This means that the epidemic period begins only when the burden reaches the range of high observations
