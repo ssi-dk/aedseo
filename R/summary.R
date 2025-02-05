@@ -278,16 +278,16 @@ summary.tsd_burden_levels <- function(object, ...) {
   summary_message <- sprintf(
     "Summary of tsd_burden_levels object
 
-    Break point (very low):
+    Breakpoint (very low):
       %f
 
-    Break point (low):
+    Breakpoint (low):
       %f
 
-    Break point (medium):
+    Breakpoint (medium):
       %f
 
-    Break point (high):
+    Breakpoint (high):
       %f
 
     The season for the burden levels:

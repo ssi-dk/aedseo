@@ -59,7 +59,7 @@ seasonal_wave_sim_weekly <- generate_seasonal_data(
 
 ## Plot seasonal waves
 
-The `aedseo` package has an implemented S3 method to plot the `tsd` object.
+The `aedseo` package has an implemented a `plot()` S3 method to plot the `tsd` object.
 The `time_interval` argument can be used to visualise the x-axis as desired, either with days, weeks or months.
 
 The following figures shows the simulated data (solid circles) as individual observations.

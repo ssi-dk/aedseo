@@ -185,9 +185,14 @@ seasonal_output <- combined_seasonal_output(
   family = "quasipoisson"
 )
 ```
+
 The default function estimates onset and burden levels for the current season. If it is desired to see calculations for all previous seasons, the `only_current_season`
 argument should be set to `FALSE`.
-*Note: *Burden levels can not be estimated for the first season and needs at least two seasons of data as the estimations are based on data from previous seasons.
+*Note: *Burden levels can not be estimated for the first season and needs at least two seasons of data as the estimations are based on data from previous seasons.\\
+
+The `aedseo` package implements S3 methods including the `plot()`, `predict()` and `summary()` functions specifically designed for objects of the `aedseo` package.
+`predict()` is only relevant for `tsd_onset` objects.
+An example of using the `summary()` S3 method with `tsd_onset` and `tsd_burden_level` objects is shown here.
 
 Seasonal onset output can be extracted by:
 ```{r}
@@ -199,9 +204,8 @@ Seasonal burden output can be extracted by:
 summary(seasonal_output$burden_output)
 ```
 
-### Plot the `combined_seasonal_output` object
-The `aedseo` package implements S3 methods including the `plot()`, `predict()` and `summary()` functions. `predict` is only relevant for `tsd_onset` objects.
-An example plot is shown here.
+### Plot the comprehensive seasonal analysis
+The `plot()` S3 method for `tsd_combined_seasonal_output` objects allows you to get a complete visualisation of the `combined_seasonal_output()` analysis of the current season.
 
 ```{r, dpi=300}
 # Adjust y_lower_bound dynamically to remove noisy small values
@@ -216,5 +220,5 @@ plot(
 ```
 
 Using the `intensity_levels` method to define burden levels, the seasonal onset is likely to fall within the `low` or `medium`
-category. This is because the `very low` breakpoint is the disease_specific threshold, which must be surpassed for five
-consecutive weeks along with a significant positive growth rate.
+category. This is because the `very low` breakpoint is the disease-specific threshold, which must be surpassed with a five
+week average observation count along with a significant positive growth rate.
