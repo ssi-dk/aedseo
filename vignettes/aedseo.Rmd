@@ -25,8 +25,8 @@ the breakpoints for burden levels from time series data stratified by season.
 The seasonal onset (`seasonal_onset()`) estimates growth rates for consecutive time intervals and calculates the sum of cases.
 The burden levels (`seasonal_burden_levels()`) use the previous seasons to estimate the burden levels of the current season.
 The algorithm allows for surveillance of pathogens, by alarming when the observations have significant growth in
-the selected time interval and based on the
-`disease_specific threshold`, while also evaluating the burden of current observations based on previous seasons.
+the selected time interval and based on the disease_specific threshold, while also evaluating the burden of current
+observations based on previous seasons.
 
 ### Seasonal data
 
@@ -63,12 +63,12 @@ To include all data, the season in the example is set from week 21 to week 20 in
 
 ### Determining the disease specific threshold
 When observations are low there is a risk that randomness will result in significant growth estimates in isolated periods.
-To increase the robustness of the method a `disease_specific threshold` is introduced. It should be set such that subsequent
+To increase the robustness of the method a disease_specific threshold is introduced. It should be set such that subsequent
 estimates of growth are likely to be significant as well.
-The `disease_specific threshold` can be determined by examining continuous periods with sustained significant growth,
+The disease_specific threshold can be determined by examining continuous periods with sustained significant growth,
 and determine at what number of observations these events occur.
 
-In this example the `disease_specific threshold` is determined based on consecutive significant observations from all available previous seasons.
+In this example the disease_specific threshold is determined based on consecutive significant observations from all available previous seasons.
 Significant observations are defined as those with a significant positive growth rate.
 
 To capturing short-term changes and fluctuations in the data, a rolling window of size $k = 5$ is used to create subsets of the data for model fitting,
@@ -148,10 +148,10 @@ significant_vs_obs |>
 
 To declare a seasonal onset, the number of cases must exceed a threshold within the five week window.
 This threshold is determined by dividing the sum of cases at the onset of continuous significant observations by five,
-resulting in a `disease_specific threshold` for each time step.
+resulting in a disease_specific threshold for each time step.
 
 From the analysis plot above, it is observed that the significant growth rate begins at approximately 700 observations.
-Therefore, the `disease_specific threshold` is calculated as: $\frac{700}{5} = 140$.
+Therefore, the disease_specific threshold is calculated as: $\frac{700}{5} = 140$.
 
 In other words, a five week average observation count surpassing 140 alongside with a
 significant positive growth rate defines the onset of the season.
@@ -169,8 +169,8 @@ significant_vs_obs |>
 
 By inspecting the output from the above code, we observe that the first season initiates significantly later
 compared to the subsequent seasons. This delayed start was also evident in the plot, hence we determine
-the `disease_specific threshold` based on the complete seasons spanning from *2022/2023* to *2024/2025*.
-As a result, the `disease_specific threshold` is established at `140`.
+the disease_specific threshold based on the complete seasons spanning from *2022/2023* to *2024/2025*.
+As a result, the disease_specific threshold is established at `140`.
 
 ## Applying the main algorithm
 The primary function of the `aedseo` package is the `combined_seasonal_output()` which integrates the `seasonal_onset()` and `seasonal_burden_levels()`
@@ -216,5 +216,5 @@ plot(
 ```
 
 Using the `intensity_levels` method to define burden levels, the seasonal onset is likely to fall within the `low` or `medium`
-category. This is because the `very low` breakpoint is the `disease_specific threshold`, which must be surpassed for five
+category. This is because the `very low` breakpoint is the disease_specific threshold, which must be surpassed for five
 consecutive weeks along with a significant positive growth rate.
