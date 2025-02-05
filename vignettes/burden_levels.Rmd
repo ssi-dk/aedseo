@@ -1,8 +1,8 @@
 ---
-title: "Automated Detection of Seasonal Epidemic Burden Levels"
+title: "Seasonal Burden Levels"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Automated Detection of Seasonal Epidemic Burden Levels}
+  %\VignetteIndexEntry{Seasonal Burden Levels}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,15 +19,16 @@ library(aedseo)
 ```
 
 To provide a concise overview of how the `seasonal_burden_levels()` algorithm operates, we utilize the same example data presented
-in the `vignette("aedseo")`. The plot below illustrates the two `method` arguments available in the
+in the `vignette("aedseo")`. The plot below illustrates the two methods available for estiming burden levels in the
 `combined_seasonal_output()` function:
 
-- **`intensity_levels`**: This method assesses burden levels by comparing it to observations from previous seasons.
-- **`peak_levels`**: This method assesses burden levels by referencing only the highest observations within each season.
+- **`intensity_levels`**: Intended for within-season classification of observations.
+- **`peak_levels`**: Intended for comparing the height of peaks between seasons.
 
-The disease-specific threshold is the `very low` threshold for both methods.
+The disease-specific threshold is the `very low` breakpoint for both methods. Breakpoints are named as the upper bounds for the burden levels,
+and are visualised on following plot.
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, dpi=300}
 withr::local_seed(222)
 # Construct an 'tsd' object with time series data
 tsd_data_clean <- generate_seasonal_data(
@@ -75,6 +76,21 @@ burden_levels_df$Level <- factor(
   levels = c("high", "medium", "low", "very low")
 )
 
+# Calculate y_tics
+y_tics_log10 <- pretty(c(log10(burden_levels_df$Threshold)))
+y_tics_levels <- 10^(y_tics_log10)
+
+# For each tic, find the closest magnitude to round correctly
+round_to_nearest <- function(x) {
+  magnitude <- 10^floor(log10(x))
+  plyr::round_any(x, accuracy = magnitude)
+}
+y_tics <- sapply(y_tics_levels, round_to_nearest)
+
+# Round max value
+rounded_max_threshold <- (round(max(burden_levels_df$Threshold) / 1000) * 1000) + 1000
+y_tics <- c(y_tics[-5], rounded_max_threshold)
+
 # Create the plot
 burden_levels_df |>
   ggplot2::ggplot(ggplot2::aes(x = 0, y = Threshold, linetype = Level, color = Level)) +
@@ -107,14 +123,19 @@ burden_levels_df |>
   ggplot2::facet_wrap(~ Method, ncol = 2) +
   ggplot2::theme_minimal() +
   ggplot2::theme(
-    axis.text.x = ggplot2::element_blank(),
-    axis.ticks.x = ggplot2::element_blank(),
     legend.position = "right",
-    legend.key.width = grid::unit(2, "cm")
+    legend.key.width = grid::unit(2, "cm"),
+    legend.text = ggplot2::element_text(size = 11, color = "black"),
+    strip.text = ggplot2::element_text(size = 11, color = "black"),
+    axis.text = ggplot2::element_text(size = 9, color = "black"),
+    axis.title.y = ggplot2::element_text(size = 11, color = "black")
   ) +
   ggplot2::scale_y_log10(
+    breaks = y_tics,
+    limits = range(y_tics),
     labels = scales::label_comma(big.mark = ".", decimal.mark = ",")
-  )
+  ) +
+  ggplot2::guides(linetype = "none")
 ```
 
 ## Methodology
@@ -123,63 +144,74 @@ The methodology used to define the burden levels of seasonal epidemics is based 
 Historical data from all available seasons is used to establish the levels for the current season.
 This is done by:
 
-- Using `n` peak weekly observations from each season.
-- Selecting only peak observations if they surpass the disease-specific threshold.
-- Weighting the observations such that recent observations have a greater impact than older observations.
-- A proper distribution (log-normal, weibull and exponential are implemented) is fitted to the weighted
- `n` peak observations. Then the parameters of the selected distribution are optimised to select the best fit.
+- Using `n` highest (peak) observations from each season.
+- Selecting only observations if they surpass the disease-specific threshold.
+- Weighting the observations such that recent observations have a greater influence than older observations.
+- A proper distribution (log-normal, weibull and exponential are currently implemented) is fitted to the weighted
+ `n` peak observations. The selected distribution with the fitted parameters is used to calculate percentiles to be used as breakpoints.
 - Burden levels can be defined by two methods:
-  - `intensity_levels` which models the risk compared to what has been observed in previous seasons.
-  - `peak_levels` which models the risk compared to what has been observed in the `n` peak observations each season.
-    This is the method used in [mem](https://github.com/lozalojo/mem), with log normal distribution and without weights.
+  - `peak_levels` which models the height of the seasonal peaks. Using the log-normal distribution without weights is similar
+  to the default in [mem](https://github.com/lozalojo/mem).
+ - `intensity_levels` which models the within season levels. The highest breakpoint is identical with the `peak_levels` method.
+ Intermediate breakpoints are evenly distributed on a logaritmic scale, between the `very low` and `high` breakpoints,
+ to give the same relative difference between the breakpoints.
 
 The model is implemented in the `seasonal_burden_levels()` function of the `aedseo` package.
 In the following sections we will describe the arguments for the function and how the model is build.
 
 #### Peak observations
-`n_peak` observations are used to describe the highest observations that are observed each season.
-The default of `n_peak` is `6` as we are only interested in the highest observations.
+The `n_peak` argument defines the number of highest observations to be included from each season.
+The default of `n_peak` is `6` - corresponding with the `mem` defaults of using 30 observations across the latest `5` seasons.
 
 #### Weighting
-`A decay_factor` is implemented to give more weight to recent seasons as they are often more indicative of current and future trends.
- As time progresses, the relevance of older seasons may decrease due to changes in factors like population immunity,
- virus mutations, or intervention strategies. Weighting older seasons less reflects this reduced relevance.
-The default of `decay_factor` is `0.8`, allowing the model to be responsive to recent changes without being overly
-sensitive to short-term fluctuations.
-The optimal decay factor can vary depending on the variability and trends within the data. For datasets where seasonal
-patterns are highly stable, a higher decay factor (i.e. longer memory) might be appropriate. Conversely, data that has changed a lot across
-seasons, a lower factor could improve predictions.
+A `decay_factor` is implemented to give more weight to recent seasons, as they are often more indicative of current and future trends.
+As time progresses, the relevance of older seasons may decrease due to changes in factors like testing recommendations, population immunity,
+virus mutations, or intervention strategies. Weighting older seasons less reflects this reduced relevance.
+From time-series analysis, $\frac{1}{1-\text{decay_factor}}$ is often used as an approximate “effective memory”.
+Hence, with the default `decay_factor` = 0.8 the effective memory is `5` seasons.
+(See mentioned by [Hyndman & Athanasopoulos ](https://otexts.com/fpp3/ses.html#ses) for an introduction to simple exponential smoothing)
+The default `decay_factor` allows the model to be responsive to recent changes without being overly sensitive to short-term fluctuations.
+The optimal `decay_factor` can vary depending on the variability and trends within the data.
+If seasonal patterns are highly stable, a higher `decay_factor` (i.e. longer memory) may be appropriate.
+For datasets where seasonal patterns are highly stable, a higher `decay_factor` (i.e. longer memory) might be appropriate.
+Conversely, if the data exhibit dramatic shifts from one season to the next, a lower `decay_factor` can improve predictions.
 
 #### Distribution and optimisation
 `family` is the argument used to select which distribution the `n_peak` observations should be fitted to, users can
 choose between `lnorm`, `weibull` and `exp` distributions. The log-normal distribution theoretically
 aligns well with the nature of epidemic data, which often exhibits multiplicative growth patterns.
-In our optimization process, we evaluated the distributions to determine their performance in fitting Danish non-sentinel
+In our optimisation process, we evaluated the distributions to determine their performance in fitting Danish non-sentinel
 cases and hospitalisation data for RSV, SARS-CoV-2 and Influenza (A and B). All three distributions had comparable
-objective function values during optimisation, hence we did not see any statistical significant difference in their performance.
+weighted likelihood values during optimisation, hence we did not see any statistical significant difference in their performance.
 
-The model uses the `fit_quantiles()` function which employs the `stats::optim` for optimisation of the distribution parameters.
+The model uses the `fit_percentiles()` function which employs the `stats::optim` for estimating the parameters that maximizes the weighted likelihood.
 The `optim_method` argument can be passed to `seasonal_burden_levels()`, default is `Nelder-Mead` but other methods can be selected,
-see `?fit_quantiles`.
-
-*Note:* [mem](https://github.com/lozalojo/mem) uses the log-normal distribution, which allows for more straightforward benchmarking,
-due to this, the default is `lnorm`.
+see `?fit_percentiles`.
 
 #### Burden levels
 `method` is the argument used to select one of the two methods `intensity_levels`(default) and `peak_levels`.
-Both methods return quantile(s) from the fitted distribution which are used to define the burden levels.
-Burden levels are "very low", "low", "medium" and "high".
+Both methods return percentile(s) from the fitted distribution which are used to define the breakpoins for the burden levels.
+Breakpoints are named `very low`, `low`, `medium` and `high` and define the upper bound of the corresponding burden level.
 
-- `intensity_levels` takes one quantile as argument, representing the highest intensity that has been observed in previous seasons.
-  The default is set at a 95% confidence level, which is used to determine the "high" burden level. The disease-specific threshold
-  determines the "very low" burden level. The "low" and "medium" burden levels are calculated based on the relative
-  increase between "very low" and "high" burden levels.
+- `intensity_levels` takes one percentile as argument, representing the highest breakpoint.
+  The default is set at a 95% percentile. The disease-specific threshold
+  determines the `very low` breakpoint. The `low` and `medium` breakpoints are calculated to give identical relative
+  increases between the `very low` and `high` breakpoints.
 
-- `peak_levels` takes three quantiles as argument, representing the "low", "medium" and "high" burden levels.
-  The default thresholds are set at 40%, 90%, and 97.5% to align with the parameters used in the [mem](https://github.com/lozalojo/mem).
-  The disease-specific threshold defines the "very low" burden level.
+- `peak_levels` takes three percentiles as argument, representing the `low`, `medium` and `high` breakpoints.
+  The default percentiles are 40%, 90%, and 97.5% to align with the parameters used in `mem`.
+  The disease-specific threshold defines the `very low` breakpoint.
 
 ## Applying the `seasonal_burden_levels()` algorithm
+The same data is created with following combinations:
+
+- noise
+- noise and positive trend
+- noise and negative trend
+
+These combinations are selected as it is realistic for real world data to have noise, and differentiation between
+trend can occur declining or inclining between seasons.
+Breakpoints for season *2024/2025* calculated based on the three previous seasons.
 
 To apply the `seasonal_burden_levels()` algorithm, data needs to be transformed into a `tsd` object.
 ```{r, include = FALSE}
@@ -235,7 +267,7 @@ intensity_levels_n <- seasonal_burden_levels(
   method = "intensity_levels",
   conf_levels = 0.95
 )
-print(intensity_levels_n)
+summary(intensity_levels_n)
 ```
 
 ```{r, include = FALSE}
@@ -254,7 +286,7 @@ intensity_levels_n_neg_t <- seasonal_burden_levels(
 ```
 
 ### Use the `peak_levels` method
-[mem](https://github.com/lozalojo/mem) uses the `n` highest observations from each epidemic period to fit the parameters of the distribution,
+`mem` uses the `n` highest observations from each epidemic period to fit the parameters of the distribution,
 where `n = 30/seasons`. The data has four seasons, to align with mem, we use `n_peak = 8`
 ```{r}
 peak_levels_n <- seasonal_burden_levels(
@@ -264,7 +296,7 @@ peak_levels_n <- seasonal_burden_levels(
   conf_levels = c(0.4, 0.9, 0.975),
   n_peak = 8
 )
-print(peak_levels_n)
+summary(peak_levels_n)
 ```
 
 ```{r, include = FALSE}
@@ -285,7 +317,9 @@ peak_levels_n_neg_t <- seasonal_burden_levels(
 )
 ```
 
-### Use the [Moving Epidemic Method (mem)](https://github.com/lozalojo/mem)
+## Compare `intensity_levels`, `peak_levels` and `mem` algorithms
+
+#### Use the [Moving Epidemic Method (mem)](https://github.com/lozalojo/mem)
 mem is run with default arguments.
 ```{r, include = FALSE}
 data_list <- list(
@@ -316,26 +350,15 @@ mem_thresholds <- purrr::map(data_list, ~ {
   )
 })
 ```
-| Name                      | Value |
-|---------------------------|-------|
-| epidemic threshold (start)| 3004  |
-| epidemic threshold (end)  | 2975  |
-| medium                    | 3902  |
-| high                      | 4206  |
-| very high                 | 4347  |
+| Breakpoint                | Observation |
+|---------------------------|-------------|
+| epidemic threshold (start)|    3004     |
+| epidemic threshold (end)  |    2975     |
+| medium                    |    3902     |
+| high                      |    4206     |
+| very high                 |    4347     |
 
-## Compare `intensity_levels`, `peak_levels` and `mem` algorithms
-The same data is created with following combinations:
-
-- noise
-- noise and positive trend
-- noise and negative trend
-
-These combinations are selected as it is realistic for real world data to have noise, and differentiation between
-trend can occur declining or inclining between seasons.
-Burden levels correspond to season *2024/2025* calculated based on the three previous seasons.
-
-### Aedseo levels
+### aedseo levels
 ```{r, echo = FALSE, fig.width=10, fig.height=8, dpi=300}
 #### Create data frames
 burden_levels_df <- tibble::tibble(
@@ -358,11 +381,11 @@ burden_levels_df <- tibble::tibble(
   ),
   Method = c(
     rep("Intensity Levels \n (noise)", 4),
-    rep("Intensity Levels \n (noise and \n positive trend)", 4),
-    rep("Intensity Levels \n (noise and \n negative trend)", 4),
+    rep("Intensity Levels \n (noise and positive trend)", 4),
+    rep("Intensity Levels \n (noise and negative trend)", 4),
     rep("Peak Levels \n (noise)", 4),
-    rep("Peak Levels \n (noise and \n positive trend)", 4),
-    rep("Peak Levels \n (noise and \n negative trend)", 4)
+    rep("Peak Levels \n (noise and positive trend)", 4),
+    rep("Peak Levels \n (noise and negative trend)", 4)
   )
 )
 
@@ -395,18 +418,41 @@ y_tics <- sapply(y_tics_levels, round_to_nearest)
 rounded_max_threshold <- round(max(burden_levels_df$Threshold) / 1000) * 1000
 y_tics <- c(y_tics[-5], rounded_max_threshold, rounded_max_threshold + 2000)
 
+# Merge observations
+all_observations <- dplyr::bind_rows(data_list, .id = "source") |>
+  dplyr::filter(time <= "2025-04-01") |>
+  dplyr::filter(time >= "2024-05-20") |>
+  dplyr::filter(!is.na(observation), observation > 100)
+
+all_points <- dplyr::bind_rows(
+  all_observations |> dplyr::mutate(Method = "Intensity"),
+  all_observations |> dplyr::mutate(Method = "Peak")
+)
+
+obs_method_df <- all_points |>
+  dplyr::mutate(
+    Method = dplyr::case_when(
+      source == "tsd_data_noise" & Method == "Intensity" ~ "Intensity Levels \n (noise)",
+      source == "tsd_data_noise_and_pos_trend" & Method == "Intensity" ~
+        "Intensity Levels \n (noise and positive trend)",
+      source == "tsd_data_noise_and_neg_trend" & Method == "Intensity" ~
+        "Intensity Levels \n (noise and negative trend)",
+      source == "tsd_data_noise" & Method == "Peak" ~ "Peak Levels \n (noise)",
+      source == "tsd_data_noise_and_pos_trend" & Method == "Peak" ~ "Peak Levels \n (noise and positive trend)",
+      source == "tsd_data_noise_and_neg_trend" & Method == "Peak" ~ "Peak Levels \n (noise and negative trend)",
+      TRUE ~ Method
+    )
+  )
+
 #### Plot
-burden_levels_df |>
-  ggplot2::ggplot(ggplot2::aes(x = 0, y = Threshold, linetype = Level, color = Level)) +
+obs_method_df |>
+  ggplot2::ggplot(ggplot2::aes(x = time, y = observation)) +
+  ggplot2::geom_point(ggplot2::aes(color = "observations")) +
+  ggplot2::labs(y = "Observations") +
   ggplot2::geom_hline(
+    data = burden_levels_df,
     ggplot2::aes(yintercept = Threshold, linetype = Level, color = Level),
     linewidth = 1
-  ) +
-  ggplot2::labs(
-    x = NULL,
-    y = "Observations",
-    linetype = "Aedseo levels",
-    color = "Aedseo levels"
   ) +
   ggplot2::scale_linetype_manual(
     values = c(
@@ -417,30 +463,46 @@ burden_levels_df |>
     )
   ) +
   ggplot2::scale_color_manual(
+    name = "",
     values = c(
+      "observations" = "black",
       "very low" = "#44ce1b",
       "low" = "#bbdb44",
       "medium" = "#f2a134",
       "high" = "#e51f1f"
     )
   ) +
+  ggplot2::labs(
+    y = "Observations",
+    linetype = "mem level",
+    color = "mem level"
+  ) +
   ggplot2::facet_wrap(~ Method, nrow = 2) +
   ggplot2::theme_minimal() +
   ggplot2::theme(
-    axis.text.x = ggplot2::element_blank(),
-    axis.ticks.x = ggplot2::element_blank(),
     legend.position = "right",
-    legend.key.width = grid::unit(2, "cm")
+    legend.key.width = grid::unit(2, "cm"),
+    legend.text = ggplot2::element_text(size = 11, color = "black"),
+    strip.text = ggplot2::element_text(size = 11, color = "black"),
+    axis.text = ggplot2::element_text(size = 9, color = "black"),
+    axis.title.x = ggplot2::element_text(size = 11, color = "black"),
+    axis.title.y = ggplot2::element_text(size = 11, color = "black")
   ) +
   ggplot2::scale_y_log10(
     breaks = y_tics,
     limits = range(y_tics),
     labels = scales::label_comma(big.mark = ".", decimal.mark = ",")
-  )
+  ) +
+  aedseo:::time_interval_x_axis(
+    start_date = min(obs_method_df$time),
+    end_date = as.Date("2025-05-12"),
+    time_interval_step = "5 weeks"
+  ) +
+  ggplot2::guides(linetype = "none")
 ```
 
 ### mem levels
-```{r, echo = FALSE, fig.width=10, fig.height=4}
+```{r, echo = FALSE, fig.width=10, fig.height=4, dpi=300}
 mem_levels_df <- tibble::tibble(
   Level = names(
     c(mem_thresholds$tsd_data_noise,
@@ -455,8 +517,8 @@ mem_levels_df <- tibble::tibble(
   ),
   Method = c(
     rep("mem Levels \n (noise)", 5),
-    rep("mem Levels \n (noise and \n positive trend)", 5),
-    rep("mem Levels \n (noise and \n negative trend)", 5)
+    rep("mem Levels \n (noise and positive trend)", 5),
+    rep("mem Levels \n (noise and negative trend)", 5)
   )
 )
 
@@ -472,17 +534,25 @@ mem_levels_df$Level <- factor(
   )
 )
 
-mem_levels_df |>
-  ggplot2::ggplot(ggplot2::aes(x = 0, y = Threshold, linetype = Level, color = Level)) +
+# Merge observations
+mem_obs_method_df <- all_observations |>
+  dplyr::mutate(
+    Method = dplyr::case_when(
+      source == "tsd_data_noise" ~ "mem Levels \n (noise)",
+      source == "tsd_data_noise_and_pos_trend" ~ "mem Levels \n (noise and positive trend)",
+      source == "tsd_data_noise_and_neg_trend" ~ "mem Levels \n (noise and negative trend)"
+    )
+  )
+
+# Plot
+mem_obs_method_df |>
+  ggplot2::ggplot(ggplot2::aes(x = time, y = observation)) +
+  ggplot2::geom_point(ggplot2::aes(color = "observations")) +
+  ggplot2::labs(y = "Observations") +
   ggplot2::geom_hline(
+    data = mem_levels_df,
     ggplot2::aes(yintercept = Threshold, linetype = Level, color = Level),
     linewidth = 1
-  ) +
-  ggplot2::labs(
-    x = NULL,
-    y = "Observations",
-    linetype = "mem level",
-    color = "mem level"
   ) +
   ggplot2::scale_linetype_manual(
     values = c(
@@ -494,7 +564,9 @@ mem_levels_df |>
     )
   ) +
   ggplot2::scale_color_manual(
+    name = "",
     values = c(
+      "observations" = "black",
       "medium" = "#f2a134",
       "high" = "#e51f1f",
       "very high" = "#891212",
@@ -502,58 +574,69 @@ mem_levels_df |>
       "epidemic threshold \n (end)" = "#44ce1b"
     )
   ) +
-  ggplot2::facet_wrap(~ Method, ncol = 6) +
+  ggplot2::facet_wrap(~ Method, ncol = 3) +
   ggplot2::theme_minimal() +
   ggplot2::theme(
-    axis.text.x = ggplot2::element_blank(),
-    axis.ticks.x = ggplot2::element_blank(),
     legend.position = "right",
-    legend.key.width = grid::unit(2, "cm")
+    legend.key.width = grid::unit(2, "cm"),
+    legend.text = ggplot2::element_text(size = 11, color = "black"),
+    strip.text = ggplot2::element_text(size = 11, color = "black"),
+    axis.text = ggplot2::element_text(size = 9, color = "black"),
+    axis.title.x = ggplot2::element_text(size = 11, color = "black"),
+    axis.title.y = ggplot2::element_text(size = 11, color = "black")
   ) +
   ggplot2::scale_y_log10(
     breaks = y_tics,
     limits = range(y_tics),
     labels = scales::label_comma(big.mark = ".", decimal.mark = ",")
-  )
+  )  +
+  aedseo:::time_interval_x_axis(
+    start_date = min(mem_obs_method_df$time),
+    end_date = as.Date("2025-05-12"),
+    time_interval_step = "5 weeks"
+  ) +
+  ggplot2::guides(linetype = "none")
 ```
+In the plots, observations below 100 are filtered out to avoid warnings.
 
 Upon examining all methods and data combinations, it becomes clear that the `intensity_levels` approach establishes
 levels covering the entire set of observations from previous seasons. In contrast, the `peak_levels` and `mem` methods
-define levels solely based on the highest observations within each season.
+define levels solely based on the highest observations within each season, and are thus only relevant for comparing
+the height of peaks between seasons.
 
 The highest observations for the *2024/2025* season for each data set are:
 
-| Data                      | Value |
-|---------------------------|-------|
-| Noise                     | 4456  |
-| Noise and positive trend  | 6048  |
-| Noise and negative trend  | 3735  |
+| Data                      | Observation |
+|---------------------------|-------------|
+| Noise                     |    4456     |
+| Noise and positive trend  |    6048     |
+| Noise and negative trend  |    3735     |
 
 In relation to these highest observations and upon further examination, we observe the following:
 
 1. Plots with Noise and Noise with Positive Trend:
 
-- Both `peak_levels` and `mem` compress all the levels into rather high values. This occurs because observations
+- Both `peak_levels` and `mem` estimate very high breakpoints. This occurs because observations
 remain consistently elevated across all three seasons, causing these methods to overlook the remaining
 observations.
 
 2. Data with Noise and Positive Trend:
 
-- All three methods exhibit higher burden levels, indicating that they successfully capture the exponentially
+- All three methods exhibit higher breakpoints, indicating that they successfully capture the exponentially
 increasing trend between seasons.
 
 3. Data with Noise and Negative Trend:
 
 - As observations exponentially decrease between seasons (with the highest observation this season being 3,735),
-we expect the burden levels to be lower.  This expectation is met across all three methods. However, the weighting
-of seasons in `intensity_levels` and `peak_levels` leads to older seasons having less impact on the burden levels as
-we progress forward in time. On the other hand, `mem` includes all high observations from the previous 10 seasons
-without diminishing the importance of older seasons, which results in sustained `very high` burden levels.
+we expect the breakpoints to be the lowest of these examples.  This expectation is met across all three methods.
+However, the weighting of seasons in `intensity_levels` and `peak_levels` leads to older seasons having less
+impact on the breakpoints, as we progress forward in time. On the other hand, `mem` includes all high observations
+from the previous 10 seasons without diminishing the importance of older seasons, which results in sustained
+very high breakpoints.
 
 - Notably, in the `mem` method, the epidemic thresholds are positioned above the `medium` burden level.
-This means that the epidemic period begins only when the burden reaches the range of high observations
+This means that the epidemic period begins only when observations reach the height of the seasonal peaks
 observed in previous seasons.
 
-This concludes, that using the `peak_levels` and `mem` methods does not allow us to assess the burden before the season
-reaches the range of high observations from previous seasons. In contrast, the `intensity_levels` method allows for
-continuous monitoring of the burden of current observation rate throughout the entire season.
+In conclusion, the `peak_levels` and `mem` methods allows us to compare the height of peaks between seasons,
+whereas the `intensity_levels` method supports continuous monitoring of observations in the current season.

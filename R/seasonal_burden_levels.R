@@ -30,7 +30,7 @@
 #' @param n_peak A numeric value specifying the number of peak observations to be selected from each season in the
 #' level calculations. The `n_peak` observations have to surpass the `disease_threshold` to be included.
 #' @param only_current_season `r rd_only_current_season`
-#' @param ... Arguments passed to the `fit_quantiles()` function.
+#' @param ... Arguments passed to the `fit_percentiles()` function.
 #'
 #' @return `r rd_seasonal_burden_levels_return`
 #'
@@ -132,36 +132,36 @@ seasonal_burden_levels <- function(
       dplyr::mutate(weight = decay_factor^(max(.data$year) - .data$year)) |>
       dplyr::select(-c("year", "time"))
 
-    # Run quantiles_fit function
-    quantiles_fit <- weighted_seasonal_tsd |>
+    # Run percentiles_fit function
+    percentiles_fit <- weighted_seasonal_tsd |>
       dplyr::select("observation", "weight") |>
-      fit_quantiles(weighted_observations = _, conf_levels = conf_levels, family = family, ...)
+      fit_percentiles(weighted_observations = _, conf_levels = conf_levels, family = family, ...)
 
-    # If method intensity_levels was chosen; use the high level from the `fit_quantiles` function as the high
+    # If method intensity_levels was chosen; use the high level from the `fit_percentiles` function as the high
     # level and the disease_threshold as the very low level. The low and medium levels are defined as the relative
     # increase between the very low level and high level.
     results <- switch(method,
       peak_levels = {
-        model_output <- append(quantiles_fit, list(season = max(seasonal_tsd$season)), after = 0)
+        model_output <- append(percentiles_fit, list(season = max(seasonal_tsd$season)), after = 0)
         model_output <- list(
           season = max(seasonal_tsd$season),
           values = stats::setNames(c(disease_threshold, model_output$values),
                                    c("very low", "low", "medium", "high")),
-          optim = quantiles_fit,
+          optim = percentiles_fit,
           disease_threshold = disease_threshold
         )
       },
       intensity_levels = {
-        level_step_log <- pracma::logseq(disease_threshold, quantiles_fit$values, n = 4)
+        level_step_log <- pracma::logseq(disease_threshold, percentiles_fit$values, n = 4)
         model_output <- list(
           season = current_season,
           values = stats::setNames(level_step_log, c("very low", "low", "medium", "high")),
           optim = list(
-            par = quantiles_fit$par,
-            obj_value = quantiles_fit$obj_value,
-            converged = quantiles_fit$converged,
-            high_conf_level = quantiles_fit$conf_levels,
-            family = quantiles_fit$family
+            par = percentiles_fit$par,
+            obj_value = percentiles_fit$obj_value,
+            converged = percentiles_fit$converged,
+            high_conf_level = percentiles_fit$conf_levels,
+            family = percentiles_fit$family
           ),
           disease_threshold = disease_threshold
         )
@@ -181,5 +181,8 @@ seasonal_burden_levels <- function(
   } else {
     level_results <- main_level_fun(peak_seasonal_tsd, current_season = max(seasonal_tsd$season))
   }
+
+  class(level_results) <- "tsd_burden_levels"
+
   return(level_results)
 }

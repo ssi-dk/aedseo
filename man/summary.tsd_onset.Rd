@@ -7,7 +7,8 @@
 \method{summary}{tsd_onset}(object, ...)
 }
 \arguments{
-\item{object}{An object of class 'tsd_onset' containing the results of a seasonal_onset analysis.}
+\item{object}{An object of class 'tsd_onset'
+containing the results of a \code{seasonal_onset} analysis.}
 
 \item{...}{Additional arguments (not used).}
 }
@@ -15,29 +16,23 @@
 This function is used for its side effect, which is printing a summary message to the console.
 }
 \description{
-Summarize the results of an seasonal onset analysis, including the latest growth rate estimate,
-the confidence interval, and information about growth warnings.
+Summarize key results from a seasonal onset analysis.
 }
 \examples{
-# Create a `tsd_onset` object from sample data
-tsd_data <- to_time_series(
-  observation = c(100, 120, 150, 180, 220, 270),
-  time = as.Date(c(
-    "2023-01-01",
-    "2023-01-02",
-    "2023-01-03",
-    "2023-01-04",
-    "2023-01-05",
-    "2023-01-06"
-  )),
-  time_interval = "day"
-)
+# Create a `tsd` object
+tsd_data <- generate_seasonal_data()
 
-# Calculate seasonal_onset results with a 3-day window and a Poisson family model
-seasonal_onset(
+# Create a `tsd_onset` object
+tsd_onset <- seasonal_onset(
   tsd = tsd_data,
   k = 3,
+  disease_threshold = 100,
+  season_start = 21,
+  season_end = 20,
   level = 0.95,
-  family = "poisson"
+  family = "poisson",
+  only_current_season = TRUE
 )
+# Print the summary
+summary(tsd_onset)
 }

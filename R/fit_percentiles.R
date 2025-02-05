@@ -1,8 +1,8 @@
-#' Fits weighted observations to distribution and returns quantiles
+#' Fits weighted observations to distribution and returns percentiles
 #'
 #' @description
 #'
-#' This function calculates the quantiles of weighted time series observations. The output contains the quantiles
+#' This function calculates the percentiles of weighted time series observations. The output contains the percentiles
 #' from the fitted distribution.
 #'
 #' @param weighted_observations A tibble containing two columns of length n; `observation`, which contains the data
@@ -18,8 +18,8 @@
 #' @param upper_optim A numeric value for the optimisation.
 #'
 #' @return A list containing:
-#'   - 'conf_levels': The conf_levels chosen to fit the quantiles.
-#'   - 'quantiles': The quantile results from the fit.
+#'   - 'conf_levels': The conf_levels chosen to fit the percentiles.
+#'   - 'percentiles': The percentile results from the fit.
 #'   - 'par': The fit parameters for the chosen family.
 #'       - par_1:
 #'          - For 'weibull': Shape parameter (k).
@@ -53,10 +53,12 @@
 #' )
 #'
 #' # Use the model
-#' fit_quantiles(weighted_observations = data_input,
-#'               conf_levels = c(0.50, 0.90, 0.95),
-#'               family= "weibull")
-fit_quantiles <- function(
+#' fit_percentiles(
+#'   weighted_observations = data_input,
+#'   conf_levels = c(0.50, 0.90, 0.95),
+#'   family= "weibull"
+#' )
+fit_percentiles <- function(
   weighted_observations,
   conf_levels = c(0.50, 0.90, 0.95),
   family = c("lnorm",
@@ -126,7 +128,7 @@ fit_quantiles <- function(
   )
 
   # Calculate the low, medium, high intensity levels based on input `conf_levels`
-  quantiles <- switch(family,
+  percentiles <- switch(family,
     weibull = stats::qweibull(p = conf_levels, shape = par_fit[1], scale = par_fit[2]),
     lnorm = stats::qlnorm(p = conf_levels, meanlog = par_fit[1], sdlog = par_fit[2]),
     exp = stats::qexp(p = conf_levels, rate = par_fit[1])
@@ -135,7 +137,7 @@ fit_quantiles <- function(
   # Create return fit parameters
   return(list(
     conf_levels = conf_levels,
-    values = as.numeric(quantiles),
+    values = as.numeric(percentiles),
     par = par_fit[1:2], # Returns NA in second position if optim_method = "exp"
     obj_value = optim_obj$value,
     converged = optim_obj$convergence == 0,

@@ -39,7 +39,8 @@ rd_seasonal_onset_return <- paste(
   "- 'sum_of_cases_warning': Logical. Does the Sum of Cases exceed the disease threshold?\n",
   "- 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?\n",
   "- 'skipped_window': Logical. Was the window skipped due to missing?\n",
-  "- 'converged': Logical. Was the IWLS judged to have converged?"
+  "- 'converged': Logical. Was the IWLS judged to have converged?",
+  "- 'seasonal_onset': Logical. The first detected seasonal onset in the season?"
 )
 rd_seasonal_burden_levels_return <- paste(
   "\nA list containing:\n",
@@ -68,6 +69,8 @@ rd_seasonal_burden_levels_return <- paste(
 rd_tsd <- "An object containing time series data with 'time' and 'observation.'"
 
 # Autoplot and generate data documentation
+rd_text_family <- "A character specifying the font family for the text labels."
+rd_legend_position <- "A character specifying the position of the legend on the plot."
 rd_line_width <- "A numeric specifying the width of line connecting observations."
 rd_obs_size <- "A numeric, specifying the size of observational points."
 rd_time_interval <- "A character vector specifying the time interval. Choose between 'day', 'week', or 'month'."

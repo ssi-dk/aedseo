@@ -57,7 +57,7 @@ level calculations. The \code{n_peak} observations have to surpass the \code{dis
 
 \item{only_current_season}{Should the output only include results for the current season?}
 
-\item{...}{Arguments passed to the \code{fit_quantiles()} function.}
+\item{...}{Arguments passed to the \code{fit_percentiles()} function.}
 }
 \value{
 A list containing:

@@ -13,7 +13,7 @@
 #' @param family `r rd_family(usage = "combined")`
 #' @param family_quant A character string specifying the family for modeling burden levels.
 #' @param season_start,season_end `r rd_season_start_end()`
-#' @param ... Arguments passed to the `fit_quantiles()` function in the burden level calculations.
+#' @param ... Arguments passed to the `fit_percentiles()` function in the burden level calculations.
 #'
 #' @return An object containing two lists: onset_output and burden_output:
 #'
@@ -98,26 +98,13 @@ combined_seasonal_output <- function(
                                  season_start = season_start, season_end = season_end,
                                  only_current_season = only_current_season)             # nolint: object_usage_linter.
 
-  # Extract seasons from onset_output and create seasonal_onset
-  onset_output <- onset_output |>
-    dplyr::mutate(
-      onset_flag = cumsum(.data$seasonal_onset_alarm),
-      seasonal_onset = .data$onset_flag == 1 & !duplicated(.data$onset_flag),
-      .by = "season"
-    ) |>
-    dplyr::select(!"onset_flag")
-
-  # Extract only current season if assigned
-  if (only_current_season == TRUE) {
-    onset_output <- onset_output |>
-      dplyr::filter(.data$season == max(.data$season))
-  }
-
+  # Combine both results in lists
   seasonal_output <- list(
     onset_output = onset_output,
     burden_output = burden_output
   )
 
+  # Assign a class for the combined results
   class(seasonal_output) <- "tsd_onset_and_burden"
 
   return(seasonal_output)
