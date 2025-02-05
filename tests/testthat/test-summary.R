@@ -1,4 +1,4 @@
-test_that("Summary prints without disease threshold", {
+test_that("Summary prints without disease threshold (tsd_onset object)", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
   # Generate seasonal data
@@ -22,7 +22,7 @@ test_that("Summary prints without disease threshold", {
   expect_true(grepl(pattern = "Summary of tsd_onset object without disease_threshold", x = tmp))
 })
 
-test_that("Summary prints with disease threshold", {
+test_that("Summary prints with disease threshold (tsd_onset object)", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
   # Generate seasonal data
@@ -47,7 +47,7 @@ test_that("Summary prints with disease threshold", {
   expect_true(grepl(pattern = "Summary of tsd_onset object with disease_threshold", x = tmp))
 })
 
-test_that("Summary prints with disease threshold", {
+test_that("Summary prints of burden_levels object", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
   # Generate seasonal data
