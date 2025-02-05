@@ -3,7 +3,7 @@ test_that("Test if checkmate checks work", {
   withr::local_seed(42)
   obs <- 10
   season <- c("2018/2019", "2019/2020", "2020/2021")
-  season_num_rev <- rev(seq(from = 1, to = length(season)))
+  season_num_rev <- rev(seq_along(season))
   observations <- rep(stats::rnorm(10, obs), length(season))
 
   peak_input <- tibble::tibble(

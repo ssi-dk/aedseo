@@ -53,9 +53,11 @@
 #' )
 #'
 #' # Use the model
-#' fit_percentiles(weighted_observations = data_input,
-#'               conf_levels = c(0.50, 0.90, 0.95),
-#'               family= "weibull")
+#' fit_percentiles(
+#'   weighted_observations = data_input,
+#'   conf_levels = c(0.50, 0.90, 0.95),
+#'   family= "weibull"
+#' )
 fit_percentiles <- function(
   weighted_observations,
   conf_levels = c(0.50, 0.90, 0.95),

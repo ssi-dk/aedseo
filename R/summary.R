@@ -41,7 +41,7 @@ summary.tsd_onset <- function(object, ...) {
   time_interval <- attr(object, "time_interval")
 
   # Extract the season
-  last_season <- unique(last_observation$season)
+  last_season <- last_observation$season
 
   # Latest sum of cases
   latest_sum_of_cases <- last_observation |>
