@@ -25,7 +25,7 @@ in the `vignette("aedseo")`. The plot below illustrates the two methods availabl
 - **`intensity_levels`**: Intended for within-season classification of observations.
 - **`peak_levels`**: Intended for comparing the height of peaks between seasons.
 
-The `disease-specific threshold` is the `very low` breakpoint for both methods. Breakpoints are named as the upper bounds for the burden levels,
+The disease-specific threshold is the `very low` breakpoint for both methods. Breakpoints are named as the upper bounds for the burden levels,
 and are visualised on following plot.
 
 ```{r, echo = FALSE, dpi=300}
@@ -145,7 +145,7 @@ Historical data from all available seasons is used to establish the levels for t
 This is done by:
 
 - Using `n` highest (peak) observations from each season.
-- Selecting only observations if they surpass the `disease-specific threshold`.
+- Selecting only observations if they surpass the disease-specific threshold.
 - Weighting the observations such that recent observations have a greater influence than older observations.
 - A proper distribution (log-normal, weibull and exponential are currently implemented) is fitted to the weighted
  `n` peak observations. The selected distribution with the fitted parameters is used to calculate percentiles to be used as breakpoints.
@@ -161,7 +161,7 @@ In the following sections we will describe the arguments for the function and ho
 
 #### Peak observations
 The `n_peak` argument defines the number of highest observations to be included from each season.
-The default of `n_peak` is `6` - this is similar to using latest `5` seasons in `mem`.
+The default of `n_peak` is `6` - corresponding with the `mem` defaults of using 30 observations across the latest `5` seasons.
 
 #### Weighting
 A `decay_factor` is implemented to give more weight to recent seasons, as they are often more indicative of current and future trends.
@@ -194,13 +194,13 @@ Both methods return percentile(s) from the fitted distribution which are used to
 Breakpoints are named `very low`, `low`, `medium` and `high` and define the upper bound of the corresponding burden level.
 
 - `intensity_levels` takes one percentile as argument, representing the highest breakpoint.
-  The default is set at a 95% percentile. The `disease-specific threshold`
+  The default is set at a 95% percentile. The disease-specific threshold
   determines the `very low` breakpoint. The `low` and `medium` breakpoints are calculated to give identical relative
   increases between the `very low` and `high` breakpoints.
 
 - `peak_levels` takes three percentiles as argument, representing the `low`, `medium` and `high` breakpoints.
   The default percentiles are 40%, 90%, and 97.5% to align with the parameters used in `mem`.
-  The `disease-specific threshold` defines the `very low` breakpoint.
+  The disease-specific threshold defines the `very low` breakpoint.
 
 ## Applying the `seasonal_burden_levels()` algorithm
 The same data is created with following combinations:

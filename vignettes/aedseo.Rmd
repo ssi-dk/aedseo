@@ -74,7 +74,7 @@ Significant observations are defined as those with a significant positive growth
 To capturing short-term changes and fluctuations in the data, a rolling window of size $k = 5$ is used to create subsets of the data for model fitting,
 and the `quasipoisson` family is used to account for overdispersion.
 
-The `seasonal_onset()` function can be used for this purpose, without providing the `disease-specific threshold`.
+The `seasonal_onset()` function can be used for this purpose, without providing the disease-specific threshold.
 ```{r, dpi=300}
 growth_warning_algo <- seasonal_onset(
   tsd = tsd_data,

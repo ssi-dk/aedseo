@@ -23,7 +23,7 @@ library(aedseo)
 The methodology used to detect the onset of seasonal respiratory epidemics can be divided into two essential criteria:
 
 1. The local estimate of the exponential growth rate, $r$, is significantly greater than zero.
-2. The sum of cases (SoC) over the past $k$ units of time exceeds a `disease_specific threshold`.
+2. The sum of cases (SoC) over the past $k$ units of time exceeds a disease-specific threshold.
 
 Here, $k$ denotes the window size employed to obtain the local estimate of the exponential growth rate and SoC.
 When both of these criteria are met, an alarm is triggered and the onset of the seasonal epidemic is detected.
@@ -82,7 +82,7 @@ Next, the `tsd` object is passed to the `seasonal_onset()` function. Here, a win
 meaning that a total of 5 weeks is used in the local estimate of the exponential growth rate.
 `na_fraction_allowed = 0.4` defines how large a fraction of observations in the `k` window that are allowed to be `NA`, here $0.4*5 = 2$ observations.
 Additionally, a 95\% confidence interval is specified. Finally, the exponential growth rate is estimated using quasi-Poisson regression to account for overdispersion in the data.
-A `disease_specific threshold` can additionally be passed to the function, but is not necessary if only the growth rate estimations are wanted.
+A disease-specific threshold can additionally be passed to the function, but is not necessary if only the growth rate estimations are wanted.
 `season_start` and `season_end` can be used to specify the season to stratify the observations by.
 This algorithm runs across seasons, such that the first observation in a new season will use the last `k-1` observations from the previous season.
 
@@ -132,7 +132,7 @@ The resulting prediction object will contain estimates, lower bounds, and upper 
 
 The summary method for `tsd_onset` objects provides a concise summary of your automated early detection of seasonal epidemic onset (seasonal_onset) analysis.
 You can use it to retrieve important information about your analysis, including the latest growth warning, latest sum of cases warning
-(if a `disease_specific threshold`) has been defined, and the total number of growth warnings in the series:
+(if a disease_specific threshold) has been defined, and the total number of growth warnings in the series:
 
 
 ```{r summary}
