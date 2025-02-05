@@ -93,7 +93,7 @@ A \code{seasonal_onset} object containing:
 \item 'sum_of_cases_warning': Logical. Does the Sum of Cases exceed the disease threshold?
 \item 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?
 \item 'skipped_window': Logical. Was the window skipped due to missing?
-\item 'converged': Logical. Was the IWLS judged to have converged? - 'seasonal_onset': Logical. The first seasonal onset in the season
+\item 'converged': Logical. Was the IWLS judged to have converged? - 'seasonal_onset': Logical. The first detected seasonal onset in the season?
 }
 
 burden_output:

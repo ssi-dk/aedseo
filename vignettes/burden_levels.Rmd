@@ -25,7 +25,8 @@ in the `vignette("aedseo")`. The plot below illustrates the two methods availabl
 - **`intensity_levels`**: Intended for within-season classification of observations.
 - **`peak_levels`**: Intended for comparing the height of peaks between seasons.
 
-The disease-specific threshold is the `very low` breakpoint for both methods. Breakpoints are named as the upper bounds for the burden levels.
+The `disease-specific threshold` is the `very low` breakpoint for both methods. Breakpoints are named as the upper bounds for the burden levels,
+and are visualised on following plot.
 
 ```{r, echo = FALSE, dpi=300}
 withr::local_seed(222)
@@ -133,7 +134,8 @@ burden_levels_df |>
     breaks = y_tics,
     limits = range(y_tics),
     labels = scales::label_comma(big.mark = ".", decimal.mark = ",")
-  )
+  ) +
+  ggplot2::guides(linetype = "none")
 ```
 
 ## Methodology
@@ -143,7 +145,7 @@ Historical data from all available seasons is used to establish the levels for t
 This is done by:
 
 - Using `n` highest (peak) observations from each season.
-- Selecting only observations if they surpass the disease-specific threshold.
+- Selecting only observations if they surpass the `disease-specific threshold`.
 - Weighting the observations such that recent observations have a greater influence than older observations.
 - A proper distribution (log-normal, weibull and exponential are currently implemented) is fitted to the weighted
  `n` peak observations. The selected distribution with the fitted parameters is used to calculate percentiles to be used as breakpoints.
@@ -159,24 +161,26 @@ In the following sections we will describe the arguments for the function and ho
 
 #### Peak observations
 The `n_peak` argument defines the number of highest observations to be included from each season.
-The default of `n_peak` is `6` - this is similar to using latest five seasons in `mem`.
+The default of `n_peak` is `6` - this is similar to using latest `5` seasons in `mem`.
 
 #### Weighting
-A `decay_factor` is implemented to give more weight to recent seasons as they are often more indicative of current and future trends.
-As time progresses, the relevance of older seasons may decrease due to changes in factors like testing recommendation, population immunity,
+A `decay_factor` is implemented to give more weight to recent seasons, as they are often more indicative of current and future trends.
+As time progresses, the relevance of older seasons may decrease due to changes in factors like testing recommendations, population immunity,
 virus mutations, or intervention strategies. Weighting older seasons less reflects this reduced relevance.
-The default `decay_factor` is `0.8`, allowing the model to be responsive to recent changes without being overly
-sensitive to short-term fluctuations.
-The optimal decay factor can vary depending on the variability and trends within the data. For datasets where seasonal
-patterns are highly stable, a higher decay factor (i.e. longer memory) might be appropriate. Conversely, data that has changed a lot across
-seasons, a lower factor could improve predictions.
-From time-series analysis $1/(1-decay_factor)$ is the effective memory so that the default corresponds to five seasons.
+From time-series analysis, $\frac{1}{1-\text{decay_factor}}$ is often used as an approximate “effective memory”.
+Hence, with the default `decay_factor` = 0.8 the effective memory is `5` seasons.
+(See mentioned by [Hyndman & Athanasopoulos ](https://otexts.com/fpp3/ses.html#ses) for an introduction to simple exponential smoothing)
+The default `decay_factor` allows the model to be responsive to recent changes without being overly sensitive to short-term fluctuations.
+The optimal `decay_factor` can vary depending on the variability and trends within the data.
+If seasonal patterns are highly stable, a higher `decay_factor` (i.e. longer memory) may be appropriate.
+For datasets where seasonal patterns are highly stable, a higher `decay_factor` (i.e. longer memory) might be appropriate.
+Conversely, if the data exhibit dramatic shifts from one season to the next, a lower `decay_factor` can improve predictions.
 
 #### Distribution and optimisation
 `family` is the argument used to select which distribution the `n_peak` observations should be fitted to, users can
 choose between `lnorm`, `weibull` and `exp` distributions. The log-normal distribution theoretically
 aligns well with the nature of epidemic data, which often exhibits multiplicative growth patterns.
-In our optimization process, we evaluated the distributions to determine their performance in fitting Danish non-sentinel
+In our optimisation process, we evaluated the distributions to determine their performance in fitting Danish non-sentinel
 cases and hospitalisation data for RSV, SARS-CoV-2 and Influenza (A and B). All three distributions had comparable
 weighted likelihood values during optimisation, hence we did not see any statistical significant difference in their performance.
 
@@ -190,13 +194,13 @@ Both methods return percentile(s) from the fitted distribution which are used to
 Breakpoints are named `very low`, `low`, `medium` and `high` and define the upper bound of the corresponding burden level.
 
 - `intensity_levels` takes one percentile as argument, representing the highest breakpoint.
-  The default is set at a 95% percentile. The disease-specific threshold
+  The default is set at a 95% percentile. The `disease-specific threshold`
   determines the `very low` breakpoint. The `low` and `medium` breakpoints are calculated to give identical relative
   increases between the `very low` and `high` breakpoints.
 
 - `peak_levels` takes three percentiles as argument, representing the `low`, `medium` and `high` breakpoints.
   The default percentiles are 40%, 90%, and 97.5% to align with the parameters used in `mem`.
-  The disease-specific threshold defines the `very low` breakpoint.
+  The `disease-specific threshold` defines the `very low` breakpoint.
 
 ## Applying the `seasonal_burden_levels()` algorithm
 The same data is created with following combinations:
@@ -346,13 +350,13 @@ mem_thresholds <- purrr::map(data_list, ~ {
   )
 })
 ```
-| Name                      | Value |
-|---------------------------|-------|
-| epidemic threshold (start)| 3004  |
-| epidemic threshold (end)  | 2975  |
-| medium                    | 3902  |
-| high                      | 4206  |
-| very high                 | 4347  |
+| Breakpoint                | Observation |
+|---------------------------|-------------|
+| epidemic threshold (start)|    3004     |
+| epidemic threshold (end)  |    2975     |
+| medium                    |    3902     |
+| high                      |    4206     |
+| very high                 |    4347     |
 
 ### aedseo levels
 ```{r, echo = FALSE, fig.width=10, fig.height=8, dpi=300}
@@ -443,7 +447,7 @@ obs_method_df <- all_points |>
 #### Plot
 obs_method_df |>
   ggplot2::ggplot(ggplot2::aes(x = time, y = observation)) +
-  ggplot2::geom_point() +
+  ggplot2::geom_point(ggplot2::aes(color = "observations")) +
   ggplot2::labs(y = "Observations") +
   ggplot2::geom_hline(
     data = burden_levels_df,
@@ -459,12 +463,19 @@ obs_method_df |>
     )
   ) +
   ggplot2::scale_color_manual(
+    name = "",
     values = c(
+      "observations" = "black",
       "very low" = "#44ce1b",
       "low" = "#bbdb44",
       "medium" = "#f2a134",
       "high" = "#e51f1f"
     )
+  ) +
+  ggplot2::labs(
+    y = "Observations",
+    linetype = "mem level",
+    color = "mem level"
   ) +
   ggplot2::facet_wrap(~ Method, nrow = 2) +
   ggplot2::theme_minimal() +
@@ -486,7 +497,8 @@ obs_method_df |>
     start_date = min(obs_method_df$time),
     end_date = as.Date("2025-05-12"),
     time_interval_step = "5 weeks"
-  )
+  ) +
+  ggplot2::guides(linetype = "none")
 ```
 
 ### mem levels
@@ -535,16 +547,12 @@ mem_obs_method_df <- all_observations |>
 # Plot
 mem_obs_method_df |>
   ggplot2::ggplot(ggplot2::aes(x = time, y = observation)) +
-  ggplot2::geom_point() +
+  ggplot2::geom_point(ggplot2::aes(color = "observations")) +
+  ggplot2::labs(y = "Observations") +
   ggplot2::geom_hline(
     data = mem_levels_df,
     ggplot2::aes(yintercept = Threshold, linetype = Level, color = Level),
     linewidth = 1
-  ) +
-  ggplot2::labs(
-    y = "Observations",
-    linetype = "mem level",
-    color = "mem level"
   ) +
   ggplot2::scale_linetype_manual(
     values = c(
@@ -556,7 +564,9 @@ mem_obs_method_df |>
     )
   ) +
   ggplot2::scale_color_manual(
+    name = "",
     values = c(
+      "observations" = "black",
       "medium" = "#f2a134",
       "high" = "#e51f1f",
       "very high" = "#891212",
@@ -584,7 +594,8 @@ mem_obs_method_df |>
     start_date = min(mem_obs_method_df$time),
     end_date = as.Date("2025-05-12"),
     time_interval_step = "5 weeks"
-  )
+  ) +
+  ggplot2::guides(linetype = "none")
 ```
 In the plots, observations below 100 are filtered out to avoid warnings.
 
@@ -595,11 +606,11 @@ the height of peaks between seasons.
 
 The highest observations for the *2024/2025* season for each data set are:
 
-| Data                      | Value |
-|---------------------------|-------|
-| Noise                     | 4456  |
-| Noise and positive trend  | 6048  |
-| Noise and negative trend  | 3735  |
+| Data                      | Observation |
+|---------------------------|-------------|
+| Noise                     |    4456     |
+| Noise and positive trend  |    6048     |
+| Noise and negative trend  |    3735     |
 
 In relation to these highest observations and upon further examination, we observe the following:
 
@@ -619,14 +630,13 @@ increasing trend between seasons.
 - As observations exponentially decrease between seasons (with the highest observation this season being 3,735),
 we expect the breakpoints to be the lowest of these examples.  This expectation is met across all three methods.
 However, the weighting of seasons in `intensity_levels` and `peak_levels` leads to older seasons having less
-impact on the breakpoints as we progress forward in time. On the other hand, `mem` includes all high observations
+impact on the breakpoints, as we progress forward in time. On the other hand, `mem` includes all high observations
 from the previous 10 seasons without diminishing the importance of older seasons, which results in sustained
 very high breakpoints.
 
 - Notably, in the `mem` method, the epidemic thresholds are positioned above the `medium` burden level.
-This means that the epidemic period begins only when the burden reaches the range of high observations
+This means that the epidemic period begins only when observations reach the height of the seasonal peaks
 observed in previous seasons.
 
-This concludes, that using the `peak_levels` and `mem` methods does not allow us to assess the burden before the season
-reaches the range of high observations from previous seasons. In contrast, the `intensity_levels` method allows for
-continuous monitoring of the burden of current observation rate throughout the entire season.
+In conclusion, the `peak_levels` and `mem` methods allows us to compare the height of peaks between seasons,
+whereas the `intensity_levels` method supports continuous monitoring of observations in the current season.

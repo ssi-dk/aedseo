@@ -70,7 +70,7 @@ The x-axis shows the weeks and years, while the y-axis represents the simulated 
 In this simulation there is a positive `trend_rate`, which can be seen as the observations increase exponentially across seasons.
 The noise is the jumps between observations, instead of smoothly transitioning between observations.
 
-```{r}
+```{r, dpi=300}
 plot(seasonal_wave_sim_weekly, time_interval = "5 weeks")
 ```
 
@@ -79,7 +79,7 @@ plot(seasonal_wave_sim_weekly, time_interval = "5 weeks")
 The x-axis shows the months and years, while the y-axis represents the simulated observations.
 In this simulation there is a negative `trend_rate`, which can be seen as the observations decrease exponentially across seasons.
 This simulation does not have any noise.
-```{r}
+```{r, dpi=300}
 seasonal_wave_sim_monthly <- generate_seasonal_data(
   years = 4,
   start_date = as.Date("2021-05-26"),
@@ -100,7 +100,7 @@ plot(
 The x-axis shows the days, months, years, while the y-axis represents the simulated observations.
 In this simulation there is no trend.
 The noise is the jumps between observations, instead of smoothly transitioning between observations.
-```{r}
+```{r, dpi=300}
 seasonal_wave_sim_daily <- generate_seasonal_data(
   years = 1,
   start_date = as.Date("2021-05-26"),
@@ -122,7 +122,7 @@ A phase shift in a sinusoidal pattern effectively shifts where the wave starts a
 (or hitting zero) at the same times as a wave with `phase = 0` (like in previous plot), it is shifted in time.
 in this example where `phase = 1` rather than `0`, we see that the rise and fall of the sine wave happens later
 compared to a wave with no phase shift.
-```{r}
+```{r, dpi=300}
 seasonal_wave_sim_daily_phase_shift <- generate_seasonal_data(
   years = 1,
   start_date = as.Date("2021-05-26"),
