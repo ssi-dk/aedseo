@@ -88,10 +88,9 @@ autoplot.tsd <- function(
 #' @param object A `tsd_onset` object
 #' @param line_width `r rd_line_width`
 #' @param obs_size `r rd_obs_size`
-#' @param alpha A numeric specifying the alpha (transparency) for the observations with a
+#' @param alpha_warning A numeric specifying the alpha (transparency) for the observations with a
 #' seasonal_onset_alarm (first plot) or significantly positive growth rate (second plot).
-#' @param error_bar_width A numeric specifying the width of the error bar employed to show the
-#'  confidence interval of the growth rate estimate.
+#' @param alpha_ribbon A numeric specifying the alpha for the confidence intervals of the growth rate.
 #' @param text_family `r rd_text_family`
 #' @param legend_position `r rd_legend_position`
 #' @param time_interval_step `r rd_time_interval_step`
@@ -119,8 +118,8 @@ autoplot.tsd_onset <- function(
   object,
   line_width = 0.7,
   obs_size = 2,
-  alpha = 0.2,
-  error_bar_width = 0.2,
+  alpha_warning = 0.2,
+  alpha_ribbon = 0.1,
   text_family = "sans",
   legend_position = "bottom",
   time_interval_step = "5 weeks",
@@ -149,7 +148,7 @@ autoplot.tsd_onset <- function(
     ) +
     ggplot2::scale_alpha_manual(
       name = "Seasonal onset \n alarm",
-      values = c("TRUE" = 1, "FALSE" = alpha)
+      values = c("TRUE" = 1, "FALSE" = alpha_warning)
     ) +
     time_interval_x_axis(
       start_date = start_date,
@@ -184,11 +183,14 @@ autoplot.tsd_onset <- function(
       ),
       size = obs_size
     ) +
-    ggplot2::geom_errorbar(
-      mapping = ggplot2::aes(
-        alpha = .data$growth_warning
+    ggplot2::geom_ribbon(
+      ggplot2::aes(
+        x = .data$reference_time,
+        ymin = .data$lower_growth_rate,
+        ymax = .data$upper_growth_rate
       ),
-      width = error_bar_width
+      alpha = alpha_ribbon,
+      inherit.aes = FALSE
     ) +
     ggplot2::geom_hline(
       yintercept = 0,
@@ -196,7 +198,7 @@ autoplot.tsd_onset <- function(
     ) +
     ggplot2::scale_alpha_manual(
       name = "Growth warning",
-      values = c("TRUE" = 1, "FALSE" = alpha)
+      values = c("TRUE" = 1, "FALSE" = alpha_warning)
     ) +
     time_interval_x_axis(
       start_date = start_date,

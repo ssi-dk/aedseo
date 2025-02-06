@@ -23,8 +23,8 @@ autoplot(object, ...)
   object,
   line_width = 0.7,
   obs_size = 2,
-  alpha = 0.2,
-  error_bar_width = 0.2,
+  alpha_warning = 0.2,
+  alpha_ribbon = 0.1,
   text_family = "sans",
   legend_position = "bottom",
   time_interval_step = "5 weeks",
@@ -70,11 +70,10 @@ on the x-axis, e.g. '10 days', '4 weeks', or '3 months'.}
 
 \item{y_label}{A character vector specifying the y label text.}
 
-\item{alpha}{A numeric specifying the alpha (transparency) for the observations with a
+\item{alpha_warning}{A numeric specifying the alpha (transparency) for the observations with a
 seasonal_onset_alarm (first plot) or significantly positive growth rate (second plot).}
 
-\item{error_bar_width}{A numeric specifying the width of the error bar employed to show the
-confidence interval of the growth rate estimate.}
+\item{alpha_ribbon}{A numeric specifying the alpha for the confidence intervals of the growth rate.}
 
 \item{legend_position}{A character specifying the position of the legend on the plot.}
 
