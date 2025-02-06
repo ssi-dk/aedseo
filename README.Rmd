@@ -25,7 +25,14 @@ knitr::opts_chunk$set(
 
 ## Description
 
-The Automated and Early Detection of Seasonal Epidemic Onset (`aedseo`) Package provides a powerful tool for automating the early detection of seasonal epidemic onsets in time series data. It offers the ability to estimate growth rates for consecutive time intervals and calculate the Sum of Cases (SoC) within those intervals. This package is particularly useful for epidemiologists, public health professionals, and researchers seeking to identify and respond to seasonal epidemics in a timely fashion.
+The Automated and Early Detection of Seasonal Epidemic Onset and Burden Levels (`aedseo`)
+package provides a powerful tool for automating the early detection of seasonal epidemic
+onsets in time series data. It offers the ability to estimate growth rates for consecutive
+time intervals and calculate the Sum of Cases (SoC) within those intervals. With use of a
+disease-specific threshold it also offers the possibility to estimate seasonal onset of epidemics.
+Additionally it offers the ability to estimate burden levels for seasons based on historical data.
+It is aimed towards epidemiologists, public health professionals, and researchers seeking to
+identify and respond to seasonal epidemics in a timely fashion.
 
 ## Installation
 
@@ -47,44 +54,18 @@ devtools::install_github("ssi-dk/aedseo")
 
 To quickly get started with `aedseo`, follow these steps:
 
-1. Install the package using the code provided above.
-2. Load the package with `library(aedseo)`.
-3. Create a time series data object (`aedseo_tsd`) from your data using the `tsd()` function.
-4. Apply the `aedseo()` function to estimate growth rates and detect seasonal epidemic onsets.
-
-```r
-# Load the package
-library(aedseo)
-
-# Create a aedseo_tsd object from your data
-tsd_data <- tsd(
-  observation = c(100, 120, 150, 180, 220, 270),
-  time = as.Date(c(
-    "2023-01-01",
-    "2023-01-02",
-    "2023-01-03",
-    "2023-01-04",
-    "2023-01-05",
-    "2023-01-06")
-    ),
-    time_interval = "day"
-  )
-
-# Detect seasonal epidemic onsets
-aedseo_results <- aedseo(tsd = tsd_data, k = 3, level = 0.95, family = "poisson")
-```
+1.  Install the package using the code provided above.
+2.  Load the package with `library(aedseo)`.
+3.  Create a time series data object (`tsd`) from your data using
+    the `to_time_series()` function or `generate_seasonal_data()` functions.
+4.  Apply the `combined_seasonal_output()` function to get a comprehensive
+    seasonal analysis with seasonal onset and burden levels.
 
 ## Vignette
 
-For a more detailed introduction to the workflow of this package, see the introductory vignette.
-
-``` r
-# After installing the package
-vignette("aedseo_introduction", package = "aedseo")
-```
+For a more detailed introduction to the workflow of this package, see
+the `Get Started` vignette or run; `vignette("aedseo")`.
 
 ## Contributing
 
 We welcome contributions to the `aedseo` package. Feel free to open issues, submit pull requests, or provide feedback to help us improve.
-
-
