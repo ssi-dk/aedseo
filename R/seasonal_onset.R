@@ -96,6 +96,38 @@ seasonal_onset <- function(                                     # nolint: cycloc
     tsd <- tsd |> dplyr::mutate(season = "not_defined")
   }
 
+  # Extract only current season if assigned
+  if (!is.null(season_start) && only_current_season == TRUE) {
+    seasons <- tsd |>
+      dplyr::distinct(.data$season) |>
+      dplyr::pull(.data$season)
+
+    # If two or more seasons exist, take the last two
+    if (length(seasons) >= 2) {
+      seasons <- utils::tail(seasons, n = 2)
+      prev_season <- seasons[1]
+      current_season <- seasons[2]
+    } else {
+      prev_season <- NA_character_
+      current_season <- seasons[1]
+    }
+
+    # Create the combined data frame:
+    tsd <- dplyr::bind_rows(
+      # If a previous season exists, use its last k-1 rows
+      if (!is.na(prev_season)) {
+        tsd |>
+          dplyr::filter(.data$season == prev_season) |>
+          dplyr::slice_tail(n = k - 1)
+      } else {
+        tibble::tibble()
+      },
+      # Bind all rows from the current season
+      tsd |>
+        dplyr::filter(.data$season == current_season)
+    )
+  }
+
   # Extract the length of the series
   n <- base::nrow(tsd)
 
@@ -174,11 +206,6 @@ seasonal_onset <- function(                                     # nolint: cycloc
     disease_threshold = disease_threshold,
     family = family
   )
-
-  # Extract only current season if assigned
-  if (!is.null(season_start) && only_current_season == TRUE) {
-    ans <- ans |> dplyr::filter(.data$season == max(.data$season))
-  }
 
   # Keep attributes from the `tsd` class
   attr(ans, "time_interval") <- attr(tsd, "time_interval")
