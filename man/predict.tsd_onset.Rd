@@ -2,49 +2,37 @@
 % Please edit documentation in R/predict.R
 \name{predict.tsd_onset}
 \alias{predict.tsd_onset}
-\title{Predict Growth Rates for Future Time Steps}
+\title{Predict Observations for Future Time Steps}
 \usage{
 \method{predict}{tsd_onset}(object, n_step = 3, ...)
 }
 \arguments{
 \item{object}{A \code{tsd_onset} object created using the \code{seasonal_onset()} function.}
 
-\item{n_step}{An integer specifying the number of future time steps for which you want to predict growth rates.}
+\item{n_step}{An integer specifying the number of future time steps for which you want to predict observations.}
 
 \item{...}{Additional arguments (not used).}
 }
 \value{
-A tibble-like object called \code{tsd_onset} containing the predicted growth rates, including time,
-estimated growth rate, lower confidence interval, and upper confidence interval for the specified number of
-future time steps.
+A tibble-like object called \code{tsd_predict} containing the predicted observations, including reference time,
+lower confidence interval, and upper confidence interval for the specified number of future time steps.
 }
 \description{
-This function is used to predict future growth rates based on a model object created using the 'aedseo' package.
-It takes the model object and the number of future time steps (\code{n_step}) for which you want to make predictions and
-returns a prediction tibble.
+This function is used to predict future observations based on a \code{tsd_onset} object.
+It uses the \code{time_interval} attribute from the \code{tsd_onset} object to make predictions.
 }
 \examples{
-# Analyze the data using the aedseo package
-time_series <- to_time_series(
-  observation = c(100, 120, 150, 180, 220, 270),
-  time = as.Date(c(
-    "2023-01-01",
-    "2023-01-02",
-    "2023-01-03",
-    "2023-01-04",
-    "2023-01-05",
-    "2023-01-06"
-  )),
+# Generate predictions of time series data
+set.seed(123)
+time_series <- generate_seasonal_data(
+  years = 1,
   time_interval = "day"
 )
-
+# Apply `seasonal_onset` analysis
 time_series_with_onset <- seasonal_onset(
   tsd = time_series,
-  k = 3,
-  level = 0.95,
-  family = "poisson"
+  k = 7
 )
-
-# Predict growth rates for the next 5 time steps
-predict(object = time_series_with_onset, n_step = 5)
+# Predict observations for the next 7 time steps
+predict(object = time_series_with_onset, n_step = 7)
 }

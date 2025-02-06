@@ -161,14 +161,14 @@ In the following sections we will describe the arguments for the function and ho
 
 #### Peak observations
 The `n_peak` argument defines the number of highest observations to be included from each season.
-The default of `n_peak` is `6` - corresponding with the `mem` defaults of using 30 observations across the latest `5` seasons.
+The default of `n_peak` is `6` - corresponding with the `mem` defaults of using 30 observations across the latest five seasons.
 
 #### Weighting
 A `decay_factor` is implemented to give more weight to recent seasons, as they are often more indicative of current and future trends.
 As time progresses, the relevance of older seasons may decrease due to changes in factors like testing recommendations, population immunity,
 virus mutations, or intervention strategies. Weighting older seasons less reflects this reduced relevance.
 From time-series analysis, $\frac{1}{1-\text{decay_factor}}$ is often used as an approximate “effective memory”.
-Hence, with the default `decay_factor` = 0.8 the effective memory is `5` seasons.
+Hence, with the default `decay_factor` = 0.8 the effective memory is five seasons.
 (See mentioned by [Hyndman & Athanasopoulos ](https://otexts.com/fpp3/ses.html#ses) for an introduction to simple exponential smoothing)
 The default `decay_factor` allows the model to be responsive to recent changes without being overly sensitive to short-term fluctuations.
 The optimal `decay_factor` can vary depending on the variability and trends within the data.
@@ -259,7 +259,11 @@ tsd_data_noise_and_neg_trend <- tsd_data_noise_and_neg_trend |>
 
 ```
 
-### Use the `intensity_levels` method
+### Use the intensity_levels method
+
+The `seasonal_burden_levels()` function provides a `tsd_burden_level` object, which can be used in the `summary()` S3 method.
+This provides a concise summary of your comprehensive seasonal burden level analysis, including breakpoints for the current season.
+
 ```{r}
 intensity_levels_n <- seasonal_burden_levels(
   tsd = tsd_data_noise,
@@ -285,9 +289,11 @@ intensity_levels_n_neg_t <- seasonal_burden_levels(
 )
 ```
 
-### Use the `peak_levels` method
+### Use the peak_levels method
+
 `mem` uses the `n` highest observations from each epidemic period to fit the parameters of the distribution,
 where `n = 30/seasons`. The data has four seasons, to align with mem, we use `n_peak = 8`
+
 ```{r}
 peak_levels_n <- seasonal_burden_levels(
   tsd = tsd_data_noise,
@@ -317,10 +323,9 @@ peak_levels_n_neg_t <- seasonal_burden_levels(
 )
 ```
 
-## Compare `intensity_levels`, `peak_levels` and `mem` algorithms
+## Compare intensity_levels, peak_levels and mem algorithms
 
-#### Use the [Moving Epidemic Method (mem)](https://github.com/lozalojo/mem)
-mem is run with default arguments.
+[mem](https://github.com/lozalojo/mem) is run with default arguments.
 ```{r, include = FALSE}
 data_list <- list(
   tsd_data_noise = tsd_data_noise,
@@ -339,7 +344,7 @@ mem_thresholds <- purrr::map(data_list, ~ {
     tidyr::pivot_wider(names_from = season, values_from = observation) |>
     dplyr::select(-week)
   # Run mem
-  mem_result <- mem::memmodel(mem_data, i.seasons = 4)
+  mem_result <- mem::memmodel(mem_data)
   # Extract thresholds
   mem_thresholds <- tibble::tibble(
     `epidemic threshold \n (start)` = mem_result$epidemic.thresholds[1],
@@ -350,13 +355,6 @@ mem_thresholds <- purrr::map(data_list, ~ {
   )
 })
 ```
-| Breakpoint                | Observation |
-|---------------------------|-------------|
-| epidemic threshold (start)|    3004     |
-| epidemic threshold (end)  |    2975     |
-| medium                    |    3902     |
-| high                      |    4206     |
-| very high                 |    4347     |
 
 ### aedseo levels
 ```{r, echo = FALSE, fig.width=10, fig.height=8, dpi=300}

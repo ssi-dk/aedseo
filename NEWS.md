@@ -16,6 +16,10 @@
 
 * Added a new argument `only_current_season` to `seasonal_onset()`, `seasonal_burden_levels()` and `combined_seasonal_output()` which gives the possibility to either get output from only the current season or for all available seasons (#45).
 
+* `summary()` can now summarise `tsd_burden_level` objects (#60).
+
+* `plot()` and `autoplot()` can now plot `tsd_combined_seasonal_output` objects (#57).
+
 * Added `generate_seasonal_data()` to generate synthetic data for testing and documentation purposes (#56).
 
 * Added `seasonal_onset()` as a replacement for the deprecated `aedseo()` function (#41).
@@ -29,11 +33,14 @@
   - `vignette("aedseo")`,
   - `vignette("seasonal_onset")`
   - `vignette("burden_levels")`
-  providing a comprehensive walkthrough of the application of the functions provided by the `aedseo` package with detailed explanations and illustrative examples (#56, #57, #58).
+  providing a comprehensive walkthrough of the application of the functions provided by the `aedseo` package with detailed explanations and illustrative examples (#56, #57, #58, #59, #60, #61).
 
-* Improved the autoplot function which can now visualise dates as days, weeks and months on the x-axis with the `time_interval` argument (#56).
+* Improved the `autoplot()` function which can now visualise dates as days, weeks and months on the x-axis with the `time_interval` argument (#56).
 
 * Improved the `epi_calendar()` function to work for a season spanning new year (#34).
+
+* Using `predict()` on `tsd_onset` objects now uses the same time-scale as the given object (#61).
+That is, the `time_interval` attribute controls if predictions are by "days", "weeks" or "months".
 
 * The `aedseo()` function now allows for the choice of adding season as an input argument (#34).
 
