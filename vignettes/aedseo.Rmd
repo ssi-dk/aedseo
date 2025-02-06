@@ -220,5 +220,5 @@ plot(
 ```
 
 Using the `intensity_levels` method to define burden levels, the seasonal onset is likely to fall within the `low` or `medium`
-category. This is because the `very low` breakpoint is the disease-specific threshold, which must be surpassed with a five
-week average observation count along with a significant positive growth rate.
+category. This is because the `very low` breakpoint is the disease-specific threshold, and season onset is only identified if
+the five-week average of the observations exceed this threshold along with a significant positive growth rate.

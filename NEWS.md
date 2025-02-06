@@ -16,9 +16,9 @@
 
 * Added a new argument `only_current_season` to `seasonal_onset()`, `seasonal_burden_levels()` and `combined_seasonal_output()` which gives the possibility to either get output from only the current season or for all available seasons (#45).
 
-* Refactoring the `summary()` method to also provide a summary for `tsd_burden_level` objects (#60).
+* `summary()` can now summarise `tsd_burden_level` objects (#60).
 
-* Refactoring the `plot()` and `autoplot()` methods to also provide a plot for `tsd_combined_seasonal_output` objects (#57).
+* `plot()` and `autoplot()` can now plot `tsd_combined_seasonal_output` objects (#57).
 
 * Added `generate_seasonal_data()` to generate synthetic data for testing and documentation purposes (#56).
 
@@ -39,7 +39,8 @@
 
 * Improved the `epi_calendar()` function to work for a season spanning new year (#34).
 
-* Refactoring the `predict()` method for `tsd_onset` objects to predict future observations for days, weeks or months (#61).
+* Using `predict()` on `tsd_onset` objects now uses the same time-scale as the given object (#61).
+That is, the `time_interval` attribute controls if predictions are by "days", "weeks" or "months".
 
 * The `aedseo()` function now allows for the choice of adding season as an input argument (#34).
 

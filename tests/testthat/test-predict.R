@@ -121,7 +121,7 @@ test_that("Can correctly use monthly time_interval classification", {
   )
 
   # Get subsequent 5 days of data
-  months <- seq.Date(from = dplyr::last(tsd_results$reference_time), by = "30 days", length.out = 6)
+  months <- seq.Date(from = dplyr::last(tsd_results$reference_time), by = "month", length.out = 6)
 
   # Make prediction of next 5 time steps
   prediction <- predict(object = tsd_results, n_step = 5)

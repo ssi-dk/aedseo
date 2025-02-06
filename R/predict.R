@@ -3,8 +3,7 @@
 #' @description
 #'
 #' This function is used to predict future observations based on a `tsd_onset` object.
-#' It takes the `tsd_onset` object and the number of future time steps (`n_step`) for which you want to
-#' make predictions and returns a prediction tibble.
+#' It uses the `time_interval` attribute from the `tsd_onset` object to make predictions.
 #'
 #' @param object A `tsd_onset` object created using the `seasonal_onset()` function.
 #' @param n_step An integer specifying the number of future time steps for which you want to predict observations.
@@ -12,7 +11,6 @@
 #'
 #' @return  A tibble-like object called `tsd_predict` containing the predicted observations, including reference time,
 #' lower confidence interval, and upper confidence interval for the specified number of future time steps.
-#' NOTE: If `time_interval` is month then subsequent `reference_time` will be every 30 days.
 #'
 #' @export
 #'
@@ -36,20 +34,24 @@ predict.tsd_onset <- function(object, n_step = 3, ...) {
   checkmate::assert_class(object, "tsd_onset")
 
   # Determine time_interval
-  time_interval <- attr(object, "time_interval")
-  if (time_interval == "day") {
-    t_int <- 1
-  } else if (time_interval == "week") {
-    t_int <- 7
-  } else if (time_interval == "month") {
-    t_int <- 30
-  }
+  steps <- seq_len(n_step)
+  t_int <- switch(
+    attr(object, "time_interval"),
+    "day" = c(0, rep(1, n_step) * steps),
+    "week" = c(0, rep(7, n_step) * steps),
+    "month" = {
+      last_month <- dplyr::last(object$reference_time)
+      months <- c(last_month, purrr::map(steps, ~ lubridate::add_with_rollback(last_month, months(.x))))
+      month_days <- as.numeric(diff(months))
+      c(0, cumsum(month_days))
+    }
+  )
 
   # Calculate the prediction
   res <- dplyr::last(object) |>
     dplyr::reframe(
       t = 0:n_step,
-      reference_time = .data$reference_time + t * t_int,
+      reference_time = .data$reference_time + t_int[t + 1],
       estimate = exp(log(.data$observation) + .data$growth_rate * t),
       lower = exp(log(.data$observation) + .data$lower_growth_rate * t),
       upper = exp(log(.data$observation) + .data$upper_growth_rate * t)

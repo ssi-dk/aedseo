@@ -16,12 +16,10 @@
 \value{
 A tibble-like object called \code{tsd_predict} containing the predicted observations, including reference time,
 lower confidence interval, and upper confidence interval for the specified number of future time steps.
-NOTE: If \code{time_interval} is month then subsequent \code{reference_time} will be every 30 days.
 }
 \description{
 This function is used to predict future observations based on a \code{tsd_onset} object.
-It takes the \code{tsd_onset} object and the number of future time steps (\code{n_step}) for which you want to
-make predictions and returns a prediction tibble.
+It uses the \code{time_interval} attribute from the \code{tsd_onset} object to make predictions.
 }
 \examples{
 # Generate predictions of time series data
