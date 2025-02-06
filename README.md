@@ -10,8 +10,6 @@
 coverage](https://codecov.io/gh/ssi-dk/aedseo/branch/master/graph/badge.svg)](https://app.codecov.io/gh/ssi-dk/aedseo?branch=master)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/aedseo)](https://CRAN.R-project.org/package=aedseo)
-[![Lifecycle:
-stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 
 ## Description
@@ -35,7 +33,7 @@ timely fashion.
 install.packages("aedseo")
 ```
 
-### Development vestion
+### Development version
 
 You can install the development version of `aedseo` from
 [GitHub](https://github.com/) with:
