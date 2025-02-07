@@ -4,4 +4,4 @@
 
 ## Patch
 
-* Added Sofia Myrup Otero (SMOT@ssi.dk) as main author of the `aedseo` R package.
+* Added Sofia Myrup Otero (SMOT@ssi.dk) as author of the `aedseo` R package.
