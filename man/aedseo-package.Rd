@@ -7,7 +7,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-A powerful tool for automating the early detection of seasonal epidemic onsets in time series data. It offers the ability to estimate growth rates across consecutive time intervals, calculate the sum of cases (SoC) within those intervals, and estimate seasonal onsets within user defined seasons. Additionally it offers the ability to estimate burden levels for seasons based on historical data. It is aimed towards epidemiologists, public health professionals, and researchers seeking to identify and respond to seasonal epidemics in a timely fashion. For reference on growth rate estimation, see Walling and Lipstich (2007) \doi{10.1098/rspb.2006.3754} and Obadia et al. (2012) \doi{10.1186/1472-6947-12-147}. Seasonal burden level calculations have been inspired by The Moving Epidemic Method (MEM), see Vega and Lozano (2012) \doi{10.1111/j.1750-2659.2012.00422.x}.
+A powerful tool for automating the early detection of seasonal epidemic onsets in time series data. It offers the ability to estimate growth rates across consecutive time intervals, calculate the sum of cases (SoC) within those intervals, and estimate seasonal onsets within user defined seasons. With use of a disease-specific threshold it also offers the possibility to estimate seasonal onset of epidemics. Additionally it offers the ability to estimate burden levels for seasons based on historical data. It is aimed towards epidemiologists, public health professionals, and researchers seeking to identify and respond to seasonal epidemics in a timely fashion. For reference on growth rate estimation, see Walling and Lipstich (2007) \doi{10.1098/rspb.2006.3754} and Obadia et al. (2012) \doi{10.1186/1472-6947-12-147}. Seasonal burden level calculations have been inspired by The Moving Epidemic Method (MEM), see Vega and Lozano (2012) \doi{10.1111/j.1750-2659.2012.00422.x}.
 }
 \seealso{
 Useful links:
@@ -23,8 +23,8 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Kasper Schou Telkamp \email{kasper.telkamp@gmail.com} (\href{https://orcid.org/0009-0001-5126-0190}{ORCID})
   \item Sofia Myrup Otero \email{smot@ssi.dk}
+  \item Kasper Schou Telkamp \email{kasper.telkamp@gmail.com} (\href{https://orcid.org/0009-0001-5126-0190}{ORCID})
 }
 
 Other contributors:

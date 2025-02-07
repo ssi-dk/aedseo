@@ -2,9 +2,9 @@ Package: aedseo
 Title: Automated and Early Detection of Seasonal Epidemic Onset and Burden Levels
 Version: 0.1.2.9000
 Authors@R: c(
+    person("Sofia Myrup", "Otero", , "smot@ssi.dk", role = c("aut")),
     person("Kasper", "Schou Telkamp", ,"kasper.telkamp@gmail.com", role = c("aut"),
            comment = c(ORCID = "0009-0001-5126-0190")),
-    person("Sofia Myrup", "Otero", , "smot@ssi.dk", role = c("aut")),
     person("Lasse Engbo", "Christiansen", , "lsec@ssi.dk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5019-1931")),
     person("Rasmus Skytte", "Randl\u00F8v", , "rske@ssi.dk", role = c("rev"),
@@ -15,6 +15,8 @@ Description: A powerful tool for automating the early detection of seasonal epid
              onsets in time series data. It offers the ability to estimate growth rates
              across consecutive time intervals, calculate the sum of cases (SoC) within
              those intervals, and estimate seasonal onsets within user defined seasons.
+             With use of a disease-specific threshold it also offers the possibility to
+             estimate seasonal onset of epidemics.
              Additionally it offers the ability to estimate burden levels for seasons
              based on historical data. It is aimed towards epidemiologists,
              public health professionals, and researchers seeking to identify and respond
