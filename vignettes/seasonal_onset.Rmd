@@ -20,7 +20,7 @@ library(aedseo)
 
 ## Methodology
 
-The methodology used to detect the seasonal onset of epidemics, which can be divided into two essential criteria:
+The methodology used to detect the seasonal onset of epidemics, can be divided into two essential criteria:
 
 1. The local estimate of the exponential growth rate, $r$, is significantly greater than zero.
 2. The sum of cases (SoC) over the past $k$ units of time exceeds a disease-specific threshold.

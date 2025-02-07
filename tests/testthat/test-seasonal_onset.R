@@ -135,6 +135,17 @@ test_that("Test that selection of current and all seasons work as expected", {
   current_onset <- seasonal_onset(tsd_data, season_start = 21, only_current_season = TRUE)
   all_onsets <- seasonal_onset(tsd_data, season_start = 21, only_current_season = FALSE)
 
+  # It actually returns one season or all seasons
   expect_equal(current_season, unique(current_onset$season))
   expect_gt(length(unique(all_onsets$season)), 1)
+
+  # It adds k-1 rows from previous season if available, if not expect 4 less observations
+  tsd_seasons <- tsd_data |>
+    dplyr::mutate(season = epi_calendar(.data$time))
+  tsd_last_season <- tsd_seasons |>
+    dplyr::filter(season == current_season) |>
+    dplyr::select(-season)
+
+  tsd_na_rows <- seasonal_onset(tsd_last_season, season_start = 21, only_current_season = TRUE)
+  expect_length(tsd_na_rows$observation, length(current_onset$observation[-(1:4)]))
 })
