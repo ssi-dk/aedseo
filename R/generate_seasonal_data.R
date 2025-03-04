@@ -100,10 +100,12 @@ generate_seasonal_data <- function(
       seasonal_component <- stats::rpois(n = length(t), lambda = seasonal_component)
     } else {
       # p = 1/dispersion, n = mu * p / (1-p)
-      seasonal_component <- stats::rnbinom(
-        n = length(t),
-        size = seasonal_component * (1 / noise_overdispersion) / (1 - 1 / noise_overdispersion),
-        prob = 1 / noise_overdispersion)
+      seasonal_component <-
+        stats::rnbinom(
+          n = length(t),
+          size = seasonal_component * (1 / noise_overdispersion) / (1 - 1 / noise_overdispersion),
+          prob = 1 / noise_overdispersion
+        )
     }
   }
 
