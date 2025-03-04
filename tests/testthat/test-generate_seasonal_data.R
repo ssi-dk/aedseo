@@ -11,8 +11,8 @@ test_that("generate_seasonal_data() - input argument checks", {
   )
 
   expect_error(
-    generate_seasonal_data(amplitude = 0),
-    "Variable 'amplitude': Element 1 is not >= 1."
+    generate_seasonal_data(amplitude = -1),
+    "Variable 'amplitude': Element 1 is not >= 0."
   )
 
   expect_error(

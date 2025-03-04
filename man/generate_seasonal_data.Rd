@@ -11,7 +11,7 @@ generate_seasonal_data(
   mean = 1000,
   phase = 0,
   trend_rate = NULL,
-  noise_sd = NULL,
+  noise_overdispersion = NULL,
   time_interval = c("week", "day", "month")
 )
 }
@@ -30,7 +30,8 @@ of the sine wave, hence the phase shift of the seasonal wave. The phase must be 
 
 \item{trend_rate}{A numeric value specifying the exponential growth/decay rate.}
 
-\item{noise_sd}{A numeric value specifying the standard deviation of random noise.}
+\item{noise_overdispersion}{A numeric value specifying the overdispersion of the generated data.
+0 means deterministic, 1 is pure poisson and for values > 1 a negative binomial is assumed.}
 
 \item{time_interval}{A character vector specifying the time interval. Choose between 'day', 'week', or 'month'.}
 }
