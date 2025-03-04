@@ -35,7 +35,7 @@
 #' plot(trend_sim)
 #'
 #' #With noise
-#' noise_sim <- generate_seasonal_data(noise_sd = 100)
+#' noise_sim <- generate_seasonal_data(noise_overdispersion = 2)
 #' plot(noise_sim)
 #'
 #' #With distinct parameters, trend and noise
@@ -45,7 +45,7 @@
 #'   amplitude = 2000,
 #'   mean = 3000,
 #'   trend_rate = 1.002,
-#'   noise_sd = 110,
+#'   noise_overdispersion = 1.1,
 #'   time_interval = c("week")
 #' )
 #' plot(sim_data, time_interval = "2 months")
