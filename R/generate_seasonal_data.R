@@ -96,7 +96,7 @@ generate_seasonal_data <- function(
 
   # Add random noise if specified
   if (!is.null(noise_overdispersion) && noise_overdispersion != 0) {
-    if (noise_overdispersion == 1){
+    if (noise_overdispersion == 1) {
       seasonal_component <- stats::rpois(n = length(t), lambda = seasonal_component)
     } else {
       # p = 1/dispersion, n = mu * p / (1-p)
