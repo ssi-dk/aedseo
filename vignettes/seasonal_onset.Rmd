@@ -71,7 +71,7 @@ set.seed(222)
 tsd_data <- generate_seasonal_data(
   years = 3,
   start_date = as.Date("2021-05-26"),
-  amplitude = 500,
+  amplitude = 50,
   phase = 0,
   trend_rate = 1.002,
   noise_overdispersion = 1,
