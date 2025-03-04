@@ -7,8 +7,8 @@
 generate_seasonal_data(
   years = 3,
   start_date = as.Date("2021-05-26"),
-  amplitude = 1000,
-  mean = 1000,
+  amplitude = 100,
+  mean = 100,
   phase = 0,
   trend_rate = NULL,
   noise_overdispersion = NULL,
