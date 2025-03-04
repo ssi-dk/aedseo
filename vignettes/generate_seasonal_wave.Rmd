@@ -52,7 +52,7 @@ seasonal_wave_sim_weekly <- generate_seasonal_data(
   amplitude = 1000,
   phase = 0,
   trend_rate = 1.001,
-  noise_sd = 100,
+  noise_overdispersion = 1,
   time_interval = "week"
 )
 ```
@@ -107,7 +107,7 @@ seasonal_wave_sim_daily <- generate_seasonal_data(
   amplitude = 10000,
   mean = 10000,
   phase = 0,
-  noise_sd = 200,
+  noise_overdispersion = 1,
   time_interval = "day"
 )
 plot(
@@ -129,7 +129,7 @@ seasonal_wave_sim_daily_phase_shift <- generate_seasonal_data(
   amplitude = 10000,
   mean = 10000,
   phase = 1,
-  noise_sd = 200,
+  noise_overdispersion = 1,
   time_interval = "day"
 )
 plot(

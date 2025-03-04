@@ -37,6 +37,7 @@ tsd_data_clean <- generate_seasonal_data(
   amplitude = 2000,
   mean = 2000,
   phase = 0,
+  noise_overdispersion = 0,
   time_interval = "week"
 )
 
@@ -223,7 +224,7 @@ tsd_data_noise <- generate_seasonal_data(
   amplitude = 2000,
   mean = 2000,
   phase = 0,
-  noise_sd = 200,
+  noise_overdispersion = 1,
   time_interval = "week"
 )
 
@@ -233,7 +234,7 @@ tsd_data_noise_and_pos_trend <- generate_seasonal_data(
   amplitude = 2000,
   mean = 2000,
   phase = 0,
-  noise_sd = 200,
+  noise_overdispersion = 1,
   trend_rate = 1.002,
   time_interval = "week"
 )
@@ -244,7 +245,7 @@ tsd_data_noise_and_neg_trend <- generate_seasonal_data(
   amplitude = 2000,
   mean = 2000,
   phase = 0,
-  noise_sd = 200,
+  noise_overdispersion = 1,
   trend_rate = 0.99,
   time_interval = "week"
 )
