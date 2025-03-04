@@ -13,7 +13,8 @@
 #' @param phase A numeric value (in radians) representing the horizontal shift
 #' of the sine wave, hence the phase shift of the seasonal wave. The phase must be between zero and 2*pi.
 #' @param trend_rate A numeric value specifying the exponential growth/decay rate.
-#' @param noise_sd A numeric value specifying the standard deviation of random noise.
+#' @param noise_overdispersion A numeric value specifying the overdispersion of the generated data.
+#' 0 means deterministic, 1 is pure poisson and for values > 1 a negative binomial is assumed.
 #' @param time_interval `r rd_time_interval`
 #'
 #' @return A `tsd` object with simulated data containing:
@@ -55,7 +56,7 @@ generate_seasonal_data <- function(
   mean = 1000,
   phase = 0,
   trend_rate = NULL,
-  noise_sd = NULL,
+  noise_overdispersion = NULL,
   time_interval = c("week", "day", "month")
 ) {
   # Check input arguments
@@ -63,12 +64,12 @@ generate_seasonal_data <- function(
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_integerish(years, len = 1, lower = 1, add = coll)
   checkmate::assert_date(start_date, add = coll)
-  checkmate::assert_numeric(amplitude, len = 1, lower = 1, add = coll)
+  checkmate::assert_numeric(amplitude, len = 1, lower = 0, add = coll)
   checkmate::assert_numeric(mean, len = 1, lower = 1, add = coll)
   checkmate::assert_true(mean >= amplitude, add = coll)
   checkmate::assert_numeric(phase, len = 1, lower = 0, upper = 2 * pi, add = coll)
   checkmate::assert_numeric(trend_rate, len = 1, lower = 0, null.ok = TRUE, add = coll)
-  checkmate::assert_numeric(noise_sd, len = 1, lower = 0, null.ok = TRUE, add = coll)
+  checkmate::assert_numeric(noise_overdispersion, len = 1, lower = 0, null.ok = TRUE, add = coll)
   checkmate::reportAssertions(coll)
 
   if (time_interval == "week") {
@@ -94,8 +95,16 @@ generate_seasonal_data <- function(
   }
 
   # Add random noise if specified
-  if (!is.null(noise_sd)) {
-    seasonal_component <- seasonal_component + stats::rnorm(length(t), mean = 0, sd = noise_sd)
+  if (!is.null(noise_overdispersion) && noise_overdispersion != 0) {
+    if (noise_overdispersion == 1){
+      seasonal_component <- stats::rpois(n = length(t), lambda = seasonal_component)
+    } else {
+      # p = 1/dispersion, n = mu * p / (1-p)
+      seasonal_component <- stats::rnbinom(
+        n = length(t),
+        size = seasonal_component * (1 / noise_overdispersion) / (1 - 1 / noise_overdispersion),
+        prob = 1 / noise_overdispersion)
+    }
   }
 
   # Create arbitrary dates

@@ -58,7 +58,7 @@ test_that("generate_seasonal_data() - noise works as expected", {
     mean          = 1000,
     phase         = 0,
     trend_rate    = 1.001,
-    noise_sd      = 10,
+    noise_overdispersion      = 10,
     time_interval = "week"
   )
 
@@ -70,7 +70,7 @@ test_that("generate_seasonal_data() - noise works as expected", {
     mean          = 1000,
     phase         = 0,
     trend_rate    = 1.001,
-    noise_sd      = NULL,
+    noise_overdispersion      = NULL,
     time_interval = "week"
   )
 
@@ -89,7 +89,7 @@ test_that("generate_seasonal_data() - trend_rate = NULL implies no trend", {
     mean          = 1000,
     phase         = 0,
     trend_rate    = NULL,     # No trend
-    noise_sd      = NULL,
+    noise_overdispersion      = NULL,
     time_interval = "week"
   )
 
@@ -101,7 +101,7 @@ test_that("generate_seasonal_data() - trend_rate = NULL implies no trend", {
     mean          = 1000,
     phase         = 0,
     trend_rate    = 1.01,
-    noise_sd      = NULL,
+    noise_overdispersion      = NULL,
     time_interval = "week"
   )
 
@@ -124,8 +124,56 @@ test_that("generate_seasonal_data() - mean must be greater than amplitude", {
       mean          = 100,
       phase         = 0,
       trend_rate    = NULL,     # No trend
-      noise_sd      = NULL,
+      noise_overdispersion      = NULL,
       time_interval = "week"
     )
   )
+})
+
+test_that("generate_seasonal_data() - no variance", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  no_variance <- generate_seasonal_data(
+    years         = 1,
+    start_date    = as.Date("2021-05-26"),
+    amplitude     = 0,
+    mean          = 100,
+    phase         = 0,
+    trend_rate    = NULL,     # No trend
+    noise_overdispersion      = NULL,
+    time_interval = "week"
+  )
+
+  # Variance should be zero when no dispersion is set
+  expect_true(var(no_variance$observation) == 0)
+})
+
+test_that("generate_seasonal_data() - test increasing overdispersion", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # With poisson noise
+  noise_poisson <- generate_seasonal_data(
+    years         = 1,
+    start_date    = as.Date("2021-05-26"),
+    amplitude     = 0,
+    mean          = 100,
+    phase         = 0,
+    trend_rate    = NULL,
+    noise_overdispersion      = 1,
+    time_interval = "week"
+  )
+
+  # With negative binomial noise
+  noise_nbinom <- generate_seasonal_data(
+    years         = 1,
+    start_date    = as.Date("2021-05-26"),
+    amplitude     = 0,
+    mean          = 100,
+    phase         = 0,
+    trend_rate    = NULL,
+    noise_overdispersion      = 4,
+    time_interval = "week"
+  )
+
+  expect_true(var(noise_poisson$observation) < var(noise_nbinom$observation))
 })
