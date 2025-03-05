@@ -29,6 +29,11 @@ test_that("generate_seasonal_data() - input argument checks", {
     generate_seasonal_data(time_interval = "year"),
     "time_interval.*must be one of"
   )
+
+  expect_error(
+    generate_seasonal_data(noise_overdispersion = 0.5),
+    "noise_overdispersion .*must be FALSE"
+  )
 })
 
 test_that("generate_seasonal_data() - output structure and defaults", {
