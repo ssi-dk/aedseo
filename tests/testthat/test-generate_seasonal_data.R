@@ -32,7 +32,7 @@ test_that("generate_seasonal_data() - input argument checks", {
 
   expect_error(
     generate_seasonal_data(noise_overdispersion = 0.5),
-    "noise_overdispersion .*must be FALSE"
+    "noise_overdispersion .*must be.*FALSE"
   )
 })
 
