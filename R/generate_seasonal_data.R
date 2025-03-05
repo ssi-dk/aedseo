@@ -70,7 +70,7 @@ generate_seasonal_data <- function(
   checkmate::assert_numeric(phase, len = 1, lower = 0, upper = 2 * pi, add = coll)
   checkmate::assert_numeric(trend_rate, len = 1, lower = 0, null.ok = TRUE, add = coll)
   checkmate::assert_numeric(noise_overdispersion, len = 1, lower = 0, null.ok = TRUE, add = coll)
-  checkmate::assert_false(noise_overdispersion > 0 & noise_overdispersion < 1, add = coll)
+  checkmate::assert_false(ifelse(is.null(noise_overdispersion), FALSE, noise_overdispersion > 0 & noise_overdispersion < 1), add = coll)
   checkmate::reportAssertions(coll)
 
   if (time_interval == "week") {
