@@ -252,16 +252,16 @@ tsd_data_noise_and_neg_trend <- generate_seasonal_data(
 # Remove days after week 20 in last season to get only 4 seasons data
 tsd_data_noise <- tsd_data_noise |>
   dplyr::filter(time <= "2025-05-12", time >= "2022-05-23")
-tsd_data_noise_and_pos_trend <- tsd_data_noise_and_pos_trend |>
+tsd_data_noise_and_pos_trend_mix <- tsd_data_noise_and_pos_trend |>
   dplyr::filter(time <= "2025-05-12", time >= "2022-05-23") |>
   dplyr::rename(observation_pos = observation)
-tsd_data_noise_and_neg_trend <- tsd_data_noise_and_neg_trend |>
+tsd_data_noise_and_neg_trend_mix <- tsd_data_noise_and_neg_trend |>
   dplyr::filter(time <= "2025-05-12", time >= "2022-05-23") |>
   dplyr::rename(observation_neg = observation)
 
 mixed_data <- tsd_data_noise |>
-  dplyr::full_join(tsd_data_noise_and_pos_trend, by = "time") |>
-  dplyr::full_join(tsd_data_noise_and_neg_trend, by = "time")
+  dplyr::full_join(tsd_data_noise_and_pos_trend_mix, by = "time") |>
+  dplyr::full_join(tsd_data_noise_and_neg_trend_mix, by = "time")
 
 start_date <- min(mixed_data$time)
 end_date <- max(mixed_data$time)
