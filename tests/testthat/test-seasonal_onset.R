@@ -4,7 +4,8 @@ test_that("The growth rate models converge", {
   # Generate seasonal data
   tsd_data <- generate_seasonal_data(
     years = 1,
-    start_date = as.Date("2021-01-01")
+    start_date = as.Date("2021-01-01"),
+    mean = 200
   )
 
   # Calculate seasonal_onset with a 3-day window
@@ -69,7 +70,7 @@ test_that("Test if it works with weeks with NA values", {
 
   for (i in k:n) {
     obs_iter <- tsd_data[(i - k + 1):i, ]
-    if (sum(is.na(obs_iter)) >= k * na_fraction_allowed) {
+    if (sum(is.na(obs_iter) | obs_iter == 0) >= k * na_fraction_allowed) {
       skipped_window_count <- skipped_window_count + 1
     }
   }

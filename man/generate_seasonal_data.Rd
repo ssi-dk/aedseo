@@ -12,7 +12,8 @@ generate_seasonal_data(
   phase = 0,
   trend_rate = NULL,
   noise_overdispersion = NULL,
-  time_interval = c("week", "day", "month")
+  time_interval = c("week", "day", "month"),
+  lower_bound = 1e-06
 )
 }
 \arguments{
@@ -23,7 +24,7 @@ generate_seasonal_data(
 \item{amplitude}{A number specifying the amplitude of the seasonal wave.
 The output will fluctuate within the range \verb{[mean - amplitude, mean + amplitude]}.}
 
-\item{mean}{A number specifying the mean of the seasonal wave. Must be greater than or equal to the amplitude.}
+\item{mean}{A number specifying the mean of the seasonal wave.}
 
 \item{phase}{A numeric value (in radians) representing the horizontal shift
 of the sine wave, hence the phase shift of the seasonal wave. The phase must be between zero and 2*pi.}
@@ -34,6 +35,9 @@ of the sine wave, hence the phase shift of the seasonal wave. The phase must be 
 0 means deterministic, 1 is pure poisson and for values > 1 a negative binomial is assumed.}
 
 \item{time_interval}{A character vector specifying the time interval. Choose between 'day', 'week', or 'month'.}
+
+\item{lower_bound}{A numeric value that can be used to ensure that intensities are always greater than zero,
+which is needed when \code{noise_overdispersion} is different from zero.}
 }
 \value{
 A \code{tsd} object with simulated data containing:

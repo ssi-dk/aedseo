@@ -118,7 +118,7 @@ test_that("generate_seasonal_data() - trend_rate = NULL implies no trend", {
   expect_true(with_trend_diff > no_trend_diff)
 })
 
-test_that("generate_seasonal_data() - mean must be greater than amplitude", {
+test_that("generate_seasonal_data() - lower_bound must be non-negative", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
   expect_error(
@@ -130,7 +130,8 @@ test_that("generate_seasonal_data() - mean must be greater than amplitude", {
       phase         = 0,
       trend_rate    = NULL,     # No trend
       noise_overdispersion      = NULL,
-      time_interval = "week"
+      time_interval = "week",
+      lower_bound = -1
     )
   )
 })
