@@ -7,12 +7,13 @@
 generate_seasonal_data(
   years = 3,
   start_date = as.Date("2021-05-26"),
-  amplitude = 1000,
-  mean = 1000,
+  amplitude = 100,
+  mean = 100,
   phase = 0,
   trend_rate = NULL,
-  noise_sd = NULL,
-  time_interval = c("week", "day", "month")
+  noise_overdispersion = NULL,
+  time_interval = c("week", "day", "month"),
+  lower_bound = 1e-06
 )
 }
 \arguments{
@@ -23,16 +24,20 @@ generate_seasonal_data(
 \item{amplitude}{A number specifying the amplitude of the seasonal wave.
 The output will fluctuate within the range \verb{[mean - amplitude, mean + amplitude]}.}
 
-\item{mean}{A number specifying the mean of the seasonal wave. Must be greater than or equal to the amplitude.}
+\item{mean}{A number specifying the mean of the seasonal wave.}
 
 \item{phase}{A numeric value (in radians) representing the horizontal shift
 of the sine wave, hence the phase shift of the seasonal wave. The phase must be between zero and 2*pi.}
 
 \item{trend_rate}{A numeric value specifying the exponential growth/decay rate.}
 
-\item{noise_sd}{A numeric value specifying the standard deviation of random noise.}
+\item{noise_overdispersion}{A numeric value specifying the overdispersion of the generated data.
+0 means deterministic, 1 is pure poisson and for values > 1 a negative binomial is assumed.}
 
 \item{time_interval}{A character vector specifying the time interval. Choose between 'day', 'week', or 'month'.}
+
+\item{lower_bound}{A numeric value that can be used to ensure that intensities are always greater than zero,
+which is needed when \code{noise_overdispersion} is different from zero.}
 }
 \value{
 A \code{tsd} object with simulated data containing:
@@ -57,7 +62,7 @@ trend_sim <- generate_seasonal_data(trend_rate = 1.001)
 plot(trend_sim)
 
 #With noise
-noise_sim <- generate_seasonal_data(noise_sd = 100)
+noise_sim <- generate_seasonal_data(noise_overdispersion = 2)
 plot(noise_sim)
 
 #With distinct parameters, trend and noise
@@ -67,7 +72,7 @@ sim_data <- generate_seasonal_data(
   amplitude = 2000,
   mean = 3000,
   trend_rate = 1.002,
-  noise_sd = 110,
+  noise_overdispersion = 1.1,
   time_interval = c("week")
 )
 plot(sim_data, time_interval = "2 months")

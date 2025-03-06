@@ -155,7 +155,7 @@ test_that("Test that function does not fail if there are no observations surpass
 
     burden_list <- seasonal_burden_levels(
       tsd_data_combined,
-      disease_threshold = 1000
+      disease_threshold = 150
     )
 
     expect_equal(burden_list$season, "2023/2024")

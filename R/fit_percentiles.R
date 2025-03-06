@@ -94,7 +94,7 @@ fit_percentiles <- function(
       lnorm = c(mean(log(observations)), log(stats::sd(log(observations)))),
       exp = log(1.5)
     )
-    return(init_params)
+    init_params
   }
 
   # The weighted negative loglikelihood function

@@ -167,7 +167,7 @@ seasonal_burden_levels <- function(
         )
       }
     )
-    return(results)
+    results
   }
   # Select seasons for output based on only_current_season input argument
   if (only_current_season == FALSE) {

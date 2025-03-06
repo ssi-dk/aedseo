@@ -45,7 +45,7 @@ tsd_data <- generate_seasonal_data(
   mean = 2000,
   phase = 0,
   trend_rate = 1.001,
-  noise_sd = 100,
+  noise_overdispersion = 1,
   time_interval = "week"
 )
 ```

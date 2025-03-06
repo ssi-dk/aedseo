@@ -49,10 +49,11 @@ The first step is to create and transform simulated data into a `tsd` object usi
 seasonal_wave_sim_weekly <- generate_seasonal_data(
   years = 3,
   start_date = as.Date("2021-05-26"),
-  amplitude = 1000,
+  amplitude = 100,
+  mean = 100,
   phase = 0,
   trend_rate = 1.001,
-  noise_sd = 100,
+  noise_overdispersion = 1,
   time_interval = "week"
 )
 ```
@@ -83,8 +84,8 @@ This simulation does not have any noise.
 seasonal_wave_sim_monthly <- generate_seasonal_data(
   years = 4,
   start_date = as.Date("2021-05-26"),
-  amplitude = 2000,
-  mean = 2000,
+  amplitude = 50,
+  mean = 50,
   phase = 0,
   trend_rate = 0.99,
   time_interval = "month"
@@ -104,10 +105,10 @@ The noise is the jumps between observations, instead of smoothly transitioning b
 seasonal_wave_sim_daily <- generate_seasonal_data(
   years = 1,
   start_date = as.Date("2021-05-26"),
-  amplitude = 10000,
-  mean = 10000,
+  amplitude = 50,
+  mean = 50,
   phase = 0,
-  noise_sd = 200,
+  noise_overdispersion = 1,
   time_interval = "day"
 )
 plot(
@@ -126,10 +127,10 @@ compared to a wave with no phase shift.
 seasonal_wave_sim_daily_phase_shift <- generate_seasonal_data(
   years = 1,
   start_date = as.Date("2021-05-26"),
-  amplitude = 10000,
-  mean = 10000,
+  amplitude = 100,
+  mean = 100,
   phase = 1,
-  noise_sd = 200,
+  noise_overdispersion = 1,
   time_interval = "day"
 )
 plot(

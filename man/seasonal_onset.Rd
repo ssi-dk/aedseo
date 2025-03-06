@@ -30,7 +30,7 @@ onset alarm can be triggered.}
 \item{family}{A character string specifying the family for modeling}
 
 \item{na_fraction_allowed}{Numeric value between 0 and 1 specifying the fraction of observables in the window
-of size k that are allowed to be NA in onset calculations.}
+of size k that are allowed to be NA or zero, i.e. without cases, in onset calculations.}
 
 \item{season_start, season_end}{Integers giving the start and end weeks of the seasons to
 stratify the observations by. If set to \code{NULL}, it means no stratification by season.}
