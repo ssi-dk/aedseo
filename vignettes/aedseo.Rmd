@@ -71,7 +71,7 @@ and determine at what number of observations these events occur.
 In this example the disease_specific threshold is determined based on consecutive significant observations from all available previous seasons.
 Significant observations are defined as those with a significant positive growth rate.
 
-To capturing short-term changes and fluctuations in the data, a rolling window of size $k = 5$ is used to create subsets of the data for model fitting,
+To capture short-term changes and fluctuations in the data, a rolling window of size $k = 5$ is used to create subsets of the data for model fitting,
 and the `quasipoisson` family is used to account for overdispersion.
 
 The `seasonal_onset()` function can be used for this purpose, without providing the disease-specific threshold.
