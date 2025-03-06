@@ -153,7 +153,7 @@ This is done by:
 - Burden levels can be defined by two methods:
   - `peak_levels` which models the height of the seasonal peaks. Using the log-normal distribution without weights is similar
   to the default in [mem](https://github.com/lozalojo/mem).
- - `intensity_levels` which models the within season levels. The highest breakpoint is identical with the `peak_levels` method.
+  - `intensity_levels` which models the within season levels. The highest breakpoint is identical with the `peak_levels` method.
  Intermediate breakpoints are evenly distributed on a logaritmic scale, between the `very low` and `high` breakpoints,
  to give the same relative difference between the breakpoints.
 
@@ -173,9 +173,8 @@ Hence, with the default `decay_factor` = 0.8 the effective memory is five season
 (See mentioned by [Hyndman & Athanasopoulos ](https://otexts.com/fpp3/ses.html#ses) for an introduction to simple exponential smoothing)
 The default `decay_factor` allows the model to be responsive to recent changes without being overly sensitive to short-term fluctuations.
 The optimal `decay_factor` can vary depending on the variability and trends within the data.
-If seasonal patterns are highly stable, a higher `decay_factor` (i.e. longer memory) may be appropriate.
-For datasets where seasonal patterns are highly stable, a higher `decay_factor` (i.e. longer memory) might be appropriate.
-Conversely, if the data exhibit dramatic shifts from one season to the next, a lower `decay_factor` can improve predictions.
+For datasets where seasonal patterns are highly stable, a higher `decay_factor` (i.e. longer memory) may be appropriate.
+Conversely, if the data exhibit dramatic shifts from one season to the next, a lower `decay_factor` may improve predictions.
 
 #### Distribution and optimisation
 `family` is the argument used to select which distribution the `n_peak` observations should be fitted to, users can
@@ -212,10 +211,10 @@ The same data is created with following combinations:
 
 These combinations are selected as it is realistic for real world data to have noise, and differentiation between
 trend can occur declining or inclining between seasons.
-Breakpoints for season *2024/2025* calculated based on the three previous seasons.
+Breakpoints for season *2024/2025* are calculated based on the three previous seasons.
 
 To apply the `seasonal_burden_levels()` algorithm, data needs to be transformed into a `tsd` object.
-```{r, include = FALSE}
+```{r, echo = FALSE}
 withr::local_seed(222)
 # Construct 'tsd' objects with time series data
 tsd_data_noise <- generate_seasonal_data(
@@ -252,12 +251,51 @@ tsd_data_noise_and_neg_trend <- generate_seasonal_data(
 
 # Remove days after week 20 in last season to get only 4 seasons data
 tsd_data_noise <- tsd_data_noise |>
-  dplyr::filter(time <= "2025-05-12")
+  dplyr::filter(time <= "2025-05-12", time >= "2022-05-23")
 tsd_data_noise_and_pos_trend <- tsd_data_noise_and_pos_trend |>
-  dplyr::filter(time <= "2025-05-12")
+  dplyr::filter(time <= "2025-05-12", time >= "2022-05-23") |>
+  dplyr::rename(observation_pos = observation)
 tsd_data_noise_and_neg_trend <- tsd_data_noise_and_neg_trend |>
-  dplyr::filter(time <= "2025-05-12")
+  dplyr::filter(time <= "2025-05-12", time >= "2022-05-23") |>
+  dplyr::rename(observation_neg = observation)
 
+mixed_data <- tsd_data_noise |>
+  dplyr::full_join(tsd_data_noise_and_pos_trend, by = "time") |>
+  dplyr::full_join(tsd_data_noise_and_neg_trend, by = "time")
+
+start_date <- min(mixed_data$time)
+end_date <- max(mixed_data$time)
+
+source("../R/1_utils.R")
+
+mixed_data |>
+  ggplot2::ggplot(ggplot2::aes(x = time)) +
+  ggplot2::geom_line(ggplot2::aes(y = observation, color = "Noise"), linewidth = 0.7) +
+  ggplot2::geom_point(ggplot2::aes(y = observation, color = "Noise")) +
+  ggplot2::geom_line(ggplot2::aes(y = observation_pos, color = "Positive trend"), linewidth = 0.7) +
+  ggplot2::geom_point(ggplot2::aes(y = observation_pos, color = "Positive trend")) +
+  ggplot2::geom_line(ggplot2::aes(y = observation_neg, color = "Negative trend"), linewidth = 0.7) +
+  ggplot2::geom_point(ggplot2::aes(y = observation_neg, color = "Negative trend")) +
+  ggplot2::scale_color_manual(
+    name   = "Seasonal data",
+    values = c(
+      "Noise" = "blue",
+      "Positive trend" = "green",
+      "Negative trend" = "red"
+    )
+  ) +
+  time_interval_x_axis(
+    start_date = start_date,
+    end_date   = end_date,
+    time_interval_step = "5 weeks"
+  ) +
+  ggplot2::labs(y = "Weekly observations") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    axis.text    = ggplot2::element_text(size = 9, color = "black", family = "sans"),
+    axis.title.x = ggplot2::element_text(size = 11, color = "black", family = "sans"),
+    axis.title.y = ggplot2::element_text(size = 11, color = "black", family = "sans")
+  )
 ```
 
 ### Use the intensity_levels method

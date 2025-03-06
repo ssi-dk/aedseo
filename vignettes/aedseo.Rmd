@@ -48,6 +48,10 @@ tsd_data <- generate_seasonal_data(
   noise_overdispersion = 1,
   time_interval = "week"
 )
+
+tsd_data <- tsd_data |>
+  dplyr::filter(time >= "2022-05-23")
+
 ```
 
 In the following figure simulated data (solid circles) are visualised as individual observations.
