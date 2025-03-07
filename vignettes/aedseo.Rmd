@@ -41,11 +41,11 @@ withr::local_seed(222)
 tsd_data <- generate_seasonal_data(
   years = 4,
   start_date = as.Date("2021-10-18"),
-  amplitude = 2000,
-  mean = 2000,
+  amplitude = 500,
+  mean = 500,
   phase = 0,
-  trend_rate = 1.001,
-  noise_overdispersion = 65,
+  trend_rate = 1.002,
+  noise_overdispersion = 10,
   time_interval = "week"
 )
 
@@ -145,7 +145,7 @@ significant_vs_obs |>
   ggplot2::labs(
     y = "Number of subsequent significant observations",
     linetype = "",
-    x = "Rolling sum of positive cases (5 weeks)"
+    x = "Rolling 5 week mean of positive cases"
   ) +
   ggplot2::guides(linetype = "none") +
   ggplot2::theme_bw() +
@@ -156,14 +156,14 @@ significant_vs_obs |>
     axis.title.y = ggplot2::element_text(size = 11, color = "black")
   )
 ```
-The `sum_of_cases` variable is divided with five (as we are using a five-week window) to get the disease-specific
+The `sum_of_cases` variable is divided with five (as we are using a five-week window) to define the disease-specific
 threshold for one time-step.
 
-From the analysis plot above, it is observed that the span of observations that have the longest subsequent significant 
-growth rates begins at approximately 70 (season *2022/2023*) and 50 (season *2023/2024*) observations.
+From the analysis plot above, it is observed that the span of observations that have the longest subsequent significant
+growth rates begins at approximately 25 (season *2022/2023*) and 15 (season *2023/2024*) observations.
 The lowest number is selected to capture the season onset as early as possible.
 
-In other words, a five-week average observation count surpassing 50 alongside with a significant positive growth rate 
+In other words, a five-week average observation count surpassing 15 alongside with a significant positive growth rate
 defines the onset of the season.
 
 Inspect the exact conditions around each detected season start
@@ -177,7 +177,7 @@ significant_vs_obs |>
   dplyr::select(season, week, disease_threshold)
 ```
 
-By inspecting the output from the above code, the disease-specific threshold is established at `50` observations.
+By inspecting the output from the above code, the disease-specific threshold is established at `15` observations.
 
 ## Applying the main algorithm
 The primary function of the `aedseo` package is the `combined_seasonal_output()` which integrates the `seasonal_onset()` and `seasonal_burden_levels()`
@@ -187,7 +187,7 @@ Detailed information about each function and their respective arguments can be f
 ```{r}
 seasonal_output <- combined_seasonal_output(
   tsd = tsd_data,
-  disease_threshold = 50,
+  disease_threshold = 15,
   method = "intensity_levels",
   family = "quasipoisson"
 )
@@ -216,7 +216,7 @@ The `plot()` S3 method for `tsd_combined_seasonal_output` objects allows you to 
 
 ```{r, dpi=300}
 # Adjust y_lower_bound dynamically to remove noisy small values
-disease_threshold <- 45
+disease_threshold <- 15
 y_lower_bound <- ifelse(disease_threshold < 10, 1, 5)
 
 plot(
