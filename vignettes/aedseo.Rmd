@@ -145,7 +145,7 @@ significant_vs_obs |>
   ggplot2::labs(
     y = "Number of subsequent significant observations",
     linetype = "",
-    x = "Rolling sum of positive cases (5 weeks)"
+    x = "Rolling sum of positive cases (one time-step)"
   ) +
   ggplot2::guides(linetype = "none") +
   ggplot2::theme_bw() +
@@ -159,7 +159,7 @@ significant_vs_obs |>
 The `sum_of_cases` variable is divided with five (as we are using a five-week window) to get the disease-specific
 threshold for one time-step.
 
-From the analysis plot above, it is observed that the span of observations that have the longest subsequent significant 
+From the analysis plot above, it is observed that the sequences of observations that have the longest subsequent significant 
 growth rates begins at approximately 70 (season *2022/2023*) and 50 (season *2023/2024*) observations.
 The lowest number is selected to capture the season onset as early as possible.
 
