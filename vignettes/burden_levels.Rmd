@@ -537,9 +537,9 @@ The highest observations for the *2024/2025* season for each data set are:
 
 | Data                      | Observation |
 |---------------------------|-------------|
-| Noise                     |    4129     |
-| Noise and positive trend  |    5590     |
-| Noise and negative trend  |     781     |
+| Noise                     |    1471     |
+| Noise and positive trend  |    2065     |
+| Noise and negative trend  |     535     |
 
 In relation to these highest observations and upon further examination, we observe the following:
 
