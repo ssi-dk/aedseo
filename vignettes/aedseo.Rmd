@@ -25,7 +25,7 @@ the breakpoints for burden levels from time series data stratified by season.
 The seasonal onset (`seasonal_onset()`) estimates growth rates for consecutive time intervals and calculates the sum of cases.
 The burden levels (`seasonal_burden_levels()`) use the previous seasons to estimate the burden levels of the current season.
 The algorithm allows for surveillance of pathogens, by alarming when the observations have significant growth in
-the selected time interval and based on the disease_specific threshold, while also evaluating the burden of current
+the selected time interval and based on the disease-specific threshold, while also evaluating the burden of current
 observations based on previous seasons.
 
 ### Seasonal data
@@ -39,18 +39,18 @@ More information about the function can be found in the `vignette("generate_seas
 withr::local_seed(222)
 # Construct an 'tsd' object with time series data
 tsd_data <- generate_seasonal_data(
-  years = 3,
+  years = 4,
   start_date = as.Date("2021-10-18"),
   amplitude = 2000,
   mean = 2000,
   phase = 0,
   trend_rate = 1.001,
-  noise_overdispersion = 1,
+  noise_overdispersion = 65,
   time_interval = "week"
 )
 
 tsd_data <- tsd_data |>
-  dplyr::filter(time >= "2022-05-23")
+  dplyr::filter(time >= "2022-05-23", time <= "2025-02-12")
 
 ```
 
@@ -64,24 +64,31 @@ plot(tsd_data)
 Respiratory viruses can circulate in different seasons based on the location.
 In the nordic hemisphere they mostly circulate in the fall and winter seasons, hence surveillance is intensified from week 40 to week 20 in the following year.
 To include all data, the season in the example is set from week 21 to week 20 in the following year.
+In this example burden levels and seasonal onset will be estimated for season *2024/2025*.
 
 ### Determining the disease specific threshold
 When observations are low there is a risk that randomness will result in significant growth estimates in isolated periods.
-To increase the robustness of the method a disease_specific threshold is introduced. It should be set such that subsequent
+To increase the robustness of the method a disease-specific threshold is introduced. It should be set such that subsequent
 estimates of growth are likely to be significant as well.
-The disease_specific threshold can be determined by examining continuous periods with sustained significant growth,
+The disease-specific threshold can be determined by examining continuous periods with sustained significant growth,
 and determine at what number of observations these events occur.
 
-In this example the disease_specific threshold is determined based on consecutive significant observations from all available previous seasons.
+In this example the disease-specific threshold is determined based on consecutive significant observations from all available previous seasons.
 Significant observations are defined as those with a significant positive growth rate.
 
 To capture short-term changes and fluctuations in the data, a rolling window of size $k = 5$ is used to create subsets of the data for model fitting,
 and the `quasipoisson` family is used to account for overdispersion.
 
 The `seasonal_onset()` function can be used for this purpose, without providing the disease-specific threshold.
+The disease-specific threshold and burden levels will be estimated with the two available previous seasons.
 ```{r, dpi=300}
+previous_seasons <- tsd_data |>
+  dplyr::mutate(season = epi_calendar(time)) |>
+  dplyr::filter(season != "2024/2025") |>
+  dplyr::select(-season)
+
 growth_warning_algo <- seasonal_onset(
-  tsd = tsd_data,
+  tsd = previous_seasons,
   k = 5,
   family = "quasipoisson",
   na_fraction_allowed = 0.4,
@@ -117,7 +124,7 @@ significant_vs_obs$season <- factor(
 
 significant_vs_obs |>
   dplyr::filter(!is.na(SequentialCounter)) |>
-  ggplot2::ggplot(mapping = ggplot2::aes(x = sum_of_cases)) +
+  ggplot2::ggplot(mapping = ggplot2::aes(x = sum_of_cases / 5)) +
   ggplot2::geom_line(
     mapping = ggplot2::aes(
       y = SequentialCounter,
@@ -127,7 +134,7 @@ significant_vs_obs |>
     )
   ) +
   ggplot2::scale_color_manual(
-    values = c("#ebac23", "#006e00", "#008cf9", "#b80058"),
+    values = c("#008cf9", "#b80058"),
     breaks = unique(significant_vs_obs$season),
     labels = unique(significant_vs_obs$season)
   ) +
@@ -149,16 +156,15 @@ significant_vs_obs |>
     axis.title.y = ggplot2::element_text(size = 11, color = "black")
   )
 ```
+The `sum_of_cases` variable is divided with five (as we are using a five-week window) to get the disease-specific
+threshold for one time-step.
 
-To declare a seasonal onset, the number of cases must exceed a threshold within the five week window.
-This threshold is determined by dividing the sum of cases at the onset of continuous significant observations by five,
-resulting in a disease_specific threshold for each time step.
+From the analysis plot above, it is observed that the span of observations that have the longest subsequent significant 
+growth rates begins at approximately 70 (season *2022/2023*) and 50 (season *2023/2024*) observations.
+The lowest number is selected to capture the season onset as early as possible.
 
-From the analysis plot above, it is observed that the significant growth rate begins at approximately 700 observations.
-Therefore, the disease_specific threshold is calculated as: $\frac{700}{5} = 140$.
-
-In other words, a five week average observation count surpassing 140 alongside with a
-significant positive growth rate defines the onset of the season.
+In other words, a five-week average observation count surpassing 50 alongside with a significant positive growth rate 
+defines the onset of the season.
 
 Inspect the exact conditions around each detected season start
 ```{r}
@@ -171,10 +177,7 @@ significant_vs_obs |>
   dplyr::select(season, week, disease_threshold)
 ```
 
-By inspecting the output from the above code, we observe that the first season initiates significantly later
-compared to the subsequent seasons. This delayed start was also evident in the plot, hence we determine
-the disease_specific threshold based on the complete seasons spanning from *2022/2023* to *2024/2025*.
-As a result, the disease_specific threshold is established at `140`.
+By inspecting the output from the above code, the disease-specific threshold is established at `50` observations.
 
 ## Applying the main algorithm
 The primary function of the `aedseo` package is the `combined_seasonal_output()` which integrates the `seasonal_onset()` and `seasonal_burden_levels()`
@@ -184,7 +187,7 @@ Detailed information about each function and their respective arguments can be f
 ```{r}
 seasonal_output <- combined_seasonal_output(
   tsd = tsd_data,
-  disease_threshold = 140,
+  disease_threshold = 50,
   method = "intensity_levels",
   family = "quasipoisson"
 )
@@ -213,7 +216,7 @@ The `plot()` S3 method for `tsd_combined_seasonal_output` objects allows you to 
 
 ```{r, dpi=300}
 # Adjust y_lower_bound dynamically to remove noisy small values
-disease_threshold <- 140
+disease_threshold <- 45
 y_lower_bound <- ifelse(disease_threshold < 10, 1, 5)
 
 plot(

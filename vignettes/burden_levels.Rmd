@@ -165,7 +165,7 @@ The `n_peak` argument defines the number of highest observations to be included 
 The default of `n_peak` is `6` - corresponding with the `mem` defaults of using 30 observations across the latest five seasons.
 
 #### Weighting
-A `decay_factor` is implemented to give more weight to recent seasons, as they are often more indicative of current and future trends.
+The `decay_factor` argument is implemented to give more weight to recent seasons, as they are often more indicative of current and future trends.
 As time progresses, the relevance of older seasons may decrease due to changes in factors like testing recommendations, population immunity,
 virus mutations, or intervention strategies. Weighting older seasons less reflects this reduced relevance.
 From time-series analysis, $\frac{1}{1-\text{decay_factor}}$ is often used as an approximate “effective memory”.
@@ -177,7 +177,7 @@ For datasets where seasonal patterns are highly stable, a higher `decay_factor` 
 Conversely, if the data exhibit dramatic shifts from one season to the next, a lower `decay_factor` may improve predictions.
 
 #### Distribution and optimisation
-`family` is the argument used to select which distribution the `n_peak` observations should be fitted to, users can
+The `family` argument is used to select which distribution the `n_peak` observations should be fitted to, users can
 choose between `lnorm`, `weibull` and `exp` distributions. The log-normal distribution theoretically
 aligns well with the nature of epidemic data, which often exhibits multiplicative growth patterns.
 In our optimisation process, we evaluated the distributions to determine their performance in fitting Danish non-sentinel
@@ -189,7 +189,7 @@ The `optim_method` argument can be passed to `seasonal_burden_levels()`, default
 see `?fit_percentiles`.
 
 #### Burden levels
-`method` is the argument used to select one of the two methods `intensity_levels`(default) and `peak_levels`.
+The `method` argument is used to select one of the two methods `intensity_levels`(default) and `peak_levels`.
 Both methods return percentile(s) from the fitted distribution which are used to define the breakpoins for the burden levels.
 Breakpoints are named `very low`, `low`, `medium` and `high` and define the upper bound of the corresponding burden level.
 
@@ -266,8 +266,6 @@ mixed_data <- tsd_data_noise |>
 start_date <- min(mixed_data$time)
 end_date <- max(mixed_data$time)
 
-source("../R/1_utils.R")
-
 mixed_data |>
   ggplot2::ggplot(ggplot2::aes(x = time)) +
   ggplot2::geom_line(ggplot2::aes(y = observation, color = "Noise"), linewidth = 0.7) +
@@ -284,7 +282,7 @@ mixed_data |>
       "Negative trend" = "red"
     )
   ) +
-  time_interval_x_axis(
+  aedseo:::time_interval_x_axis(
     start_date = start_date,
     end_date   = end_date,
     time_interval_step = "5 weeks"
@@ -634,21 +632,21 @@ The highest observations for the *2024/2025* season for each data set are:
 
 In relation to these highest observations and upon further examination, we observe the following:
 
-1. Plots with Noise and Noise with Positive Trend:
+Plots with Noise and Noise with Positive Trend:
 
 - Both `peak_levels` and `mem` estimate very high breakpoints. This occurs because observations
 remain consistently elevated across all three seasons, causing these methods to overlook the remaining
 observations.
 
-2. Data with Noise and Positive Trend:
+Data with Noise and Positive Trend:
 
 - All three methods exhibit higher breakpoints, indicating that they successfully capture the exponentially
 increasing trend between seasons.
 
-3. Data with Noise and Negative Trend:
+Data with Noise and Negative Trend:
 
 - As observations exponentially decrease between seasons (with the highest observation this season being 781),
-we expect the breakpoints to be the lowest of these examples.  This expectation is met across all three methods.
+we expect the breakpoints to be the lowest of these examples. This expectation is met across all three methods.
 However, the weighting of seasons in `intensity_levels` and `peak_levels` leads to older seasons having less
 impact on the breakpoints, as we progress forward in time. On the other hand, `mem` includes all high observations
 from the previous 10 seasons without diminishing the importance of older seasons, which results in sustained
