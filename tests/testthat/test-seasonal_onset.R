@@ -70,7 +70,7 @@ test_that("Test if it works with weeks with NA values", {
 
   for (i in k:n) {
     obs_iter <- tsd_data[(i - k + 1):i, ]
-    if (sum(is.na(obs_iter) | obs_iter == 0) >= k * na_fraction_allowed) {
+    if (sum(is.na(obs_iter) | obs_iter == 0) > k * na_fraction_allowed) {
       skipped_window_count <- skipped_window_count + 1
     }
   }

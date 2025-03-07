@@ -79,7 +79,7 @@ autoplot.tsd <- function(
     ggplot2::theme(
       axis.text = ggplot2::element_text(size = 9, color = "black", family = text_family),
       axis.title.x = ggplot2::element_text(size = 11, color = "black", family = text_family),
-      axis.title.y = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      axis.title.y = ggplot2::element_text(size = 11, color = "black", family = text_family)
     )
 }
 #'
