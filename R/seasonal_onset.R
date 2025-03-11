@@ -139,8 +139,8 @@ seasonal_onset <- function(                                     # nolint: cycloc
     # Index observations for this iteration
     obs_iter <- tsd[(i - k + 1):i, ]
 
-    # Evaluate NA values in windows
-    if (sum(is.na(obs_iter) | obs_iter == 0) >= k * na_fraction_allowed) {
+    # Evaluate NA and zero values in windows
+    if (sum(is.na(obs_iter) | obs_iter == 0) > k * na_fraction_allowed) {
       skipped_window[i] <- TRUE
       # Set fields to NA since the window is skipped
       growth_rates <- list(estimate = c(NA, NA, NA),

@@ -125,40 +125,24 @@ summary.tsd_onset <- function(object, ...) {
     summary_message <- sprintf(
       "Summary of tsd_onset object without disease_threshold
 
-      Reference time point (last observation in series):
+      Model output:
+        Reference time point (last observation in series): %s
+        Observations at reference time point: %s
+        Sum of cases at reference time point: %d
+        Total number of growth warnings in the series: %d
+        Latest growth warning: %s
+        Growth rate estimate at reference time point:
+          Estimate   Lower (%.1f%%)   Upper (%.1f%%)
+            %.3f     %.3f          %.3f
+
+      The season for reference time point:
         %s
 
-      Observations at reference time point:
-        %s
-
-      Sum of cases at reference time point:
-        %d
-
-      Total number of growth warnings in the series:
-        %d
-
-      Latest growth warning:
-        %s
-
-      Growth rate estimate at reference time point:
-        Estimate   Lower (%.1f%%)   Upper (%.1f%%)
-          %.3f     %.3f          %.3f
-
-      The last season in the series:
-        %s
-
-      Called using distributional family:
-        %s
-
-      Window size for growth rate estimation and
-      calculation of sum of cases:
-        %d
-
-      The time interval for the observations:
-        %s
-
-      Disease specific threshold:
-        %d",
+      Model settings:
+        Called using distributional family: %s
+        Window size for growth rate estimation and calculation of sum of cases: %d
+        The time interval for the observations: %s
+        Disease specific threshold: %d",
       as.character(reference_time),
       as.character(latest_cases),
       as.integer(latest_sum_of_cases),
@@ -180,46 +164,26 @@ summary.tsd_onset <- function(object, ...) {
     summary_message <- sprintf(
       "Summary of tsd_onset object with disease_threshold
 
-      Reference time point (first seasonal onset alarm in season):
+      Model output:
+        Reference time point (first seasonal onset alarm in season): %s
+        Observations at reference time point: %s
+        Sum of observations at reference time point: %s
+        Growth rate estimate at reference time point:
+          Estimate   Lower (%.1f%%)   Upper (%.1f%%)
+            %.3f     %.3f          %.3f
+        Total number of growth warnings in the series: %d
+        Latest growth warning: %s
+        Latest sum of cases warning: %s
+        Latest seasonal onset alarm: %s
+
+      The season for reference time point:
         %s
 
-      Observations at reference time point:
-        %s
-
-      Sum of cases at reference time point:
-        %s
-
-      Growth rate estimate at reference time point:
-        Estimate   Lower (%.1f%%)   Upper (%.1f%%)
-          %.3f     %.3f          %.3f
-
-      Season for reference time point:
-        %s
-
-      Called using distributional family:
-        %s
-
-      Window size for growth rate estimation and
-      calculation of sum of cases:
-        %d
-
-      The time interval for the observations:
-        %s
-
-      Disease specific threshold:
-        %d
-
-      Total number of growth warnings in the series:
-        %d
-
-      Latest growth warning:
-        %s
-
-      Latest sum of cases warning:
-        %s
-
-      Latest seasonal onset alarm:
-        %s",
+      Model settings:
+        Called using distributional family: %s
+        Window size for growth rate estimation and calculation of sum of cases: %d
+        The time interval for the observations: %s
+        Disease specific threshold: %d",
       seasonal_onset_ref_time,
       seasonal_onset_obs,
       seasonal_onset_sum_obs,
@@ -228,15 +192,15 @@ summary.tsd_onset <- function(object, ...) {
       seasonal_onset_gr,
       seasonal_onset_upper_gr,
       seasonal_onset_lower_gr,
+      sum_of_growth_warnings,
+      as.character(latest_growth_warning),
+      as.character(latest_sum_of_cases_warning),
+      as.character(latest_seasonal_onset_alarm),
       last_season,
       family,
       k,
       time_interval,
-      disease_threshold,
-      sum_of_growth_warnings,
-      as.character(latest_growth_warning),
-      as.character(latest_sum_of_cases_warning),
-      as.character(latest_seasonal_onset_alarm)
+      disease_threshold
     )
   }
 
@@ -278,27 +242,18 @@ summary.tsd_burden_levels <- function(object, ...) {
   summary_message <- sprintf(
     "Summary of tsd_burden_levels object
 
-    Breakpoint (very low):
-      %f
-
-    Breakpoint (low):
-      %f
-
-    Breakpoint (medium):
-      %f
-
-    Breakpoint (high):
-      %f
+    Breakpoint estimates:
+      very low : %f
+      low: %f
+      medium: %f
+      high: %f
 
     The season for the burden levels:
       %s
 
-    Disease specific threshold:
-      %d
-
-    Called using distributional family:
-      %s",
-
+    Model settings:
+      Disease specific threshold: %d
+      Called using distributional family: %s",
     object$values["very low"],
     object$values["low"],
     object$values["medium"],
