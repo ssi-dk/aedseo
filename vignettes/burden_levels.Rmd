@@ -482,7 +482,7 @@ all_observations |>
       "medium" = "longdash",
       "high" = "solid",
       "very high" = "dotdash",
-      "epidemic threshold \n (mem)" = "solid"
+      "epidemic threshold \n (mem)" = "dotted"
     )
   ) +
   ggplot2::scale_color_manual(
