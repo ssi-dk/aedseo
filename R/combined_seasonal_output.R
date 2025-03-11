@@ -2,18 +2,16 @@
 #'
 #' @description
 #'
-#' This function performs automated and early detection of seasonal epidemic onsets and calculates the burden
+#' This function performs automated and early detection of seasonal epidemic onsets and estimates the burden
 #' levels from time series dataset stratified by season. The seasonal onset estimates growth rates for consecutive
-#' time intervals and calculates the sum of cases. The burden levels use the previous seasons to calculate the levels
+#' time intervals and calculates the sum of cases. The burden levels use the previous seasons to estimate the levels
 #' of the current season.
 #' @inheritParams seasonal_burden_levels
 #' @inheritParams seasonal_onset
-#' @param tsd `r rd_tsd`
 #' @param disease_threshold `r rd_disease_threshold(usage = "combined")`
 #' @param family `r rd_family(usage = "combined")`
 #' @param family_quant A character string specifying the family for modeling burden levels.
-#' @param season_start,season_end `r rd_season_start_end()`
-#' @param ... Arguments passed to the `fit_percentiles()` function in the burden level calculations.
+#' @param ... Arguments passed to `seasonal_burden_levels()`, `fit_percentiles()` and `seasonal_onset()` functions.
 #'
 #' @return An object containing two lists: onset_output and burden_output:
 #'
@@ -65,8 +63,6 @@
 #' print(combined_data$burden_output)
 combined_seasonal_output <- function(
   tsd,
-  k = 5,
-  level = 0.95,
   disease_threshold = 20,
   family = c(
     "poisson",
@@ -77,26 +73,37 @@ combined_seasonal_output <- function(
     "weibull",
     "exp"
   ),
-  na_fraction_allowed = 0.4,
   season_start = 21,
   season_end = season_start - 1,
-  method = c("intensity_levels", "peak_levels"),
-  conf_levels = 0.95,
-  decay_factor = 0.8,
-  n_peak = 6,
   only_current_season = TRUE,
   ...
 ) {
-  # Run the models
-  burden_output <- seasonal_burden_levels(tsd = tsd, season_start = season_start, season_end = season_end,
-                                          method = method, conf_levels = conf_levels, decay_factor = decay_factor,
-                                          disease_threshold = disease_threshold, n_peak = n_peak,
-                                          family = family_quant, only_current_season = only_current_season, ...)
 
-  onset_output <- seasonal_onset(tsd = tsd, k = k, level = level, disease_threshold = disease_threshold,
-                                 family = family, na_fraction_allowed = na_fraction_allowed,
-                                 season_start = season_start, season_end = season_end,
-                                 only_current_season = only_current_season)             # nolint: object_usage_linter.
+  # Capture all extra arguments
+  extra_args <- list(...)
+
+  # Get the allowed arguments for seasonal_burden_levels() and/or fit_percentiles()
+  burden_allowed <- union(names(formals(seasonal_burden_levels)), names(formals(fit_percentiles)))
+  burden_args <- extra_args[names(extra_args) %in% burden_allowed]
+
+  # Get the allowed arguments for seasonal_onset()
+  onset_allowed <- names(formals(seasonal_onset))
+  onset_args <- extra_args[names(extra_args) %in% onset_allowed]
+
+  # Run the models
+  burden_output <- do.call(
+    seasonal_burden_levels,
+    c(list(tsd = tsd, season_start = season_start, season_end = season_end,
+           disease_threshold = disease_threshold, family = family_quant, only_current_season = only_current_season),
+      burden_args)
+  )
+
+  onset_output <- do.call(
+    seasonal_onset,
+    c(list(tsd = tsd, disease_threshold = disease_threshold, family = family,
+           season_start = season_start, season_end = season_end, only_current_season = only_current_season),
+      onset_args)
+  )   # nolint: object_usage_linter.
 
   # Combine both results in lists
   seasonal_output <- list(

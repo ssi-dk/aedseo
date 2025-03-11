@@ -34,7 +34,7 @@
 #'   time_interval = "day"
 #' )
 #'
-#' # Calculate seasonal onset with a 3-day window and a Poisson family model
+#' # Estimate seasonal onset with a 3-day window and a Poisson family model
 #' seasonal_onset(
 #'   tsd = tsd_data,
 #'   k = 3,
@@ -146,7 +146,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
       growth_rates <- list(estimate = c(NA, NA, NA),
                            fit = list(converged = FALSE))
     } else {
-      # Calculate growth rates
+      # Estimate growth rates
       growth_rates <- fit_growth_rate(
         observations = obs_iter$observation,
         level = level,

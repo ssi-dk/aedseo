@@ -94,8 +94,8 @@ objective function value from the optimisation. Smaller value equals better opti
 }
 }
 \description{
-This function calculates the burden levels of time series observations that are stratified by season.
-It uses the previous seasons to calculate the levels of the current season.
+This function estimates the burden levels of time series observations that are stratified by season.
+It uses the previous seasons to estimate the levels of the current season.
 The output is results regarding the current season in the time series observations.
 NOTE: The data must include data for a complete previous season to make predictions for the current season.
 }

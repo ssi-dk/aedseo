@@ -6,28 +6,17 @@
 \usage{
 combined_seasonal_output(
   tsd,
-  k = 5,
-  level = 0.95,
   disease_threshold = 20,
   family = c("poisson", "quasipoisson"),
   family_quant = c("lnorm", "weibull", "exp"),
-  na_fraction_allowed = 0.4,
   season_start = 21,
   season_end = season_start - 1,
-  method = c("intensity_levels", "peak_levels"),
-  conf_levels = 0.95,
-  decay_factor = 0.8,
-  n_peak = 6,
   only_current_season = TRUE,
   ...
 )
 }
 \arguments{
 \item{tsd}{An object containing time series data with 'time' and 'observation.'}
-
-\item{k}{An integer specifying the window size for modeling growth rates for the onset.}
-
-\item{level}{The confidence level for onset parameter estimates, a numeric value between 0 and 1.}
 
 \item{disease_threshold}{An integer specifying the threshold for considering a disease outbreak. For seasonal onset it defines the per time-step disease threshold that has to be surpassed to possibly
 trigger a seasonal onset alarm. If the total number of cases in a window of size k exceeds
@@ -39,41 +28,12 @@ calculations.}
 
 \item{family_quant}{A character string specifying the family for modeling burden levels.}
 
-\item{na_fraction_allowed}{Numeric value between 0 and 1 specifying the fraction of observables in the window
-of size k that are allowed to be NA or zero, i.e. without cases, in onset calculations.}
-
 \item{season_start, season_end}{Integers giving the start and end weeks of the seasons to
 stratify the observations by.}
 
-\item{method}{A character string specifying the model to be used in the level calculations.
-Both model predict the levels of the current series of
-observations.
-\itemize{
-\item \code{intensity_levels}: models the risk compared to what has been observed in previous seasons.
-\item \code{peak_levels}: models the risk compared to what has been observed in the \code{n_peak} observations each season.
-}}
-
-\item{conf_levels}{A numeric vector specifying the confidence levels for parameter estimates. The values have
-to be unique and in ascending order, (i.e. the lowest level is first and highest level is last).
-The \code{conf_levels} are specific for each method:
-\itemize{
-\item for \code{intensity_levels} only specify the highest confidence level e.g.: \code{0.95}, which is the highest intensity
-that has been observed in previous seasons.
-\item for \code{peak_levels} specify three confidence levels e.g.: \code{c(0.4, 0.9, 0.975)}, which are the three confidence
-levels low, medium and high that reflect the peak severity relative to those observed in previous seasons.
-}}
-
-\item{decay_factor}{A numeric value between 0 and 1, that specifies the weight applied to previous seasons in level
-calculations. It is used as \code{decay_factor}^(number of seasons back), whereby the weight for the most recent season
-will be \code{decay_factor}^0 = 1. This parameter allows for a decreasing weight assigned to prior seasons, such that
-the influence of older seasons diminishes exponentially.}
-
-\item{n_peak}{A numeric value specifying the number of peak observations to be selected from each season in the
-level calculations. The \code{n_peak} observations have to surpass the \code{disease_threshold} to be included.}
-
 \item{only_current_season}{Should the output only include results for the current season?}
 
-\item{...}{Arguments passed to the \code{fit_percentiles()} function in the burden level calculations.}
+\item{...}{Arguments passed to \code{seasonal_burden_levels()}, \code{fit_percentiles()} and \code{seasonal_onset()} functions.}
 }
 \value{
 An object containing two lists: onset_output and burden_output:
@@ -132,9 +92,9 @@ objective function value from the optimisation. Smaller value equals better opti
 }
 }
 \description{
-This function performs automated and early detection of seasonal epidemic onsets and calculates the burden
+This function performs automated and early detection of seasonal epidemic onsets and estimates the burden
 levels from time series dataset stratified by season. The seasonal onset estimates growth rates for consecutive
-time intervals and calculates the sum of cases. The burden levels use the previous seasons to calculate the levels
+time intervals and calculates the sum of cases. The burden levels use the previous seasons to estimate the levels
 of the current season.
 }
 \examples{

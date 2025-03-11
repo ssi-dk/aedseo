@@ -73,7 +73,7 @@ tsd_data <- tsd(
   time_interval = "day"
 )
 
-# Calculate seasonal onset with a 3-day window and a Poisson family model
+# Estimate seasonal onset with a 3-day window and a Poisson family model
 seasonal_onset(
   tsd = tsd_data,
   k = 3,
