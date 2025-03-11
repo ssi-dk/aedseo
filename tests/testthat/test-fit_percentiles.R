@@ -1,15 +1,14 @@
 test_that("Test if checkmate checks work", {
   skip_if_not_installed("withr")
   withr::local_seed(42)
-  obs <- 10
-  season <- c("2018/2019", "2019/2020", "2020/2021")
-  season_num_rev <- rev(seq_along(season))
-  observations <- rep(stats::rnorm(10, obs), length(season))
-
-  peak_input <- tibble::tibble(
-    observation = observations,
-    weight = 0.8^rep(season_num_rev, each = obs)
-  )
+  peak_input <- generate_seasonal_data(years = 5, noise_overdispersion = 5, trend_rate = 1.005) |>
+    dplyr::mutate(season = epi_calendar(time)) |>
+    dplyr::group_by(season) |>
+    dplyr::slice_max(n = 6, order_by = observation, with_ties = FALSE) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(season_count = rev(dplyr::dense_rank(season)) - 1,
+                  weight = 0.8^season_count) |>
+    dplyr::select(observation, weight)
 
   fit_percentiles(weighted_observations = peak_input, conf_levels = c(0.1, 0.2, 0.4, 0.8, 0.9))
 
@@ -36,4 +35,30 @@ test_that("Test if checkmate checks work", {
       "Variable 'conf_levels': Must be sorted."
     )
   )
+})
+
+test_that("Test that changing weights work", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+
+  generate_data <- generate_seasonal_data(years = 5, noise_overdispersion = 5, trend_rate = 1.005) |>
+    dplyr::mutate(season = epi_calendar(time)) |>
+    dplyr::group_by(season) |>
+    dplyr::slice_max(n = 6, order_by = observation, with_ties = FALSE) |>
+    dplyr::ungroup()
+
+  peak_input <- generate_data |>
+    dplyr::mutate(season_count = rev(dplyr::dense_rank(season)) - 1,
+                  weight = 0.8^season_count) |>
+    dplyr::select(observation, weight)
+
+  peak_input_2 <- generate_data |>
+    dplyr::mutate(season_count = rev(dplyr::dense_rank(season)) - 1,
+                  weight = 0.5^season_count) |>
+    dplyr::select(observation, weight)
+
+  small_diff <- fit_percentiles(peak_input)
+  big_diff <- fit_percentiles(peak_input_2)
+
+  expect_gt(big_diff$values[[3]], small_diff$values[[3]])
 })

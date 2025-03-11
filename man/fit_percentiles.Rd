@@ -63,7 +63,7 @@ objective function value from the optimisation. Smaller value equals better opti
 }
 }
 \description{
-This function calculates the percentiles of weighted time series observations. The output contains the percentiles
+This function estimates the percentiles of weighted time series observations. The output contains the percentiles
 from the fitted distribution.
 }
 \examples{

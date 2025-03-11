@@ -2,7 +2,7 @@
 #'
 #' @description
 #'
-#' This function calculates the percentiles of weighted time series observations. The output contains the percentiles
+#' This function estimates the percentiles of weighted time series observations. The output contains the percentiles
 #' from the fitted distribution.
 #'
 #' @param weighted_observations A tibble containing two columns of length n; `observation`, which contains the data
@@ -127,7 +127,7 @@ fit_percentiles <- function(
     exp = c(exp(optim_obj$par), NA)
   )
 
-  # Calculate the low, medium, high intensity levels based on input `conf_levels`
+  # Estimate the low, medium, high intensity levels based on input `conf_levels`
   percentiles <- switch(family,
     weibull = stats::qweibull(p = conf_levels, shape = par_fit[1], scale = par_fit[2]),
     lnorm = stats::qlnorm(p = conf_levels, meanlog = par_fit[1], sdlog = par_fit[2]),
