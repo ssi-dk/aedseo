@@ -26,9 +26,9 @@ such as dayly, weekly or monthly cycles, while also incorporating optional expon
 This makes it suitable for modeling more realistic phenomena like infection rates.
 The wave is defined by the following equation:
 $$
-\text{SeasonalWave}(t) =
+\text{E[SeasonalWave}(t)\text{]} =
 \left( \text{mean} + \text{amplitude} \cdot \sin\left(\frac{2\pi t}{\text{period}} + \text{phase}\right) \right)
-\cdot e^{\log(\text{trend_rate}) \cdot t} + \epsilon
+\cdot e^{\log(\text{trend_rate}) \cdot t}
 $$
 
 Where:
@@ -39,7 +39,8 @@ Where:
 - $\text{period}$: Defines the cycle length (e.g., 52 weeks for yearly seasonality) (is calculated based on `time_interval`).
 - $\text{phase}$: Adjusts the horizontal position of the wave on the x-axis.
 - $\text{trend_rate}$: Controls the exponential growth or decay of the trend over time.
-- $\epsilon$: Random noise, controlled by the `noise_overdispersion` parameter.
+
+Furthermore, noise can be controlled by the `noise_overdispersion` parameter.
   - 0: Deterministic, no noise.
   - 1: Poisson-distributed noise.
   - \>1: Negative binomial-distributed noise (higher values mean greater overdispersion).
@@ -135,7 +136,7 @@ plot(
 ```
 
 ### Examples of different noise scenarios
-Following examples illustrate how varying `noise_overdispersion` affects the realism and variability of simulated data,
+The following examples illustrate how varying `noise_overdispersion` affects the realism and variability of simulated data,
 enabling the modeling of realistic epidemic scenarios.
 The noise is the jumps between observations, instead of smoothly transitioning between observations.
 
