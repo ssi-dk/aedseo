@@ -42,7 +42,7 @@ Where:
 - $\epsilon$: Random noise, controlled by the `noise_overdispersion` parameter.
   - 0: Deterministic, no noise.
   - 1: Poisson-distributed noise.
-  - >1: Negative binomial-distributed noise (higher values mean greater overdispersion).
+  - \>1: Negative binomial-distributed noise (higher values mean greater overdispersion).
 
 The first step is to create and transform simulated data into a `tsd` object using the `generate_seasonal_data()` function.
 
