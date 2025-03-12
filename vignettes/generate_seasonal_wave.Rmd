@@ -26,9 +26,9 @@ such as dayly, weekly or monthly cycles, while also incorporating optional expon
 This makes it suitable for modeling more realistic phenomena like infection rates.
 The wave is defined by the following equation:
 $$
-\text{SeasonalWave}(t) =
+\text{E[SeasonalWave}(t)\text{]} =
 \left( \text{mean} + \text{amplitude} \cdot \sin\left(\frac{2\pi t}{\text{period}} + \text{phase}\right) \right)
-\cdot e^{\log(\text{trend_rate}) \cdot t} + \epsilon
+\cdot e^{\log(\text{trend_rate}) \cdot t}
 $$
 
 Where:
@@ -39,7 +39,11 @@ Where:
 - $\text{period}$: Defines the cycle length (e.g., 52 weeks for yearly seasonality) (is calculated based on `time_interval`).
 - $\text{phase}$: Adjusts the horizontal position of the wave on the x-axis.
 - $\text{trend_rate}$: Controls the exponential growth or decay of the trend over time.
-- $\epsilon$: Optional random noise, which can be included as a specified standard deviation.
+
+Furthermore, noise can be controlled by the `noise_overdispersion` parameter.
+  - 0: Deterministic, no noise.
+  - 1: Poisson-distributed noise.
+  - \>1: Negative binomial-distributed noise (higher values mean greater overdispersion).
 
 The first step is to create and transform simulated data into a `tsd` object using the `generate_seasonal_data()` function.
 
@@ -51,9 +55,7 @@ seasonal_wave_sim_weekly <- generate_seasonal_data(
   start_date = as.Date("2021-05-26"),
   amplitude = 100,
   mean = 100,
-  phase = 0,
-  trend_rate = 1.001,
-  noise_overdispersion = 1,
+  trend_rate = 1.003,
   time_interval = "week"
 )
 ```
@@ -66,27 +68,24 @@ The `time_interval` argument can be used to visualise the x-axis as desired, eit
 The following figures shows the simulated data (solid circles) as individual observations.
 The solid line connects these points, representing the underlying mean trend over three years of weekly data.
 
-### Example of weekly observations
+### Example of positive trend (weekly observations)
 The x-axis shows the weeks and years, while the y-axis represents the simulated observations.
 In this simulation there is a positive `trend_rate`, which can be seen as the observations increase exponentially across seasons.
-The noise is the jumps between observations, instead of smoothly transitioning between observations.
 
 ```{r, dpi=300}
 plot(seasonal_wave_sim_weekly, time_interval = "5 weeks")
 ```
 
 
-### Example of monthly observations
+### Example of negative trend (monthly observations)
 The x-axis shows the months and years, while the y-axis represents the simulated observations.
 In this simulation there is a negative `trend_rate`, which can be seen as the observations decrease exponentially across seasons.
-This simulation does not have any noise.
 ```{r, dpi=300}
 seasonal_wave_sim_monthly <- generate_seasonal_data(
   years = 4,
   start_date = as.Date("2021-05-26"),
   amplitude = 50,
   mean = 50,
-  phase = 0,
   trend_rate = 0.99,
   time_interval = "month"
 )
@@ -97,45 +96,94 @@ plot(
 )
 ```
 
-### Example of daily observations
+### Example of no trend (daily observations)
 The x-axis shows the days, months, years, while the y-axis represents the simulated observations.
 In this simulation there is no trend.
-The noise is the jumps between observations, instead of smoothly transitioning between observations.
 ```{r, dpi=300}
 seasonal_wave_sim_daily <- generate_seasonal_data(
-  years = 1,
+  years = 3,
   start_date = as.Date("2021-05-26"),
   amplitude = 50,
   mean = 50,
-  phase = 0,
-  noise_overdispersion = 1,
   time_interval = "day"
 )
 plot(
   seasonal_wave_sim_daily,
-  time_interval = "15 days",
+  time_interval = "50 days",
   y_label = "Daily observations"
 )
 ```
 
-### Example of phase shift
+### Example of phase shift (daily observations)
 A phase shift in a sinusoidal pattern effectively shifts where the wave starts along the x-axis instead of peaking
 (or hitting zero) at the same times as a wave with `phase = 0` (like in previous plot), it is shifted in time.
 in this example where `phase = 1` rather than `0`, we see that the rise and fall of the sine wave happens later
 compared to a wave with no phase shift.
 ```{r, dpi=300}
 seasonal_wave_sim_daily_phase_shift <- generate_seasonal_data(
-  years = 1,
+  years = 3,
   start_date = as.Date("2021-05-26"),
-  amplitude = 100,
-  mean = 100,
+  amplitude = 50,
+  mean = 50,
   phase = 1,
-  noise_overdispersion = 1,
   time_interval = "day"
 )
 plot(
   seasonal_wave_sim_daily_phase_shift,
-  time_interval = "15 days",
+  time_interval = "50 days",
   y_label = "Daily observations"
+)
+```
+
+### Examples of different noise scenarios
+The following examples illustrate how varying `noise_overdispersion` affects the realism and variability of simulated data,
+enabling the modeling of realistic epidemic scenarios.
+The noise is the jumps between observations, instead of smoothly transitioning between observations.
+
+#### Deterministic (no noise)
+```{r, dpi=300}
+sim_no_noise <- generate_seasonal_data(
+  years = 3,
+  start_date = as.Date("2021-05-26"),
+  amplitude = 100,
+  mean = 100,
+  noise_overdispersion = 0,
+  time_interval = "week"
+)
+plot(
+  sim_no_noise,
+  time_interval = "5 weeks"
+)
+```
+
+#### Poisson-distributed noise
+```{r, dpi=300}
+sim_poisson_noise <- generate_seasonal_data(
+  years = 3,
+  start_date = as.Date("2021-05-26"),
+  amplitude = 100,
+  mean = 100,
+  noise_overdispersion = 1,
+  time_interval = "week"
+)
+plot(
+  sim_poisson_noise,
+  time_interval = "5 weeks"
+)
+```
+
+#### Negative binomial-distributed noise (high overdispersion)
+```{r, dpi=300}
+sim_nb_noise <- generate_seasonal_data(
+  years = 3,
+  start_date = as.Date("2021-05-26"),
+  amplitude = 100,
+  mean = 100,
+  noise_overdispersion = 5,
+  time_interval = "week"
+)
+plot(
+  sim_nb_noise,
+  time_interval = "5 weeks"
 )
 ```
