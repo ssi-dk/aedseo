@@ -89,7 +89,7 @@ fit_percentiles <- function(
 
   # If there is only one unique observation we cannot optimise -> return NA
   if (length(unique(weighted_observations$observation)) == 1) {
-    warning("Cannot optimise, all `n_peak` observations are identical. Returning NA values.", call. = FALSE)
+    warning("Cannot optimise, there is only one unique observation. Returning NA values.", call. = FALSE)
     return(list(
       conf_levels = conf_levels,
       values      = rep(NA, length(conf_levels)),
