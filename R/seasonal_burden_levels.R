@@ -152,7 +152,11 @@ seasonal_burden_levels <- function(
         )
       },
       intensity_levels = {
-        level_step_log <- pracma::logseq(disease_threshold, percentiles_fit$values, n = 4)
+        if (all(is.na(percentiles_fit$values))) {
+          level_step_log <- c(disease_threshold, rep(NA, 3))
+        } else {
+          level_step_log <- pracma::logseq(disease_threshold, percentiles_fit$values, n = 4)
+        }
         model_output <- list(
           season = current_season,
           values = stats::setNames(level_step_log, c("very low", "low", "medium", "high")),
