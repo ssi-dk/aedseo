@@ -124,18 +124,31 @@ seasonal_burden_levels <- function(
 
   # main level function
   main_level_fun <- function(seasonal_tsd, current_season) {
-    # Add weights and remove current season to get predictions for this season
-    weighted_seasonal_tsd <- seasonal_tsd |>
-      dplyr::filter(.data$season != current_season) |>
-      dplyr::mutate(year = purrr::map_chr(.data$season, ~ stringr::str_extract(.x, "[0-9]+")) |>
-                      as.numeric()) |>
-      dplyr::mutate(weight = decay_factor^(max(.data$year) - .data$year)) |>
-      dplyr::select(-c("year", "time"))
+    # If there is no observations > disease_threshold -> return NA
+    if (nrow(seasonal_tsd) == 0) {
+      warning("There are no observations above `disease_threshold`. Returning NA values.", call. = FALSE)
+      percentiles_fit <- list(
+        conf_levels = conf_levels,
+        values      =  rep(NA, length(conf_levels)),
+        par         = c(NA, NA),
+        obj_value   = NA,
+        converged   = FALSE,
+        family      = family
+      )
+    } else {
+      # Add weights and remove current season to get predictions for this season
+      weighted_seasonal_tsd <- seasonal_tsd |>
+        dplyr::filter(.data$season != current_season) |>
+        dplyr::mutate(year = purrr::map_chr(.data$season, ~ stringr::str_extract(.x, "[0-9]+")) |>
+                        as.numeric()) |>
+        dplyr::mutate(weight = decay_factor^(max(.data$year) - .data$year)) |>
+        dplyr::select(-c("year", "time"))
 
-    # Run percentiles_fit function
-    percentiles_fit <- weighted_seasonal_tsd |>
-      dplyr::select("observation", "weight") |>
-      fit_percentiles(weighted_observations = _, conf_levels = conf_levels, family = family, ...)
+      # Run percentiles_fit function
+      percentiles_fit <- weighted_seasonal_tsd |>
+        dplyr::select("observation", "weight") |>
+        fit_percentiles(weighted_observations = _, conf_levels = conf_levels, family = family, ...)
+    }
 
     # If method intensity_levels was chosen; use the high level from the `fit_percentiles` function as the high
     # level and the disease_threshold as the very low level. The low and medium levels are defined as the relative
@@ -152,7 +165,11 @@ seasonal_burden_levels <- function(
         )
       },
       intensity_levels = {
-        level_step_log <- pracma::logseq(disease_threshold, percentiles_fit$values, n = 4)
+        if (all(is.na(percentiles_fit$values))) {
+          level_step_log <- c(disease_threshold, rep(NA, 3))
+        } else {
+          level_step_log <- pracma::logseq(disease_threshold, percentiles_fit$values, n = 4)
+        }
         model_output <- list(
           season = current_season,
           values = stats::setNames(level_step_log, c("very low", "low", "medium", "high")),

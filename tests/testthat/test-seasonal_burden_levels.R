@@ -185,3 +185,25 @@ test_that("Test that seasons are correctly increasing when only_current_season =
 
   expect_equal(unique_seasons[2:4], level_seasons)
 })
+
+test_that("Test that when no obs above disease_threshold return NA and warning", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Generate seasonal data
+  tsd_data <- generate_seasonal_data(
+    years = 3,
+  )
+
+  expect_warning(
+    obs_under_dt <- seasonal_burden_levels(
+      tsd_data,
+      disease_threshold = max(tsd_data$observation) + 50
+    ),
+    "There are no observations above `disease_threshold`. Returning NA values."
+  )
+
+  expect_equal(
+    unname(obs_under_dt$values),
+    c(max(tsd_data$observation) + 50, rep(NA, 3))
+  )
+})

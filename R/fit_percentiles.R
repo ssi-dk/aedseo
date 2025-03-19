@@ -87,6 +87,19 @@ fit_percentiles <- function(
   family <- rlang::arg_match(family)
   optim_method <- rlang::arg_match(optim_method)
 
+  # If there is only one unique observation we cannot optimise -> return NA
+  if (length(unique(weighted_observations$observation)) == 1) {
+    warning("Cannot optimise, there is only one unique observation. Returning NA values.", call. = FALSE)
+    return(list(
+      conf_levels = conf_levels,
+      values      = rep(NA, length(conf_levels)),
+      par         = c(NA, NA),
+      obj_value   = NA,
+      converged   = FALSE,
+      family      = family
+    ))
+  }
+
   # Initialising parameters based on family
   init_par_fun <- function(family, observations) {
     init_params <- switch(family,

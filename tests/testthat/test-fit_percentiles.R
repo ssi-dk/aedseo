@@ -62,3 +62,25 @@ test_that("Test that changing weights work", {
 
   expect_gt(big_diff$values[[3]], small_diff$values[[3]])
 })
+
+test_that("Test that when there is only one unique observation return NA and warning", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Generate observations
+  unique_data <- tibble::tibble(
+    observation = c(100, 100),
+    weight = c(1, 1)
+  )
+
+  expect_warning(
+    one_unique_res <- fit_percentiles(
+      weighted_observations = unique_data
+    ),
+    "Cannot optimise, there is only one unique observation. Returning NA values."
+  )
+
+  expect_equal(
+    one_unique_res$values,
+    rep(NA, 3)
+  )
+})
