@@ -219,7 +219,7 @@ test_that("Test that when only current season has an obs above disease_threshold
 
   max_obs <- tsd_data |>
     dplyr::mutate(season = epi_calendar(time)) |>
-    dplyr::filter(season == first(season)) |>
+    dplyr::filter(season == dplyr::first(season)) |>
     dplyr::slice_max(observation, n = 1) |>
     dplyr::pull(observation)
 
