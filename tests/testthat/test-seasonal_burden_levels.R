@@ -207,3 +207,32 @@ test_that("Test that when no obs above disease_threshold return NA and warning",
     c(max(tsd_data$observation) + 50, rep(NA, 3))
   )
 })
+
+test_that("Test that when only current season has an obs above disease_threshold return NA and warning", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Generate seasonal data
+  tsd_data <- generate_seasonal_data(
+    years = 2,
+    trend_rate = 1.1
+  )
+
+  max_obs <- tsd_data |>
+    mutate(season = epi_calendar(time)) |>
+    filter(season == first(season)) |>
+    slice_max(observation, n = 1) |>
+    pull(observation)
+
+  expect_warning(
+    obs_under_dt <- seasonal_burden_levels(
+      tsd_data,
+      disease_threshold = max_obs + 50
+    ),
+    "There are no observations above `disease_threshold`. Returning NA values."
+  )
+
+  expect_equal(
+    unname(obs_under_dt$values),
+    c(max_obs + 50, rep(NA, 3))
+  )
+})
