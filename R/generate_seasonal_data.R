@@ -15,6 +15,8 @@
 #' @param trend_rate A numeric value specifying the exponential growth/decay rate.
 #' @param noise_overdispersion A numeric value specifying the overdispersion of the generated data.
 #' 0 means deterministic, 1 is pure poisson and for values > 1 a negative binomial is assumed.
+#' @param relative_epidemic_concentration A numeric that transforms the reference sinusoidal season.
+#' A value of 1 gives the pure sinusoidal curve, and greater values concentrate the epidemic around the peak.
 #' @param time_interval `r rd_time_interval`
 #' @param lower_bound A numeric value that can be used to ensure that intensities are always greater than zero,
 #' which is needed when `noise_overdispersion` is different from zero.
@@ -59,6 +61,7 @@ generate_seasonal_data <- function(
   phase = 0,
   trend_rate = NULL,
   noise_overdispersion = NULL,
+  relative_epidemic_concentration = 1,
   time_interval = c("week", "day", "month"),
   lower_bound = 1e-6
 ) {
@@ -75,6 +78,7 @@ generate_seasonal_data <- function(
   checkmate::assert_false(ifelse(is.null(noise_overdispersion),
                                  FALSE,
                                  noise_overdispersion > 0 & noise_overdispersion < 1), add = coll)
+  checkmate::assert_numeric(relative_epidemic_concentration, len = 1,)
   checkmate::assert_numeric(lower_bound, len = 1, lower = 0, add = coll)
   checkmate::reportAssertions(coll)
 
@@ -90,7 +94,9 @@ generate_seasonal_data <- function(
   t <- 1:(years * period)
 
   # Generate the seasonal component
-  seasonal_component <- mean + amplitude * sin(2 * pi * t / period + phase)
+  seasonal_component <- mean + amplitude *
+    (((sin(2 * pi * t / period + phase) + 1)^relative_epidemic_concentration) /
+       2^(relative_epidemic_concentration - 1) - 1)
 
   # Add the trend component
   if (!is.null(trend_rate)) {
