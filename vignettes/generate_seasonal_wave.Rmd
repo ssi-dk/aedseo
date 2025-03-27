@@ -27,7 +27,10 @@ This makes it suitable for modeling more realistic phenomena like infection rate
 The wave is defined by the following equation:
 $$
 \text{E[SeasonalWave}(t)\text{]} =
-\left( \text{mean} + \text{amplitude} \cdot \sin\left(\frac{2\pi t}{\text{period}} + \text{phase}\right) \right)
+\text{mean} + \text{amplitude} \cdot \left(
+\frac{\left(\sin\left(\frac{2\pi t}{\text{period}} + \text{phase}\right) + 1\right)^{\text{relative_epidemic_concentration}}}
+{2^{\text{relative_epidemic_concentration} - 1}} - 1
+\right)
 \cdot e^{\log(\text{trend_rate}) \cdot t}
 $$
 
@@ -39,8 +42,10 @@ Where:
 - $\text{period}$: Defines the cycle length (e.g., 52 weeks for yearly seasonality) (is calculated based on `time_interval`).
 - $\text{phase}$: Adjusts the horizontal position of the wave on the x-axis.
 - $\text{trend_rate}$: Controls the exponential growth or decay of the trend over time.
+- $\text{relative_epidemic_concentration}$: Transforms the reference sinusoidal season. A value of 1 gives the pure sinusoidal curve, and greater values concentrate the epidemic around the peak.
 
 Furthermore, noise can be controlled by the `noise_overdispersion` parameter.
+
   - 0: Deterministic, no noise.
   - 1: Poisson-distributed noise.
   - \>1: Negative binomial-distributed noise (higher values mean greater overdispersion).
@@ -184,6 +189,43 @@ sim_nb_noise <- generate_seasonal_data(
 )
 plot(
   sim_nb_noise,
+  time_interval = "5 weeks"
+)
+```
+
+### Examples of different epidemic concentrations
+
+#### Pure sinusoidal season
+```{r, dpi=300}
+sim_sinus <- generate_seasonal_data(
+  years = 2,
+  start_date = as.Date("2021-05-26"),
+  amplitude = 100,
+  mean = 100,
+  relative_epidemic_concentration = 1,
+  time_interval = "week"
+)
+plot(
+  sim_sinus,
+  time_interval = "5 weeks"
+)
+```
+
+#### Epidemic concentrated season
+The following examples illustrate how varying `elative_epidemic_concentration` affects the time period for when we have observations,
+when we increase the value the observations are concentrated around the peak. This enables the model to improve it's abbility to model
+realistic epidemic scenarios where we commonly see several weeks with no or low infection rates and a shorter epidemic period.
+```{r, dpi=300}
+sim_conc <- generate_seasonal_data(
+  years = 2,
+  start_date = as.Date("2021-05-26"),
+  amplitude = 100,
+  mean = 100,
+  relative_epidemic_concentration = 4,
+  time_interval = "week"
+)
+plot(
+  sim_conc,
   time_interval = "5 weeks"
 )
 ```
