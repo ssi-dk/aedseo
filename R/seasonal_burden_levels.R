@@ -123,9 +123,9 @@ seasonal_burden_levels <- function(
     dplyr::slice_max(.data$observation, n = n_peak, with_ties = FALSE, by = "season")
 
   # main level function
-  main_level_fun <- function(seasonal_tsd, current_season) {
-    # If there is no observations > disease_threshold -> return NA
-    if (nrow(seasonal_tsd) == 0) {
+  main_level_fun <- function(seasonal_data, current_season) {
+    # If there is no previous observations > disease_threshold -> return NA
+    if (nrow(seasonal_data) == 0 || all(unique(seasonal_data$season) == current_season)) {
       warning("There are no observations above `disease_threshold`. Returning NA values.", call. = FALSE)
       percentiles_fit <- list(
         conf_levels = conf_levels,
@@ -137,7 +137,7 @@ seasonal_burden_levels <- function(
       )
     } else {
       # Add weights and remove current season to get predictions for this season
-      weighted_seasonal_tsd <- seasonal_tsd |>
+      weighted_seasonal_tsd <- seasonal_data |>
         dplyr::filter(.data$season != current_season) |>
         dplyr::mutate(year = purrr::map_chr(.data$season, ~ stringr::str_extract(.x, "[0-9]+")) |>
                         as.numeric()) |>

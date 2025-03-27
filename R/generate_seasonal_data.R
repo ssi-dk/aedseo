@@ -78,7 +78,7 @@ generate_seasonal_data <- function(
   checkmate::assert_false(ifelse(is.null(noise_overdispersion),
                                  FALSE,
                                  noise_overdispersion > 0 & noise_overdispersion < 1), add = coll)
-  checkmate::assert_numeric(relative_epidemic_concentration, len = 1,)
+  checkmate::assert_numeric(relative_epidemic_concentration, len = 1)
   checkmate::assert_numeric(lower_bound, len = 1, lower = 0, add = coll)
   checkmate::reportAssertions(coll)
 
