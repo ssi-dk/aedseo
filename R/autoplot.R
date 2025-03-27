@@ -140,7 +140,6 @@ autoplot.tsd_onset <- function(
         TRUE ~ .data$growth_warning
       )
     )
-  print(object, n = 100)
 
   p1 <- object |>
     ggplot2::ggplot(
