@@ -86,7 +86,7 @@ autoplot.tsd <- function(
 #' Autoplot a `tsd_onset` object
 #'
 #' @param object A `tsd_onset` object
-#' @param disease_color A character specifying the base color for the observations.
+#' @param disease_color `r rd_disease_color`
 #' @param line_width `r rd_line_width`
 #' @param obs_size `r rd_obs_size`
 #' @param alpha_warning A numeric specifying the alpha (transparency) for the observations with a
@@ -241,7 +241,7 @@ autoplot.tsd_onset <- function(
 #' @param object a `tsd_combined_seasonal_output` object.
 #' @param y_lower_bound A numeric specifying the lower bound of the y-axis.
 #' @param factor_to_max A numeric specifying the factor to multiply the high burden level for extending the y-axis.
-#' @param disease_color A character specifying the base color for the disease level regions.
+#' @param disease_color `r rd_disease_color`
 #' @param season_start,season_end `r rd_season_start_end()`
 #' @param time_interval_step `r rd_time_interval_step`
 #' @param y_label `r rd_y_label`

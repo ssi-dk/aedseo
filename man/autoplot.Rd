@@ -71,7 +71,7 @@ on the x-axis, e.g. '10 days', '4 weeks', or '3 months'.}
 
 \item{y_label}{A character vector specifying the y label text.}
 
-\item{disease_color}{A character specifying the base color for the disease level regions.}
+\item{disease_color}{A character specifying the base color of the disease.}
 
 \item{alpha_warning}{A numeric specifying the alpha (transparency) for the observations with a
 seasonal_onset_alarm (first plot) or significantly positive growth rate (second plot).}
