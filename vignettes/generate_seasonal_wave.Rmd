@@ -212,9 +212,9 @@ plot(
 ```
 
 #### Epidemic concentrated season
-The following examples illustrate how varying `elative_epidemic_concentration` affects the time period for when we have observations,
-when we increase the value the observations are concentrated around the peak. This enables the model to improve it's abbility to model
-realistic epidemic scenarios where we commonly see several weeks with no or low infection rates and a shorter epidemic period.
+The following examples illustrate how varying `relative_epidemic_concentration` affects the time period for when we observe observations.
+When the value is increased, the observations are concentrated around the peak. This enables the model to improve it's abbility to model
+realistic epidemic scenarios, as we commonly see several weeks with no or low infection rates and a shorter epidemic period.
 ```{r, dpi=300}
 sim_conc <- generate_seasonal_data(
   years = 2,
