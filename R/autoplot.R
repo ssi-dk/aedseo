@@ -86,6 +86,7 @@ autoplot.tsd <- function(
 #' Autoplot a `tsd_onset` object
 #'
 #' @param object A `tsd_onset` object
+#' @param disease_color `r rd_disease_color`
 #' @param line_width `r rd_line_width`
 #' @param obs_size `r rd_obs_size`
 #' @param alpha_warning A numeric specifying the alpha (transparency) for the observations with a
@@ -116,6 +117,7 @@ autoplot.tsd <- function(
 #' @export
 autoplot.tsd_onset <- function(
   object,
+  disease_color = "black",
   line_width = 0.7,
   obs_size = 2,
   alpha_warning = 0.2,
@@ -130,6 +132,15 @@ autoplot.tsd_onset <- function(
   start_date <- min(object$reference_time)
   end_date <- max(object$reference_time)
 
+  # Set growth_warning to FALSE if NA
+  object <- object |>
+    dplyr::mutate(
+      growth_warning = dplyr::case_when(
+        is.na(.data$growth_warning) ~ FALSE,
+        TRUE ~ .data$growth_warning
+      )
+    )
+
   p1 <- object |>
     ggplot2::ggplot(
       mapping = ggplot2::aes(
@@ -139,11 +150,13 @@ autoplot.tsd_onset <- function(
     ) +
     ggplot2::geom_point(
       mapping = ggplot2::aes(
-        alpha = .data$seasonal_onset_alarm
+        alpha = .data$growth_warning
       ),
+      color = disease_color,
       size = obs_size
     ) +
     ggplot2::geom_line(
+      color = disease_color,
       linewidth = line_width
     ) +
     ggplot2::scale_alpha_manual(
@@ -168,7 +181,7 @@ autoplot.tsd_onset <- function(
     )
 
   p2 <- object |>
-    dplyr::filter(!is.na(.data$growth_warning)) |>
+    dplyr::filter(!is.na(.data$lower_growth_rate)) |>
     ggplot2::ggplot(
       mapping = ggplot2::aes(
         x = .data$reference_time,
@@ -181,6 +194,7 @@ autoplot.tsd_onset <- function(
       mapping = ggplot2::aes(
         alpha = .data$growth_warning
       ),
+      color = disease_color,
       size = obs_size
     ) +
     ggplot2::geom_ribbon(
@@ -189,6 +203,7 @@ autoplot.tsd_onset <- function(
         ymin = .data$lower_growth_rate,
         ymax = .data$upper_growth_rate
       ),
+      color = disease_color,
       alpha = alpha_ribbon,
       inherit.aes = FALSE
     ) +
@@ -205,7 +220,7 @@ autoplot.tsd_onset <- function(
       end_date = end_date,
       time_interval_step = time_interval_step
     ) +
-    ggplot2::labs(y = y_label) +
+    ggplot2::labs(y = "Growth rate estimates") +
     ggplot2::theme_bw() +
     ggplot2::theme(
       axis.text = ggplot2::element_text(size = 9, color = "black", family = text_family),
@@ -225,7 +240,7 @@ autoplot.tsd_onset <- function(
 #' @param object a `tsd_combined_seasonal_output` object.
 #' @param y_lower_bound A numeric specifying the lower bound of the y-axis.
 #' @param factor_to_max A numeric specifying the factor to multiply the high burden level for extending the y-axis.
-#' @param disease_color A character specifying the base color for the disease level regions.
+#' @param disease_color `r rd_disease_color`
 #' @param season_start,season_end `r rd_season_start_end()`
 #' @param time_interval_step `r rd_time_interval_step`
 #' @param y_label `r rd_y_label`
