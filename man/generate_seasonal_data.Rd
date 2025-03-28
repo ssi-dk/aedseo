@@ -12,6 +12,7 @@ generate_seasonal_data(
   phase = 0,
   trend_rate = NULL,
   noise_overdispersion = NULL,
+  relative_epidemic_concentration = 1,
   time_interval = c("week", "day", "month"),
   lower_bound = 1e-06
 )
@@ -33,6 +34,9 @@ of the sine wave, hence the phase shift of the seasonal wave. The phase must be 
 
 \item{noise_overdispersion}{A numeric value specifying the overdispersion of the generated data.
 0 means deterministic, 1 is pure poisson and for values > 1 a negative binomial is assumed.}
+
+\item{relative_epidemic_concentration}{A numeric that transforms the reference sinusoidal season.
+A value of 1 gives the pure sinusoidal curve, and greater values concentrate the epidemic around the peak.}
 
 \item{time_interval}{A character vector specifying the time interval. Choose between 'day', 'week', or 'month'.}
 

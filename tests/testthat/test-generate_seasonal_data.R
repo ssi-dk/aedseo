@@ -183,3 +183,38 @@ test_that("generate_seasonal_data() - test increasing overdispersion", {
 
   expect_true(var(noise_poisson$observation) < var(noise_nbinom$observation))
 })
+
+test_that("generate_seasonal_data() - test increasing relative epidemic concentration", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Pure sinusoidal
+  sinusoidal <- generate_seasonal_data(
+    years         = 1,
+    start_date    = as.Date("2021-05-26"),
+    amplitude     = 100,
+    mean          = 100,
+    phase         = 0,
+    trend_rate    = NULL,
+    noise_overdispersion = 1,
+    relative_epidemic_concentration = 1,
+    time_interval = "week"
+  )
+
+  # Concentrated
+  concentrated <- generate_seasonal_data(
+    years         = 1,
+    start_date    = as.Date("2021-05-26"),
+    amplitude     = 100,
+    mean          = 100,
+    phase         = 0,
+    trend_rate    = NULL,
+    noise_overdispersion = 1,
+    relative_epidemic_concentration = 3,
+    time_interval = "week"
+  )
+
+  sinusoidal_0 <- nrow(sinusoidal[sinusoidal$observation == 0, ])
+  concentrated_0 <- nrow(concentrated[concentrated$observation == 0, ])
+
+  expect_gt(concentrated_0, sinusoidal_0)
+})
