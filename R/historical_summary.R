@@ -53,5 +53,5 @@ historical_summary <- function(
 
   class(peak_summary) <- c("peak_summary", class(peak_summary))
 
-  return(peak_summary)
+  return(peak_summary)  # nolint: return_linter
 }
