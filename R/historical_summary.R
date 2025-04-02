@@ -1,12 +1,12 @@
-#' Summarises historical estimates like peak and onset information
+#' Summarises estimates like seasonal peak and onset from all available seasons
 #'
 #' @description
 #'
-#' This function summarises peak timing and seasonal onset from estimates from previous seasons.
+#' This function summarises peak timing and seasonal onset from estimates in a `tsd_onset` object.
 #' This can be useful for investigating if the current season falls within estimates from previous seasons
 #' or if it is very distinct from previous seasons.
 #'
-#' Uses data from previous seasons from a `tsd_onset` object (output from `seasonal_onset()`).
+#' Uses data from a `tsd_onset` object (output from `seasonal_onset()`).
 #'
 #' @param onset_output A `tsd_onset` object returned from `seasonal_onset()`.
 #'
@@ -44,12 +44,14 @@ historical_summary <- function(
       .groups = "drop"
     ) |>
     dplyr::mutate(
-      # Weeks from onset to peak
-      weeks_to_peak = as.numeric(.data$peak_time - .data$onset_time) / 7,
-      # Week number of the actual peak date
+      # Week number of the actual onset and peak date
+      onset_week = lubridate::isoweek(.data$onset_time),
       peak_week = lubridate::isoweek(.data$peak_time),
-      onset_week = lubridate::isoweek(.data$onset_time)
+      # Weeks from onset to peak
+      weeks_to_peak = as.numeric(.data$peak_time - .data$onset_time) / 7
     )
 
   class(peak_summary) <- c("peak_summary", class(peak_summary))
+
+  return(peak_summary)
 }
