@@ -16,7 +16,7 @@ An object of class \code{historical_summary}, containing:
 \item The week in which the peak usually falls
 \item Usual peak intensity
 \item The week in which the onset usually falls
-\item Usual onset intensity and lower growth rate (How significant)
+\item Usual onset intensity and lower growth rate (how significant)
 }
 }
 \description{
@@ -25,4 +25,34 @@ This can be useful for investigating if the current season falls within estimate
 or if it is very distinct from previous seasons.
 
 Uses data from a \code{tsd_onset} object (output from \code{seasonal_onset()}).
+
+\code{seasonal_onset()} has to be run with arguments;
+\itemize{
+\item disease_threshold
+\item season_start
+\item season_end
+\item only_current_season = FALSE
+}
+}
+\examples{
+# Generate simulated data of seasonal waves
+sim_data <- generate_seasonal_data(
+  years = 5,
+  start_date = as.Date("2022-05-26"),
+  trend_rate = 1.002,
+  noise_overdispersion = 1.1
+)
+
+# Estimate seasonal onset
+tsd_onset <- seasonal_onset(
+  tsd = sim_data,
+  disease_threshold = 20,
+  family = "quasipoisson",
+  season_start = 21,
+  season_end = 20,
+  only_current_season = FALSE
+)
+
+# Get historical summary
+historical_summary(tsd_onset)
 }

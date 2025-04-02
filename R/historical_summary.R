@@ -8,6 +8,12 @@
 #'
 #' Uses data from a `tsd_onset` object (output from `seasonal_onset()`).
 #'
+#' `seasonal_onset()` has to be run with arguments;
+#'  - disease_threshold
+#'  - season_start
+#'  - season_end
+#'  - only_current_season = FALSE
+#'
 #' @param onset_output A `tsd_onset` object returned from `seasonal_onset()`.
 #'
 #' @return An object of class `historical_summary`, containing:
@@ -15,18 +21,49 @@
 #'  - The week in which the peak usually falls
 #'  - Usual peak intensity
 #'  - The week in which the onset usually falls
-#'  - Usual onset intensity and lower growth rate (How significant)
+#'  - Usual onset intensity and lower growth rate (how significant)
 #'
 #' @export
+#'
+#' @examples
+#' # Generate simulated data of seasonal waves
+#' sim_data <- generate_seasonal_data(
+#'   years = 5,
+#'   start_date = as.Date("2022-05-26"),
+#'   trend_rate = 1.002,
+#'   noise_overdispersion = 1.1
+#' )
+#'
+#' # Estimate seasonal onset
+#' tsd_onset <- seasonal_onset(
+#'   tsd = sim_data,
+#'   disease_threshold = 20,
+#'   family = "quasipoisson",
+#'   season_start = 21,
+#'   season_end = 20,
+#'   only_current_season = FALSE
+#' )
+#'
+#' # Get historical summary
+#' historical_summary(tsd_onset)
 historical_summary <- function(
   onset_output
 ) {
-  checkmate::assert_class(onset_output, "tsd_onset")
+  # Check input arguments
+  coll <- checkmate::makeAssertCollection()
+  checkmate::assert_class(onset_output, "tsd_onset", add = coll)
+  if (!"seasonal_onset" %in% names(onset_output)) {
+    coll$push("Column 'seasonal_onset' not found in tsd_onset object.")
+  }
+  if ("seasonal_onset" %in% names(onset_output) && all(onset_output$season == "not_defined")) {
+    coll$push("The tsd_onset object is not stratified by season")
+  }
+  checkmate::reportAssertions(coll)
 
   # Get seasonal onset dates
   onset_df <- onset_output |>
     dplyr::filter(.data$seasonal_onset) |>
-    dplyr::select("season", onset_time = .data$reference_time)
+    dplyr::select("season", onset_time = "reference_time")
 
   # Add onset info back to full output
   peak_df <- onset_output |>
