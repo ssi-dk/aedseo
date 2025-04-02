@@ -12,6 +12,9 @@ combined_seasonal_output(
   season_start = 21,
   season_end = season_start - 1,
   only_current_season = TRUE,
+  multiple_waves = FALSE,
+  burden_level_decrease = NULL,
+  steps_with_decrease = NULL,
   ...
 )
 }
@@ -32,6 +35,16 @@ calculations.}
 stratify the observations by.}
 
 \item{only_current_season}{Should the output only include results for the current season?}
+
+\item{multiple_waves}{A logical. Should the output contain multiple seasonal onsets?}
+
+\item{burden_level_decrease}{A character specifying the burden breakpoint the observations should decrease under
+before a new increase in observations can call a new seasonal onset if seasonal onset criteria are met.
+Choose between; "very low", "low", "medium", or "high".}
+
+\item{steps_with_decrease}{An integer specifying in how many time steps (days, weeks, months) the decrease
+should be observed (if there is a sudden decrease followed by an increase it could e.g. be due to testing).
+If multiple_waves are assigned steps_with_decrease defaults to 1.}
 
 \item{...}{Arguments passed to \code{seasonal_burden_levels()}, \code{fit_percentiles()} and \code{seasonal_onset()} functions.}
 }
