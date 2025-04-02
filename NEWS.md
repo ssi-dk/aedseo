@@ -16,7 +16,7 @@
 
 * Added a new argument `only_current_season` to `seasonal_onset()`, `seasonal_burden_levels()` and `combined_seasonal_output()` which gives the possibility to either get output from only the current season or for all available seasons (#45).
 
-* Added `historical_summary` which uses a `tsd_onset` object to summarise historical estimations (#75).
+* Added `historical_summary()` which uses a `tsd_onset` object to summarise historical estimations (#75).
 
 * `summary()` can now summarise `tsd_burden_level` objects (#60).
 
