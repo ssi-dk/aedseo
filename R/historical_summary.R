@@ -79,7 +79,7 @@ historical_summary <- function(
       peak_intensity = max(.data$observation, na.rm = TRUE),
       lower_growth_rate_onset = .data$lower_growth_rate[which(.data$reference_time == .data$onset_time)],
       growth_rate_onset = .data$growth_rate[which(.data$reference_time == .data$onset_time)],
-      upper_growth_rate_onset = .data$upper_growth_rate[which(.data$reference_time == .data$onset_time)]
+      upper_growth_rate_onset = .data$upper_growth_rate[which(.data$reference_time == .data$onset_time)],
       .groups = "drop"
     ) |>
     dplyr::mutate(
