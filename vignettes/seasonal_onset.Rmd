@@ -70,12 +70,10 @@ First we generate some data as an `tsd` object, with the `generate_seasonal_data
 set.seed(222)
 tsd_data <- generate_seasonal_data(
   years = 3,
-  start_date = as.Date("2021-05-26"),
-  amplitude = 300,
-  mean = 300,
-  phase = 0,
+  start_date = as.Date("2020-10-18"),
   trend_rate = 1.002,
   noise_overdispersion = 3,
+  relative_epidemic_concentration = 2,
   time_interval = "week"
 )
 ```
@@ -94,9 +92,8 @@ seasonal_onset_results <- seasonal_onset(
   tsd = tsd_data,
   k = 5,
   level = 0.95,
-  disease_threshold = 100,
+  disease_threshold = 20,
   family = "quasipoisson",
-  na_fraction_allowed = 0.4,
   season_start = 21,
   season_end = 20,
   only_current_season = FALSE
