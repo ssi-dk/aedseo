@@ -63,6 +63,7 @@ autoplot(object, ...)
   line_width = 1,
   text_family = "sans",
   legend_position = "bottom",
+  breaks_y_axis = 8,
   ...
 )
 }
@@ -118,6 +119,8 @@ Must match the number of levels.}
 \item{k}{An integer specifying the window size used to create the \code{tsd_onset} object.}
 
 \item{skip_current_season}{A logical. Do you want to skip your current season?}
+
+\item{breaks_y_axis}{A numeric specifying how many breaks to show on the y-axis.}
 }
 \value{
 A 'ggplot' object for visualizing the \code{tsd} data.

@@ -434,6 +434,7 @@ autoplot.tsd_onset_and_burden <- function(
 #' @param line_width `r rd_line_width`
 #' @param text_family `r rd_text_family`
 #' @param legend_position `r rd_legend_position`
+#' @param breaks_y_axis A numeric specifying how many breaks to show on the y-axis.
 #' @param ... Additional arguments (not used).
 #'
 #' @return A 'ggplot' object for visualizing the `tsd_growth_warning` data.
@@ -464,6 +465,7 @@ autoplot.tsd_growth_warning <- function(
   line_width = 1,
   text_family = "sans",
   legend_position = "bottom",
+  breaks_y_axis = 8,
   ...
 ) {
 
@@ -496,6 +498,9 @@ autoplot.tsd_growth_warning <- function(
     ggplot2::scale_x_log10(
       breaks = scales::log_breaks(base = 10, n = 10),
       labels = scales::label_comma()
+    ) +
+    ggplot2::scale_y_continuous(
+      breaks = scales::breaks_extended(breaks_y_axis)
     ) +
     ggplot2::labs(
       y = "Number of subsequent significant observations",
