@@ -242,7 +242,7 @@ the five-week average of the observations exceed this threshold along with a sig
 
 ### Investigate historical estimates
 The `historical_summary()` function for `tsd_onset` objects provides historical estimates from all previous seasons.
-By utilising this function, it's easy to assess whether current estimates align with previously observed patterns for
+By utilising this function, it is easy to assess whether current estimates align with previously observed patterns for
 a specific pathogen, or if significant changes have occurred. Such changes might result from altered testing practices, 
 pathogen mutations, or other factors.
 
