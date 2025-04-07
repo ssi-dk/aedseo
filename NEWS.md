@@ -14,13 +14,15 @@
 
 * Added `combined_seasonal_output()` as the main function to run both `seasonal_onset()` and `seasonal_burden_levels()` to get a combined result for the newest season (#44).
 
+* Added `consecutive_growth_warnings()` function to help the user with a method to define the disease-specific threshold. (#80)
+
 * Added a new argument `only_current_season` to `seasonal_onset()`, `seasonal_burden_levels()` and `combined_seasonal_output()` which gives the possibility to either get output from only the current season or for all available seasons (#45).
 
 * Added `historical_summary()` which uses a `tsd_onset` object to summarise historical estimations (#75).
 
 * `summary()` can now summarise `tsd_burden_level` objects (#60).
 
-* `plot()` and `autoplot()` can now plot `tsd_combined_seasonal_output` objects (#57).
+* `plot()` and `autoplot()` can now plot `tsd_combined_seasonal_output` and `tsd_consecutive_growth_warning` objects (#57, #80).
 
 * Added `generate_seasonal_data()` to generate synthetic data for testing and documentation purposes (#56).
 
