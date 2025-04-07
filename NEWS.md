@@ -14,7 +14,7 @@
 
 * Added `combined_seasonal_output()` as the main function to run both `seasonal_onset()` and `seasonal_burden_levels()` to get a combined result for the newest season (#44).
 
-* Added `consecutive_growth_warnings()` function to help the user with a method to define the disease-specific threshold. (#80)
+* Added `consecutive_growth_warnings()` function to help the user with a method to define the disease-specific threshold (#80).
 
 * Added a new argument `only_current_season` to `seasonal_onset()`, `seasonal_burden_levels()` and `combined_seasonal_output()` which gives the possibility to either get output from only the current season or for all available seasons (#45).
 
