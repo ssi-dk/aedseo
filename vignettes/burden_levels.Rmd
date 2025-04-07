@@ -226,6 +226,7 @@ tsd_data_noise <- generate_seasonal_data(
   mean = 600,
   phase = 0,
   noise_overdispersion = 10,
+  relative_epidemic_concentration = 3,
   time_interval = "week"
 )
 
@@ -237,6 +238,7 @@ tsd_data_noise_and_pos_trend <- generate_seasonal_data(
   phase = 0,
   noise_overdispersion = 10,
   trend_rate = 1.002,
+  relative_epidemic_concentration = 3,
   time_interval = "week"
 )
 
@@ -246,8 +248,9 @@ tsd_data_noise_and_neg_trend <- generate_seasonal_data(
   amplitude = 600,
   mean = 600,
   phase = 0,
-  noise_overdispersion = 8,
-  trend_rate = 0.995,
+  noise_overdispersion = 10,
+  trend_rate = 0.99,
+  relative_epidemic_concentration = 3,
   time_interval = "week"
 )
 
@@ -536,9 +539,9 @@ The highest observations for the *2024/2025* season for each data set are:
 
 | Data                      | Observation |
 |---------------------------|-------------|
-| Noise                     |    1471     |
-| Noise and positive trend  |    2065     |
-| Noise and negative trend  |     535     |
+| Noise                     |    1466     |
+| Noise and positive trend  |    1967     |
+| Noise and negative trend  |     171     |
 
 In relation to these highest observations and upon further examination, we observe the following:
 
@@ -555,14 +558,14 @@ increasing trend between seasons.
 
 Data with Noise and Negative Trend:
 
-- As observations exponentially decrease between seasons (with the highest observation this season being 781),
+- As observations exponentially decrease between seasons (with the highest observation this season being 171),
 we expect the breakpoints to be the lowest of these examples. This expectation is met across all three methods.
 However, the weighting of seasons in `intensity_levels` and `peak_levels` leads to older seasons having less
 impact on the breakpoints, as we progress forward in time. On the other hand, `mem` includes all high observations
 from the previous 10 seasons without diminishing the importance of older seasons, which results in sustained
 very high breakpoints.
 
-- Notably, in the `mem` method, the epidemic threshold is positioned above the `medium` burden level.
+- Notably, in the `mem` method, the epidemic threshold is positioned slightly above the `medium` burden level.
 This means that the epidemic period begins only when observations reach the height of the seasonal peaks
 observed in previous seasons.
 

@@ -39,18 +39,16 @@ More information about the function can be found in the `vignette("generate_seas
 withr::local_seed(222)
 # Construct an 'tsd' object with time series data
 tsd_data <- generate_seasonal_data(
-  years = 4,
-  start_date = as.Date("2021-10-18"),
-  amplitude = 500,
-  mean = 500,
-  phase = 0,
+  years = 5,
+  start_date = as.Date("2020-10-18"),
   trend_rate = 1.002,
-  noise_overdispersion = 10,
+  noise_overdispersion = 5,
+  relative_epidemic_concentration = 3,
   time_interval = "week"
 )
 
 tsd_data <- tsd_data |>
-  dplyr::filter(time >= "2022-05-23", time <= "2025-02-12")
+  dplyr::filter(time <= "2025-02-01")
 
 ```
 
@@ -80,7 +78,7 @@ To capture short-term changes and fluctuations in the data, a rolling window of 
 and the `quasipoisson` family is used to account for overdispersion.
 
 The `seasonal_onset()` function can be used for this purpose, without providing the disease-specific threshold.
-The disease-specific threshold and burden levels will be estimated with the two available previous seasons.
+The disease-specific threshold and burden levels will be estimated with the four available previous seasons.
 ```{r, dpi=300}
 previous_seasons <- tsd_data |>
   dplyr::mutate(season = epi_calendar(time)) |>
@@ -129,12 +127,12 @@ significant_vs_obs |>
     mapping = ggplot2::aes(
       y = SequentialCounter,
       group = GroupID,
-      linetype = "Consecutive Weeks",
       color = season
-    )
+    ),
+    linewidth = 1
   ) +
   ggplot2::scale_color_manual(
-    values = c("#008cf9", "#b80058"),
+    values = c("#ebac23", "#b80058", "#008cf9", "#00a76c"),
     breaks = unique(significant_vs_obs$season),
     labels = unique(significant_vs_obs$season)
   ) +
@@ -144,27 +142,39 @@ significant_vs_obs |>
   ) +
   ggplot2::labs(
     y = "Number of subsequent significant observations",
-    linetype = "",
-    x = "Rolling 5 week mean of positive cases"
+    x = "Rolling five-week mean of positive cases"
   ) +
-  ggplot2::guides(linetype = "none") +
   ggplot2::theme_bw() +
   ggplot2::theme(
     legend.text = ggplot2::element_text(size = 11, color = "black"),
     axis.text = ggplot2::element_text(size = 9, color = "black"),
     axis.title.x = ggplot2::element_text(size = 11, color = "black"),
     axis.title.y = ggplot2::element_text(size = 11, color = "black")
+  ) +
+  ggplot2::geom_vline(
+    ggplot2::aes(xintercept = 25, linetype = "Threshold"),
+    color = "black", linewidth = 0.6
+  ) +
+  ggplot2::scale_linetype_manual(
+    name   = "",
+    values = c("Threshold" = "dashed")
+  ) +
+  ggplot2::scale_y_continuous(
+    breaks = scales::breaks_extended(8)
   )
 ```
-The `sum_of_cases` variable is divided with five (as we are using a five-week window) to define the disease-specific
-threshold for one time-step.
+The `sum_of_cases` variable is divided by five to represent an average over a five-week window, defining the 
+disease-specific threshold for each time-step.
 
-From the analysis plot above, it is observed that the span of observations that have the longest subsequent significant
-growth rates begins at approximately 25 (season *2022/2023*) and 15 (season *2023/2024*) observations.
-The lowest number is selected to capture the season onset as early as possible.
+From the plot above, we observe the length of periods with subsequent significant growth rates (y-axis).
+The season with the longest consecutive period of growth is *2021/2022*, lasting 14 weeks.
+However, since we are determining a threshold specifically for the *2024/2025* season, it's important to prioritize the 
+most recent seasons. The *2023/2024* season shows two periods of significant growth, with the first being the longest 
+and coinciding closely in timing with the consecutive growth period observed in *2022/2023*.
+We select a disease-specific threshold of 25 to ensure early detection of the seasonal onset while minimizing false positives.
 
-In other words, a five-week average observation count surpassing 15 alongside with a significant positive growth rate
-defines the onset of the season.
+In other words, a season onset is declared when the average observation count over five weeks surpasses 25 and is 
+accompanied by a significantly positive growth rate.
 
 Inspect the exact conditions around each detected season start
 ```{r}
@@ -177,7 +187,7 @@ significant_vs_obs |>
   dplyr::select(season, week, disease_threshold)
 ```
 
-By inspecting the output from the above code, the disease-specific threshold is established at `15` observations.
+By inspecting the output from the above code, the disease-specific threshold is established at `25` observations.
 
 ## Applying the main algorithm
 The primary function of the `aedseo` package is the `combined_seasonal_output()` which integrates the `seasonal_onset()` and `seasonal_burden_levels()`
@@ -187,7 +197,7 @@ Detailed information about each function and their respective arguments can be f
 ```{r}
 seasonal_output <- combined_seasonal_output(
   tsd = tsd_data,
-  disease_threshold = 15,
+  disease_threshold = 25,
   method = "intensity_levels",
   family = "quasipoisson"
 )
@@ -216,7 +226,7 @@ The `plot()` S3 method for `tsd_combined_seasonal_output` objects allows you to 
 
 ```{r, dpi=300}
 # Adjust y_lower_bound dynamically to remove noisy small values
-disease_threshold <- 15
+disease_threshold <- 25
 y_lower_bound <- ifelse(disease_threshold < 10, 1, 5)
 
 plot(
@@ -229,3 +239,26 @@ plot(
 Using the `intensity_levels` method to define burden levels, the seasonal onset is likely to fall within the `low` or `medium`
 category. This is because the `very low` breakpoint is the disease-specific threshold, and season onset is only identified if
 the five-week average of the observations exceed this threshold along with a significant positive growth rate.
+
+### Investigate historical estimates
+The `historical_summary()` function for `tsd_onset` objects provides historical estimates from all previous seasons.
+By utilising this function, it is easy to assess whether current estimates align with previously observed patterns for
+a specific pathogen, or if significant changes have occurred. Such changes might result from altered testing practices, 
+pathogen mutations, or other factors.
+
+If the analysis indicates notable deviations from past patterns, it is advisable to revisit the method used to define the 
+disease-specific threshold, as it might need some adjustment.
+
+```{r, dpi=300}
+# Get `tsd_onset` object
+tsd_onset <- seasonal_onset(
+  tsd = tsd_data,
+  disease_threshold = 25,
+  family = "quasipoisson",
+  season_start = 21,
+  season_end = 20,
+  only_current_season = FALSE
+)
+
+historical_summary(tsd_onset)
+```
