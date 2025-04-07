@@ -2,13 +2,14 @@ Package: aedseo
 Title: Automated and Early Detection of Seasonal Epidemic Onset and Burden Levels
 Version: 0.1.2.9000
 Authors@R: c(
-    person("Sofia Myrup", "Otero", , "smot@ssi.dk", role = c("aut")),
+    person("Sofia Myrup", "Otero", , "smot@ssi.dk", role = c("aut"),
+            comment = c(ORCID = "0009-0006-4953-614X")),
     person("Kasper", "Schou Telkamp", ,"kasper.telkamp@gmail.com", role = c("aut"),
-           comment = c(ORCID = "0009-0001-5126-0190")),
+            comment = c(ORCID = "0009-0001-5126-0190")),
     person("Lasse Engbo", "Christiansen", , "lsec@ssi.dk", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0001-5019-1931")),
+            comment = c(ORCID = "0000-0001-5019-1931")),
     person("Rasmus Skytte", "Randl\u00F8v", , "rske@ssi.dk", role = c("rev"),
-             comment = c(ORCID = "0000-0002-5860-3838")),
+            comment = c(ORCID = "0000-0002-5860-3838")),
     person("Statens Serum Institut, SSI", role = c("cph", "fnd"))
     )
 Description: A powerful tool for automating the early detection of seasonal epidemic
