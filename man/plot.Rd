@@ -5,6 +5,7 @@
 \alias{plot}
 \alias{plot.tsd_onset}
 \alias{plot.tsd_onset_and_burden}
+\alias{plot.tsd_growth_warning}
 \title{Create a complete 'ggplot' appropriate to a particular data type}
 \usage{
 \method{plot}{tsd}(x, ...)
@@ -12,9 +13,11 @@
 \method{plot}{tsd_onset}(x, ...)
 
 \method{plot}{tsd_onset_and_burden}(x, ...)
+
+\method{plot}{tsd_growth_warning}(x, ...)
 }
 \arguments{
-\item{x}{An \code{tsd}, \code{tsd_onset} or \code{tsd_onset_and_burden} object}
+\item{x}{An \code{tsd}, \code{tsd_onset}, \code{tsd_onset_and_burden} or \code{tsd_growth_warning} object}
 
 \item{...}{Additional arguments passed to \code{autoplot()}.}
 }
@@ -23,7 +26,7 @@ A 'ggplot' object for visualizing output from desired method.
 }
 \description{
 This function generates a complete 'ggplot' object suitable for visualizing time series data in
-\code{tsd}, \code{tsd_onset} or \code{tsd_onset_and_burden} objects.
+\code{tsd}, \code{tsd_onset}, \code{tsd_onset_and_burden} or \code{tsd_growth_warning} objects.
 }
 \examples{
 # set.seed(321)
@@ -54,6 +57,16 @@ tsd_onset_burden_obj <- combined_seasonal_output(
 )
 plot(tsd_onset_burden_obj,
      y_lower_bound = ifelse(disease_threshold < 10, 1, 5))
+
+# Create a `tsd_growth_warning` object
+tsd_onset_seasons <- seasonal_onset(
+  tsd = tsd_obj,
+  season_start = 21,
+  family = "quasipoisson",
+  only_current_season = FALSE
+)
+tsd_gr_w <- consecutive_growth_warnings(tsd_onset_seasons)
+plot(tsd_gr_w)
 
 }
 \seealso{

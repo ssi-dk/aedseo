@@ -426,3 +426,88 @@ autoplot.tsd_onset_and_burden <- function(
       time_interval_step = time_interval_step
     )
 }
+#' Autoplot a `tsd_growth_warning` object
+#'
+#' @param object A `tsd_onset` object
+#' @param k An integer specifying the window size used to create the `tsd_onset` object.
+#' @param skip_current_season A logical. Do you want to skip your current season?
+#' @param line_width `r rd_line_width`
+#' @param text_family `r rd_text_family`
+#' @param legend_position `r rd_legend_position`
+#' @param ... Additional arguments (not used).
+#'
+#' @return A 'ggplot' object for visualizing the `tsd_growth_warning` data.
+#'
+#' @aliases autoplot
+#'
+#' @examples
+#' # Create an `tsd_onset` object
+#' tsd_onset <- seasonal_onset(
+#'   tsd = time_series,
+#'   k = 5,
+#'   family = "quasipoisson",
+#'   season_start = 21,
+#'   only_current_season = FALSE
+#' )
+#'
+#' tsd_growth_warning <- consecutive_growth_warnings(tsd_onset)
+#'
+#' autoplot(tsd_growth_warning)
+#'
+#' @rdname autoplot
+#' @method autoplot tsd_growth_warning
+#' @export
+autoplot.tsd_growth_warning <- function(
+  object,
+  k = 5,
+  skip_current_season = TRUE,
+  line_width = 1,
+  text_family = "sans",
+  legend_position = "bottom",
+  ...
+) {
+
+  if (skip_current_season) {
+    object <- object |>
+      dplyr::filter(.data$season != max(object$season))
+  }
+
+  object$season <- factor(
+    object$season,
+    levels = sort(unique(object$season), decreasing = FALSE, method = "auto")
+  )
+
+  object |>
+    dplyr::filter(!is.na(.data$significant_counter)) |>
+    ggplot2::ggplot(mapping = ggplot2::aes(x = .data$sum_of_cases / k)) +
+    ggplot2::geom_line(
+      mapping = ggplot2::aes(
+        y = .data$significant_counter,
+        group = .data$groupID,
+        color = .data$season
+      ),
+      linewidth = line_width
+    ) +
+    ggplot2::scale_color_discrete(
+      name = "season",
+      breaks = unique(object$season),
+      labels = unique(object$season)
+    ) +
+    ggplot2::scale_x_log10(
+      breaks = scales::log_breaks(base = 10, n = 10),
+      labels = scales::label_comma()
+    ) +
+    ggplot2::labs(
+      y = "Number of subsequent significant observations",
+      x = paste("Rolling", k, "week mean of positive cases")
+    ) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      axis.text = ggplot2::element_text(size = 9, color = "black", family = text_family),
+      axis.title.x = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      axis.title.y = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      legend.text = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      legend.background = ggplot2::element_blank()
+    )
+
+}

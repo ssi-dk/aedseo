@@ -1,4 +1,4 @@
-#' Create a tsd_threshold object to count consecutive significant observations
+#' Create a tsd_growth_warning object to count consecutive significant observations
 #'
 #' @description
 #'
@@ -14,8 +14,9 @@
 #'
 #' @param onset_output A `tsd_onset` object returned from `seasonal_onset()`.
 #'
-#' @return An object of class `tsd_threshold`, containing;
-#' A tibble of processed observations (incl. counters).
+#' @return An object of class `tsd_growth_warning`, containing;
+#' A tibble of processed observations, the significant_counter column specifies when a sequence of
+#' significant observation starts and ends. The first number is how many subsequent observations will be significant.
 #'
 #' @export
 #'
@@ -39,9 +40,9 @@
 #' )
 #'
 #' # Get consecutive significant observations
-#' determine_threshold(tsd_onset)
+#' consecutive_growth_warnings(tsd_onset)
 consecutive_growth_warnings <- function(
-    onset_output
+  onset_output
 ) {
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
@@ -74,7 +75,7 @@ consecutive_growth_warnings <- function(
     ) |>
     dplyr::ungroup()
 
-  class(significant_counter) <- c("tsd_threshold", class(significant_counter))
+  class(significant_counter) <- c("tsd_growth_warning", class(significant_counter))
 
   return(significant_counter)  # nolint: return_linter
 }

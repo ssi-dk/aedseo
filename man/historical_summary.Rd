@@ -16,7 +16,7 @@ An object of class \code{historical_summary}, containing:
 \item The week in which the peak usually falls
 \item Usual peak intensity
 \item The week in which the onset usually falls
-\item Usual onset intensity and lower growth rate (how significant)
+\item Usual onset intensity and growth rate estimates
 }
 }
 \description{
