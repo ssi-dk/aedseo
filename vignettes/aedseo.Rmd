@@ -77,16 +77,16 @@ Significant observations are defined as those with a significant positive growth
 To capture short-term changes and fluctuations in the data, a rolling window of size $k = 5$ is used to create subsets of the data for model fitting,
 and the `quasipoisson` family is used to account for overdispersion.
 
+The disease-specific threshold will be estimated with the four available previous seasons.
 The `seasonal_onset()` function can be used for this purpose, without providing the disease-specific threshold.
-The disease-specific threshold and burden levels will be estimated with the four available previous seasons.
-```{r, dpi=300}
-previous_seasons <- tsd_data |>
-  dplyr::mutate(season = epi_calendar(time)) |>
-  dplyr::filter(season != "2024/2025") |>
-  dplyr::select(-season)
+Then the `consecutive_growth_warnings()` function can be used to create groups with subsequent significant observations.
+The data can then be analysed, else you can use plot/autoplot to visualise the sequences of significant observations for each season.
 
-growth_warning_algo <- seasonal_onset(
-  tsd = previous_seasons,
+The `sum_of_cases` variable is divided by five to represent an average over a five-week window, defining the 
+disease-specific threshold for each time-step.
+```{r, dpi=300}
+tsd_onset <- seasonal_onset(
+  tsd = tsd_data,
   k = 5,
   family = "quasipoisson",
   na_fraction_allowed = 0.4,
@@ -95,62 +95,15 @@ growth_warning_algo <- seasonal_onset(
   only_current_season = FALSE
 )
 
-significant_vs_obs <- growth_warning_algo |>
-  dplyr::mutate(
-    Counter = cumsum(growth_warning == TRUE & !is.na(growth_warning)) * growth_warning
-  ) |>
-  dplyr::mutate(Counter = dplyr::if_else(growth_warning, Counter, NA)) |>
-  # Identify where NA occurs in the Counter column
-  dplyr::mutate(
-    ChangeFlag = is.na(Counter),
-    GroupID = cumsum(ChangeFlag)  # Make a Group for each NA
-  ) |>
-  dplyr::ungroup() |>
-  dplyr::group_by(GroupID) |>
-  dplyr::mutate(
-    SequentialCounter = dplyr::if_else(
-      growth_warning == TRUE, # Increment of numbers for Significant == TRUE
-      rev(cumsum(rev(!is.na(Counter)))), NA # Reverse numbers for visibility on plot
-    )
-  ) |>
-  dplyr::ungroup()
-
-significant_vs_obs$season <- factor(
-  significant_vs_obs$season,
-  levels = sort(unique(significant_vs_obs$season), decreasing = FALSE, method = "auto")
+consecutive_gr_warn <- consecutive_growth_warnings(
+  onset_output = tsd_onset
 )
 
-significant_vs_obs |>
-  dplyr::filter(!is.na(SequentialCounter)) |>
-  ggplot2::ggplot(mapping = ggplot2::aes(x = sum_of_cases / 5)) +
-  ggplot2::geom_line(
-    mapping = ggplot2::aes(
-      y = SequentialCounter,
-      group = GroupID,
-      color = season
-    ),
-    linewidth = 1
-  ) +
-  ggplot2::scale_color_manual(
-    values = c("#ebac23", "#b80058", "#008cf9", "#00a76c"),
-    breaks = unique(significant_vs_obs$season),
-    labels = unique(significant_vs_obs$season)
-  ) +
-  ggplot2::scale_x_log10(
-    breaks = scales::log_breaks(base = 10, n = 10),
-    labels = scales::label_comma()
-  ) +
-  ggplot2::labs(
-    y = "Number of subsequent significant observations",
-    x = "Rolling five-week mean of positive cases"
-  ) +
-  ggplot2::theme_bw() +
-  ggplot2::theme(
-    legend.text = ggplot2::element_text(size = 11, color = "black"),
-    axis.text = ggplot2::element_text(size = 9, color = "black"),
-    axis.title.x = ggplot2::element_text(size = 11, color = "black"),
-    axis.title.y = ggplot2::element_text(size = 11, color = "black")
-  ) +
+autoplot(
+  consecutive_gr_warn,
+  k = 5,
+  skip_current_season = TRUE
+) +
   ggplot2::geom_vline(
     ggplot2::aes(xintercept = 25, linetype = "Threshold"),
     color = "black", linewidth = 0.6
@@ -158,13 +111,8 @@ significant_vs_obs |>
   ggplot2::scale_linetype_manual(
     name   = "",
     values = c("Threshold" = "dashed")
-  ) +
-  ggplot2::scale_y_continuous(
-    breaks = scales::breaks_extended(8)
   )
 ```
-The `sum_of_cases` variable is divided by five to represent an average over a five-week window, defining the 
-disease-specific threshold for each time-step.
 
 From the plot above, we observe the length of periods with subsequent significant growth rates (y-axis).
 The season with the longest consecutive period of growth is *2021/2022*, lasting 14 weeks.
@@ -178,10 +126,11 @@ accompanied by a significantly positive growth rate.
 
 Inspect the exact conditions around each detected season start
 ```{r}
-significant_vs_obs |>
-  dplyr::filter(!is.na(SequentialCounter)) |>
+consecutive_gr_warn |>
+  dplyr::filter(!is.na(significant_counter)) |>
+  dplyr::filter(season != max(consecutive_gr_warn$season)) |>
   dplyr::group_by(season) |>
-  dplyr::filter(SequentialCounter == max(SequentialCounter)) |>
+  dplyr::filter(significant_counter == max(significant_counter)) |>
   dplyr::mutate(disease_threshold = sum_of_cases / 5,
                 week = ISOweek::ISOweek(reference_time)) |>
   dplyr::select(season, week, disease_threshold)

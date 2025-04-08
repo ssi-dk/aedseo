@@ -23,7 +23,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Sofia Myrup Otero \email{smot@ssi.dk}
+  \item Sofia Myrup Otero \email{smot@ssi.dk} (\href{https://orcid.org/0009-0006-4953-614X}{ORCID})
   \item Kasper Schou Telkamp \email{kasper.telkamp@gmail.com} (\href{https://orcid.org/0009-0001-5126-0190}{ORCID})
 }
 

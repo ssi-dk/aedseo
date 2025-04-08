@@ -19,7 +19,7 @@ library(aedseo)
 ```
 
 To provide a concise overview of how the `seasonal_burden_levels()` algorithm operates, we utilize the same example data presented
-in the `vignette("aedseo")`. The plot below illustrates the two methods available for estiming burden levels in the
+in the `vignette("aedseo")`. The plot below illustrates the two methods available for estimating burden levels in the
 `combined_seasonal_output()` function:
 
 - **`intensity_levels`**: Intended for within-season classification of observations.
@@ -34,23 +34,21 @@ withr::local_seed(222)
 tsd_data_clean <- generate_seasonal_data(
   years = 3,
   start_date = as.Date("2021-10-18"),
-  amplitude = 2000,
-  mean = 2000,
-  phase = 0,
-  noise_overdispersion = 0,
+  noise_overdispersion = 1,
+  relative_epidemic_concentration = 3,
   time_interval = "week"
 )
 
 # Run models
 intensity_levels <- seasonal_burden_levels(
   tsd = tsd_data_clean,
-  disease_threshold = 140,
+  disease_threshold = 10,
   method = "intensity_levels",
   conf_levels = 0.95
 )
 peak_levels <- seasonal_burden_levels(
   tsd = tsd_data_clean,
-  disease_threshold = 140,
+  disease_threshold = 10,
   method = "peak_levels",
   conf_levels = c(0.4, 0.9, 0.975),
   n_peak = 8
@@ -89,7 +87,7 @@ round_to_nearest <- function(x) {
 y_tics <- sapply(y_tics_levels, round_to_nearest)
 
 # Round max value
-rounded_max_threshold <- (round(max(burden_levels_df$Threshold) / 1000) * 1000) + 1000
+rounded_max_threshold <- (round(max(burden_levels_df$Threshold) / 100) * 100) + 100
 y_tics <- c(y_tics[-5], rounded_max_threshold)
 
 # Create the plot

@@ -5,6 +5,7 @@
 \alias{autoplot.tsd}
 \alias{autoplot.tsd_onset}
 \alias{autoplot.tsd_onset_and_burden}
+\alias{autoplot.tsd_growth_warning}
 \title{Autoplot a \code{tsd} object}
 \usage{
 autoplot(object, ...)
@@ -54,9 +55,20 @@ autoplot(object, ...)
   legend_position = "right",
   ...
 )
+
+\method{autoplot}{tsd_growth_warning}(
+  object,
+  k = 5,
+  skip_current_season = TRUE,
+  line_width = 1,
+  text_family = "sans",
+  legend_position = "bottom",
+  breaks_y_axis = 8,
+  ...
+)
 }
 \arguments{
-\item{object}{a \code{tsd_combined_seasonal_output} object.}
+\item{object}{A \code{tsd_onset} object}
 
 \item{...}{Additional arguments (not used).}
 
@@ -103,6 +115,12 @@ Must match the number of levels.}
 \item{y_scale_labels}{A function to format y-axis labels.}
 
 \item{theme_custom}{A function with a ggplot2 theme, specifying the theme to apply to the plot.}
+
+\item{k}{An integer specifying the window size used to create the \code{tsd_onset} object.}
+
+\item{skip_current_season}{A logical. Do you want to skip your current season?}
+
+\item{breaks_y_axis}{A numeric specifying how many breaks to show on the y-axis.}
 }
 \value{
 A 'ggplot' object for visualizing the \code{tsd} data.
@@ -110,6 +128,8 @@ A 'ggplot' object for visualizing the \code{tsd} data.
 A 'ggplot' object for visualizing the \code{tsd_onset} data.
 
 A 'ggplot' object for visualizing the \code{tsd_onset_and_burden} data for the current season.
+
+A 'ggplot' object for visualizing the \code{tsd_growth_warning} data.
 }
 \description{
 Generates a complete 'ggplot' object suitable for visualizing time series data in a
@@ -159,5 +179,18 @@ tsd_onset_burden <- combined_seasonal_output(
   disease_threshold = disease_threshold
 )
 autoplot(tsd_onset_burden)
+
+# Create an `tsd_onset` object
+tsd_onset <- seasonal_onset(
+  tsd = time_series,
+  k = 5,
+  family = "quasipoisson",
+  season_start = 21,
+  only_current_season = FALSE
+)
+
+tsd_growth_warning <- consecutive_growth_warnings(tsd_onset)
+
+autoplot(tsd_growth_warning)
 
 }
