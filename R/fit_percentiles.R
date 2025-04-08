@@ -24,9 +24,9 @@
 #'       - par_1:
 #'          - For 'weibull': Shape parameter (k).
 #'          - For 'lnorm': Mean of the log-transformed observations.
-#'          - For 'exp': Rate parameter (λ).
+#'          - For 'exp': Rate parameter (rate).
 #'       - 'par_2':
-#'          - For 'weibull': Scale parameter (λ).
+#'          - For 'weibull': Scale parameter (scale).
 #'          - For 'lnorm': Standard deviation of the log-transformed observations.
 #'          - For 'exp': Not applicable (set to NA).
 #'   - 'obj_value': The value of the objective function - (negative log-likelihood), which represent the minimized

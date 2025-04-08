@@ -42,11 +42,11 @@ A list containing:
 \itemize{
 \item For 'weibull': Shape parameter (k).
 \item For 'lnorm': Mean of the log-transformed observations.
-\item For 'exp': Rate parameter (λ).
+\item For 'exp': Rate parameter (rate).
 }
 \item 'par_2':
 \itemize{
-\item For 'weibull': Scale parameter (λ).
+\item For 'weibull': Scale parameter (scale).
 \item For 'lnorm': Standard deviation of the log-transformed observations.
 \item For 'exp': Not applicable (set to NA).
 }
