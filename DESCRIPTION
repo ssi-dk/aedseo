@@ -22,10 +22,6 @@ Description: A powerful tool for automating the early detection of seasonal epid
              based on historical data. It is aimed towards epidemiologists,
              public health professionals, and researchers seeking to identify and respond
              to seasonal epidemics in a timely fashion.
-             For reference on growth rate estimation, see Walling and Lipstich (2007)
-             <doi:10.1098/rspb.2006.3754> and Obadia et al. (2012) <doi:10.1186/1472-6947-12-147>.
-             Seasonal burden level calculations have been inspired by The Moving Epidemic
-             Method (mem), see Vega and Lozano (2012) <doi:10.1111/j.1750-2659.2012.00422.x>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
