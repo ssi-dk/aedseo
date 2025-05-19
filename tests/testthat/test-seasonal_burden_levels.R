@@ -236,3 +236,21 @@ test_that("Test that when only current season has an obs above disease_threshold
     c(max_obs + 50, rep(NA, 3))
   )
 })
+
+test_that("Test that only_current_season = FALSE/TRUE estimate same results", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Generate seasonal data
+  tsd_data <- generate_seasonal_data(years = 4, start_date = as.Date("2021-01-04"))
+
+  current_level <- seasonal_burden_levels(
+    tsd_data, family = "lnorm",
+    only_current_season = TRUE
+  )
+  all_levels <- seasonal_burden_levels(
+    tsd_data, family = "lnorm",
+    only_current_season = FALSE
+  )
+
+  expect_equal(current_level$values, all_levels[[4]]$values)
+})
