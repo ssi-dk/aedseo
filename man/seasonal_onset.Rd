@@ -10,6 +10,7 @@ seasonal_onset(
   level = 0.95,
   disease_threshold = NA_integer_,
   family = c("poisson", "quasipoisson"),
+  use_offset = FALSE,
   na_fraction_allowed = 0.4,
   season_start = NULL,
   season_end = season_start - 1,
@@ -28,6 +29,8 @@ onset alarm. If the total number of cases in a window of size k exceeds \code{di
 onset alarm can be triggered.}
 
 \item{family}{A character string specifying the family for modeling}
+
+\item{use_offset}{"Should the growth rates be adjusted for background population?"}
 
 \item{na_fraction_allowed}{Numeric value between 0 and 1 specifying the fraction of observables in the window
 of size k that are allowed to be NA or zero, i.e. without cases, in onset calculations.}

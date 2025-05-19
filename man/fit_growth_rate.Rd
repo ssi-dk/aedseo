@@ -6,12 +6,15 @@
 \usage{
 fit_growth_rate(
   observations,
+  pop = NULL,
   level = 0.95,
   family = c("poisson", "quasipoisson")
 )
 }
 \arguments{
 \item{observations}{A numeric vector containing the time series observations.}
+
+\item{pop}{A numeric vector containing the background population (optional).}
 
 \item{level}{The confidence level for parameter estimates, a numeric value between 0 and 1.}
 

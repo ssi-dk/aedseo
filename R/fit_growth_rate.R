@@ -6,6 +6,7 @@
 #' confidence intervals.
 #'
 #' @param observations A numeric vector containing the time series observations.
+#' @param pop A numeric vector containing the background population (optional).
 #' @param level The confidence level for parameter estimates, a numeric value between 0 and 1.
 #' @param family A character string specifying the family for modeling. Choose between "poisson," or "quasipoisson".
 #'
@@ -28,6 +29,7 @@
 #' )
 fit_growth_rate <- function(
     observations,
+    pop = NULL,
     level = 0.95,
     family = c(
       "poisson",
@@ -35,31 +37,33 @@ fit_growth_rate <- function(
     )) {
   safe_confint <- purrr::safely(stats::confint)
 
-  # Match the arguements
-  family <- rlang::arg_match(family)
-
-  # Calculate the length of the series
-  n <- base::length(observations)
-
-  # Construct a data.frame wit growth rate data
-  growth_data <- stats::aggregate(
-    observations,
-    by = list(growth_rate = rep(1:n, each = 1)),
-    FUN = sum
+  # Match the selected model
+  family <- switch(
+    family,
+    poisson = stats::poisson(link = "log"),
+    quasipoisson = stats::quasipoisson(link = "log")
   )
 
-  # Fit the model using the specified family
-  growth_fit <- base::switch(family,
-    poisson = stats::glm(
-      formula = x ~ growth_rate,
-      data = growth_data,
-      family = stats::poisson(link = "log")
-    ),
-    quasipoisson = stats::glm(
-      formula = x ~ growth_rate,
-      data = growth_data,
-      family = stats::quasipoisson(link = "log")
-    )
+  # Construct the data with growth rates for the glm model
+  growth_data <- purrr::compact(list(
+    growth_rate = seq_along(observations),
+    x = observations,
+    pop = pop
+  )) |>
+    tibble::as_tibble()
+
+  # Construct formula terms
+  terms <- if (is.null(pop)) {
+    "growth_rate"
+  } else {
+    c("growth_rate", "offset(log(pop))")
+  }
+
+  # Fit the model
+  growth_fit <- stats::glm(
+    formula = stats::reformulate(response = "observations", termlabels = terms),
+    data = growth_data,
+    family = family
   )
 
   # Calculate the 'safe' confidence intervals

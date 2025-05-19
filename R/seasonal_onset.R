@@ -10,6 +10,7 @@
 #' @param level The confidence level for onset parameter estimates, a numeric value between 0 and 1.
 #' @param disease_threshold `r rd_disease_threshold(usage = "onset")`
 #' @param family `r rd_family()`
+#' @param use_offset "Should the growth rates be adjusted for background population?"
 #' @param na_fraction_allowed Numeric value between 0 and 1 specifying the fraction of observables in the window
 #' of size k that are allowed to be NA or zero, i.e. without cases, in onset calculations.
 #' @param season_start,season_end `r rd_season_start_end(usage = "onset")`
@@ -56,6 +57,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
       "quasipoisson"
       # TODO: #10 Include negative.binomial regressions. @telkamp7
     ),
+    use_offset = FALSE,
     na_fraction_allowed = 0.4,
     season_start = NULL,
     season_end = season_start - 1,
@@ -64,7 +66,16 @@ seasonal_onset <- function(                                     # nolint: cycloc
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(tsd, add = coll)
   checkmate::assert_class(tsd, "tsd", add = coll)
-  checkmate::assert_names(colnames(tsd), identical.to = c("time", "observation"), add = coll)
+  checkmate::assert_names(
+    colnames(tsd),
+    must.include = c("time", "observation"),
+    subset.of = c("time", "observation", "pop"),
+    add = coll
+  )
+  checkmate::assert_logical(use_offset, add = coll)
+  if (isTRUE(use_offset) && !"pop" %in% names(tsd)) {
+    coll$push("If use_offset is TRUE, tsd must contain a 'pop' column")
+  }
   checkmate::assert_numeric(level, lower = 0, upper = 1, add = coll)
   checkmate::assert_numeric(na_fraction_allowed, lower = 0, upper = 1,
                             add = coll)
@@ -149,6 +160,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
       # Estimate growth rates
       growth_rates <- fit_growth_rate(
         observations = obs_iter$observation,
+        pop = if (isTRUE(use_offset) && "pop" %in% names(tsd)) obs_iter$pop else NULL,
         level = level,
         family = family
       )

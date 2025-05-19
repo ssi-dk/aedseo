@@ -150,3 +150,45 @@ test_that("Test that selection of current and all seasons work as expected", {
   tsd_na_rows <- seasonal_onset(tsd_last_season, season_start = 21, only_current_season = TRUE)
   expect_length(tsd_na_rows$observation, length(current_onset$observation[-(1:4)]))
 })
+
+test_that("Test that adding pop works as expected", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Generate seasonal data
+  observation <- c(100, 120, 150, 180, 220, 270, 300, 500, 320, 234, 100, 5)
+  tsd_data <- to_time_series(
+    observation = observation,
+    time = seq(as.Date("2020-01-01"), by = "week", length.out = length(observation)),
+    time_interval = "week"
+  )
+
+  # Calculate growth rates with stable population - should be identical
+  no_offset <- seasonal_onset(
+    tsd = tsd_data,
+    k = 3,
+    use_offset = FALSE
+  )
+
+  with_offset_stable <- seasonal_onset(
+    tsd = tsd_data |>
+      dplyr::bind_cols(pop = rep(100000, length(observation))),
+    k = 3,
+    use_offset = TRUE
+  )
+
+  expect_equal(no_offset, with_offset_stable)
+
+  # Change population size during period
+  with_offset <- seasonal_onset(
+    tsd = tsd_data |>
+      dplyr::bind_cols(
+        pop = c(rep(100000, length(observation) / 2),
+          rep(200000, length(observation) / 2)
+        )
+      ),
+    k = 3,
+    use_offset = TRUE
+  )
+
+  expect_false(identical(no_offset, with_offset))
+})
