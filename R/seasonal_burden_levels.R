@@ -10,6 +10,8 @@
 #' @param tsd `r rd_tsd`
 #' @param family `r rd_family()`
 #' @param season_start,season_end `r rd_season_start_end()`
+#' @param incidence_conversion Should the burden levels be converted to per incidence?
+#' @param incidence_rate An integer >= 1, specifying the incidence rate (e.g. observations per 1,000 population).
 #' @param method A character string specifying the model to be used in the level calculations.
 #' Both model predict the levels of the current series of
 #' observations.
@@ -78,6 +80,8 @@ seasonal_burden_levels <- function(
              "exp"),
   season_start = 21,
   season_end = season_start - 1,
+  incidence_conversion = FALSE,
+  incidence_rate = NULL,
   method = c("intensity_levels", "peak_levels"),
   conf_levels = 0.95,
   decay_factor = 0.8,
@@ -91,11 +95,18 @@ seasonal_burden_levels <- function(
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(tsd, add = coll)
   checkmate::assert_class(tsd, "tsd", add = coll)
-  checkmate::assert_names(colnames(tsd), identical.to = c("time", "observation"), add = coll)
+  checkmate::assert_names(
+    colnames(tsd),
+    must.include = c("time", "observation"),
+    subset.of = c("time", "observation", "pop"),
+    add = coll
+  )
   checkmate::assert_integerish(season_start, lower = 1, upper = 53,
                                null.ok = FALSE, add = coll)
   checkmate::assert_integerish(season_end, lower = 1, upper = 53,
                                null.ok = FALSE, add = coll)
+  checkmate::assert_logical(incidence_conversion, add = coll)
+  checkmate::assert_integerish(incidence_rate, lower = 1, len = 1, null.ok = TRUE, add = coll)
   checkmate::assert_numeric(decay_factor, lower = 0, upper = 1, len = 1, add = coll)
   checkmate::assert_numeric(n_peak, lower = 1, len = 1, add = coll)
   checkmate::assert_integerish(disease_threshold, len = 1, add = coll)
@@ -108,6 +119,19 @@ seasonal_burden_levels <- function(
     checkmate::assert_numeric(conf_levels, lower = 0, upper = 1, len = 3,
                               unique = TRUE, sorted = TRUE, add = coll)
   }
+
+  if (incidence_conversion) {
+    if (is.null(incidence_rate)) {
+      coll$push("If incidence_conversion is assigned incidence_rate must also be assigned")
+    }
+    if (!"pop" %in% names(tsd)) {
+      coll$push("If incidence_conversion is assigned, tsd must contain a 'pop' column")
+    }
+    tsd <- tsd |>
+      dplyr::mutate(observation = (.data$observation / .data$pop) * incidence_rate) |>
+      dplyr::select(-"pop")
+  }
+
   # Add the seasons to data
   seasonal_tsd <- tsd |>
     dplyr::mutate(season = epi_calendar(.data$time, start = season_start, end = season_end)) |>
