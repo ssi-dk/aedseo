@@ -5,8 +5,8 @@
 #' This function fits a growth rate model to time series observations and provides parameter estimates along with
 #' confidence intervals.
 #'
-#' @param observations A numeric vector containing the time series observations.
-#' @param pop A numeric vector containing the background population (optional).
+#' @param observation `r rd_observation`.
+#' @param pop `r rd_pop`
 #' @param level The confidence level for parameter estimates, a numeric value between 0 and 1.
 #' @param family A character string specifying the family for modeling. Choose between "poisson," or "quasipoisson".
 #'
@@ -23,12 +23,12 @@
 #' # (e.g., population growth)
 #' data <- c(100, 120, 150, 180, 220, 270)
 #' fit_growth_rate(
-#'   observations = data,
+#'   observation = data,
 #'   level = 0.95,
 #'   family = "poisson"
 #' )
 fit_growth_rate <- function(
-    observations,
+    observation,
     pop = NULL,
     level = 0.95,
     family = c(
@@ -46,8 +46,8 @@ fit_growth_rate <- function(
 
   # Construct the data with growth rates for the glm model
   growth_data <- purrr::compact(list(
-    growth_rate = seq_along(observations),
-    x = observations,
+    growth_rate = seq_along(observation),
+    x = observation,
     pop = pop
   )) |>
     tibble::as_tibble()
@@ -61,7 +61,7 @@ fit_growth_rate <- function(
 
   # Fit the model
   growth_fit <- stats::glm(
-    formula = stats::reformulate(response = "observations", termlabels = terms),
+    formula = stats::reformulate(response = "observation", termlabels = terms),
     data = growth_data,
     family = family
   )

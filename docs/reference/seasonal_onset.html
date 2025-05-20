@@ -71,6 +71,7 @@ It estimates growth rates for consecutive time intervals and calculates the sum 
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  disease_threshold <span class="op">=</span> <span class="cn">NA_integer_</span>,</span>
 <span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"poisson"</span>, <span class="st">"quasipoisson"</span><span class="op">)</span>,</span>
+<span>  use_offset <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  na_fraction_allowed <span class="op">=</span> <span class="fl">0.4</span>,</span>
 <span>  season_start <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  season_end <span class="op">=</span> <span class="va">season_start</span> <span class="op">-</span> <span class="fl">1</span>,</span>
@@ -100,6 +101,10 @@ onset alarm can be triggered.</p></dd>
 
 <dt>family</dt>
 <dd><p>A character string specifying the family for modeling</p></dd>
+
+
+<dt>use_offset</dt>
+<dd><p>"Should the growth rates be adjusted for background population?"</p></dd>
 
 
 <dt>na_fraction_allowed</dt>

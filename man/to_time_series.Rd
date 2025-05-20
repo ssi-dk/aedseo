@@ -12,7 +12,7 @@ to_time_series(
 )
 }
 \arguments{
-\item{observation}{A numeric vector containing the observations.}
+\item{observation}{A numeric vector containing the time series observations.}
 
 \item{time}{A date vector containing the corresponding dates.}
 

@@ -159,7 +159,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
     } else {
       # Estimate growth rates
       growth_rates <- fit_growth_rate(
-        observations = obs_iter$observation,
+        observation = obs_iter$observation,
         pop = if (isTRUE(use_offset) && "pop" %in% names(tsd)) obs_iter$pop else NULL,
         level = level,
         family = family

@@ -6,9 +6,9 @@
 #' a time series data structure that can be used for time series analysis.
 #' Optionally the background population can be added.
 #'
-#' @param observation A numeric vector containing the observations.
+#' @param observation `r rd_observation`
 #' @param time A date vector containing the corresponding dates.
-#' @param pop A numeric vector containing the background population (optional).
+#' @param pop `r rd_pop`
 #' @param time_interval `r rd_time_interval`
 #'
 #' @return A `tsd` object containing:
