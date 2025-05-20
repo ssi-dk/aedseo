@@ -10,7 +10,7 @@
 #' @param level The confidence level for onset parameter estimates, a numeric value between 0 and 1.
 #' @param disease_threshold `r rd_disease_threshold(usage = "onset")`
 #' @param family `r rd_family()`
-#' @param use_offset "Should the growth rates be adjusted for background population?"
+#' @param use_offset Should the growth rates be adjusted for background population?
 #' @param na_fraction_allowed Numeric value between 0 and 1 specifying the fraction of observables in the window
 #' of size k that are allowed to be NA or zero, i.e. without cases, in onset calculations.
 #' @param season_start,season_end `r rd_season_start_end(usage = "onset")`
