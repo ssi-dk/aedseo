@@ -151,7 +151,7 @@ test_that("Test that selection of current and all seasons work as expected", {
   expect_length(tsd_na_rows$observation, length(current_onset$observation[-(1:4)]))
 })
 
-test_that("Test that adding pop works as expected", {
+test_that("Test that adding population works as expected", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
   # Generate seasonal data
