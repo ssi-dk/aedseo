@@ -254,3 +254,31 @@ test_that("Test that only_current_season = FALSE/TRUE estimate same results", {
 
   expect_equal(current_level$values, all_levels[[4]]$values)
 })
+
+test_that("Test that levels are always included in output", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Generate seasonal data
+  tsd_data <- generate_seasonal_data(
+    years = 6,
+    start_date = as.Date("2021-01-04"),
+    trend_rate = 1.02,
+    relative_epidemic_concentration = 2
+  ) |>
+    dplyr::mutate(season = epi_calendar(time))
+
+  nr_seasons <- dplyr::n_distinct(tsd_data$season)
+
+  new_tsd <- tsd_data |>
+    dplyr::mutate(observation = dplyr::if_else(season == "2022/2023", 1, observation)
+    ) |>
+    dplyr::select(-season)
+
+  current_level <- seasonal_burden_levels(
+    tsd = new_tsd,
+    only_current_season = FALSE
+  )
+
+  expect_equal(length(current_level), nr_seasons - 1) # exclude first season
+  expect_equal(current_level[[2]]$values, current_level[[3]]$values)
+})
