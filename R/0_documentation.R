@@ -17,12 +17,13 @@ rd_disease_threshold <- function(usage = NULL) {
         })
 }
 rd_family <- function(usage = NULL) {
-  paste("A character string specifying the family for modeling",
-        ifelse(usage == "combined", paste(" seasonal onset.")))
+  paste("A character string specifying the family for modeling. Choose between 'poisson', or 'quasipoisson'.
+        Must be one of: character, family-generator, or family object.",
+        ifelse(usage == "combined", paste(" This is passed to 'seasonal_onset()'.")))
 }
 rd_observation <- "A numeric vector containing the time series observations."
 rd_only_current_season <- "Should the output only include results for the current season?"
-rd_pop <- "A numeric vector containing the background population (optional)."
+rd_population <- "A numeric vector containing the background population (optional)."
 rd_season_start_end <- function(usage = NULL) {
   paste("Integers giving the start and end weeks of the seasons to
   stratify the observations by.",

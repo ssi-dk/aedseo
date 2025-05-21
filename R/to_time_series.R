@@ -8,13 +8,13 @@
 #'
 #' @param observation `r rd_observation`
 #' @param time A date vector containing the corresponding dates.
-#' @param pop `r rd_pop`
+#' @param population `r rd_population`
 #' @param time_interval `r rd_time_interval`
 #'
 #' @return A `tsd` object containing:
 #'   - 'time': The time point for for when the observation is observed.
 #'   - 'observation': The observed value at the time point.
-#'   - 'pop': The background population for the observed value (optional)
+#'   - 'population': The background population for the observed value (optional)
 #'
 #' @export
 #'
@@ -34,7 +34,7 @@
 #'   time = as.Date(
 #'     c("2023-01-01", "2023-01-08", "2023-01-15")
 #'   ),
-#'   pop = c(100000, 100000, 100000),
+#'   population = c(100000, 100000, 100000),
 #'   time_interval = "week"
 #' )
 #'
@@ -50,14 +50,14 @@
 to_time_series <- function(
   observation,
   time,
-  pop = NULL,
+  population = NULL,
   time_interval = c("day", "week", "month")
 ) {
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_date(time, add = coll)
   checkmate::assert_numeric(observation, add = coll)
-  checkmate::assert_numeric(pop, null.ok = TRUE, add = coll)
+  checkmate::assert_numeric(population, null.ok = TRUE, add = coll)
   checkmate::reportAssertions(coll)
 
   # Throw an error if any of the inputs are not supported
@@ -67,7 +67,7 @@ to_time_series <- function(
   tbl <- purrr::compact(list( # compact discards empty vectors
     time = time,
     observation = observation,
-    pop = pop
+    population = population
   )) |>
     tibble::as_tibble()
 

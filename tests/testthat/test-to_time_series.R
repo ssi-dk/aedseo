@@ -25,7 +25,7 @@ test_that("Test that input argument checks work", {
 
   expect_no_error(to_time_series(
     observation = c(100, 120, 150, 180, 220, 270),
-    pop = c(100000, 100050, 100000, 100000, 100002, 100100),
+    population = c(100000, 100050, 100000, 100000, 100002, 100100),
     time = as.Date(c(
       "2023-01-01",
       "2023-01-02",

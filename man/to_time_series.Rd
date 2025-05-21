@@ -7,7 +7,7 @@
 to_time_series(
   observation,
   time,
-  pop = NULL,
+  population = NULL,
   time_interval = c("day", "week", "month")
 )
 }
@@ -16,7 +16,7 @@ to_time_series(
 
 \item{time}{A date vector containing the corresponding dates.}
 
-\item{pop}{A numeric vector containing the background population (optional).}
+\item{population}{A numeric vector containing the background population (optional).}
 
 \item{time_interval}{A character vector specifying the time interval. Choose between 'day', 'week', or 'month'.}
 }
@@ -25,7 +25,7 @@ A \code{tsd} object containing:
 \itemize{
 \item 'time': The time point for for when the observation is observed.
 \item 'observation': The observed value at the time point.
-\item 'pop': The background population for the observed value (optional)
+\item 'population': The background population for the observed value (optional)
 }
 }
 \description{
@@ -49,7 +49,7 @@ weekly_tsd <- to_time_series(
   time = as.Date(
     c("2023-01-01", "2023-01-08", "2023-01-15")
   ),
-  pop = c(100000, 100000, 100000),
+  population = c(100000, 100000, 100000),
   time_interval = "week"
 )
 

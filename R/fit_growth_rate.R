@@ -6,9 +6,9 @@
 #' confidence intervals.
 #'
 #' @param observation `r rd_observation`.
-#' @param pop `r rd_pop`
+#' @param population `r rd_population`
 #' @param level The confidence level for parameter estimates, a numeric value between 0 and 1.
-#' @param family A character string specifying the family for modeling. Choose between "poisson," or "quasipoisson".
+#' @param family `r rd_family()`
 #'
 #' @return A list containing:
 #'   - 'fit': The fitted growth rate model.
@@ -28,42 +28,58 @@
 #'   family = "poisson"
 #' )
 fit_growth_rate <- function(
-    observation,
-    pop = NULL,
-    level = 0.95,
-    family = c(
-      "poisson",
-      "quasipoisson" # TODO #10 Include negative.binomial regressions. @telkamp7
-    )) {
+  observation,
+  population = NULL,
+  level = 0.95,
+  family = c(
+    "quasipoisson",
+    "poisson"
+  )
+) {
   safe_confint <- purrr::safely(stats::confint)
 
+  # Check input arguments
+  coll <- checkmate::makeAssertCollection()
+  checkmate::assert_numeric(observation, add = coll)
+  checkmate::assert_numeric(level, lower = 0, upper = 1, add = coll)
+  checkmate::assert_numeric(population, null.ok = TRUE, add = coll)
   # Match the selected model
-  family <- switch(
-    family,
-    poisson = stats::poisson(link = "log"),
-    quasipoisson = stats::quasipoisson(link = "log")
-  )
+  if (is.character(family)) { # If character
+    fam_name <- match.arg(family)
+    family_fun <- get(fam_name, mode = "function", envir = parent.frame())
+    fam_obj <- family_fun()
+  } else if (is.function(family)) { # If family-generator e.g. stats::poisson
+    fam_obj <- family()
+  } else if (inherits(family, "family")) { # If family object e.g. stats::poisson()
+    fam_obj <- family
+  } else {
+    coll$push("`family` must be one of: character, family-generator, or family object")
+  }
+  checkmate::reportAssertions(coll) # Assert that we have an object before going further
+  checkmate::assert_names(names(fam_obj), must.include = c("family", "link"), add = coll)
+  checkmate::assert_choice(fam_obj$family, choices = c("poisson", "quasipoisson"), add = coll)
+  checkmate::reportAssertions(coll)
 
   # Construct the data with growth rates for the glm model
   growth_data <- purrr::compact(list(
     growth_rate = seq_along(observation),
     x = observation,
-    pop = pop
+    population = population
   )) |>
     tibble::as_tibble()
 
   # Construct formula terms
-  terms <- if (is.null(pop)) {
+  terms <- if (is.null(population)) {
     "growth_rate"
   } else {
-    c("growth_rate", "offset(log(pop))")
+    c("growth_rate", "offset(log(population))")
   }
 
   # Fit the model
   growth_fit <- stats::glm(
     formula = stats::reformulate(response = "observation", termlabels = terms),
     data = growth_data,
-    family = family
+    family = fam_obj
   )
 
   # Calculate the 'safe' confidence intervals

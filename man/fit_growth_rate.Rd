@@ -6,19 +6,20 @@
 \usage{
 fit_growth_rate(
   observation,
-  pop = NULL,
+  population = NULL,
   level = 0.95,
-  family = c("poisson", "quasipoisson")
+  family = c("quasipoisson", "poisson")
 )
 }
 \arguments{
 \item{observation}{A numeric vector containing the time series observations..}
 
-\item{pop}{A numeric vector containing the background population (optional).}
+\item{population}{A numeric vector containing the background population (optional).}
 
 \item{level}{The confidence level for parameter estimates, a numeric value between 0 and 1.}
 
-\item{family}{A character string specifying the family for modeling. Choose between "poisson," or "quasipoisson".}
+\item{family}{A character string specifying the family for modeling. Choose between 'poisson', or 'quasipoisson'.
+Must be one of: character, family-generator, or family object.}
 }
 \value{
 A list containing:
