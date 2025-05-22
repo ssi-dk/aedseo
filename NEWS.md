@@ -1,3 +1,17 @@
+# aedseo (development version)
+
+## Deprecations
+
+## Features
+
+* Added new argument `population` to `to_time_series()` and `fit_growth_rate()` that allows the user to add the background population connected to each observation (#83).
+
+* Added new argument `use_offset` to `seasonal_onset()` that allows the user to add the background population to adjust the growth rate estimations (#83).
+
+## Improvements
+
+## Minor changes
+
 # aedseo 0.3.0
 
 ## Deprecations

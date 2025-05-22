@@ -17,10 +17,13 @@ rd_disease_threshold <- function(usage = NULL) {
         })
 }
 rd_family <- function(usage = NULL) {
-  paste("A character string specifying the family for modeling",
-        ifelse(usage == "combined", paste(" seasonal onset.")))
+  paste("A character string specifying the family for modeling. Choose between 'poisson', or 'quasipoisson'.
+        Must be one of: character, family-generator, or family object.",
+        ifelse(usage == "combined", paste(" This is passed to 'seasonal_onset()'.")))
 }
+rd_observation <- "A numeric vector containing the time series observations."
 rd_only_current_season <- "Should the output only include results for the current season?"
+rd_population <- "A numeric vector containing the background population (optional)."
 rd_season_start_end <- function(usage = NULL) {
   paste("Integers giving the start and end weeks of the seasons to
   stratify the observations by.",
@@ -29,7 +32,8 @@ rd_season_start_end <- function(usage = NULL) {
 rd_seasonal_onset_return <- paste(
   "\nA `seasonal_onset` object containing:\n",
   "- 'reference_time': The time point for which the growth rate is estimated.\n",
-  "- 'observation': The observation in the reference time point.\n",
+  "- 'observation': The observation at reference time point.\n",
+  "- 'population': The population at reference time point.\n",
   "- 'season': The stratification of observables in corresponding seasons.\n",
   "- 'growth_rate': The estimated growth rate.\n",
   "- 'lower_growth_rate': The lower bound of the growth rate's confidence interval.\n",

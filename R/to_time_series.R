@@ -4,14 +4,17 @@
 #'
 #' This function takes observations and the corresponding date vector and converts it into a `tsd` object, which is
 #' a time series data structure that can be used for time series analysis.
+#' Optionally the background population can be added.
 #'
-#' @param observation A numeric vector containing the observations.
+#' @param observation `r rd_observation`
 #' @param time A date vector containing the corresponding dates.
+#' @param population `r rd_population`
 #' @param time_interval `r rd_time_interval`
 #'
 #' @return A `tsd` object containing:
 #'   - 'time': The time point for for when the observation is observed.
 #'   - 'observation': The observed value at the time point.
+#'   - 'population': The background population for the observed value (optional)
 #'
 #' @export
 #'
@@ -31,6 +34,7 @@
 #'   time = as.Date(
 #'     c("2023-01-01", "2023-01-08", "2023-01-15")
 #'   ),
+#'   population = c(100000, 100000, 100000),
 #'   time_interval = "week"
 #' )
 #'
@@ -43,21 +47,29 @@
 #'   time_interval = "month"
 #' )
 #'
-to_time_series <- function(observation, time, time_interval = c("day", "week", "month")) {
+to_time_series <- function(
+  observation,
+  time,
+  population = NULL,
+  time_interval = c("day", "week", "month")
+) {
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_date(time, add = coll)
   checkmate::assert_numeric(observation, add = coll)
+  checkmate::assert_numeric(population, null.ok = TRUE, add = coll)
   checkmate::reportAssertions(coll)
 
   # Throw an error if any of the inputs are not supported
   time_interval <- rlang::arg_match(time_interval)
 
   # Collect the input in a tibble
-  tbl <- tibble::tibble(
+  tbl <- purrr::compact(list( # compact discards empty vectors
     time = time,
-    observation = observation
-  )
+    observation = observation,
+    population = population
+  )) |>
+    tibble::as_tibble()
 
   # Create the time series data object
   tsd <- tibble::new_tibble(

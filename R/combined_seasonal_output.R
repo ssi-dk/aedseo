@@ -65,8 +65,8 @@ combined_seasonal_output <- function(
   tsd,
   disease_threshold = 20,
   family = c(
-    "poisson",
-    "quasipoisson"
+    "quasipoisson",
+    "poisson"
   ),
   family_quant = c(
     "lnorm",

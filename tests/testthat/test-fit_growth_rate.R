@@ -10,13 +10,13 @@ test_that("The growth rate models converge", {
 
   # Fit with poisson family
   fit_poisson <- fit_growth_rate(
-    observations = data_poisson,
+    observation = data_poisson,
     level = 0.95,
     family = "poisson"
   )
   # Fit with quassipoisson family
   fit_quasipoisson <- fit_growth_rate(
-    observations = data_nbinom,
+    observation = data_nbinom,
     level = 0.95,
     family = "quasipoisson"
   )
