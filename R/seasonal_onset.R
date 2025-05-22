@@ -175,6 +175,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
       tibble::tibble(
         reference_time = tsd$time[i],
         observation = tsd$observation[i],
+        population = if ("population" %in% names(tsd)) tsd$population[i] else NULL,
         season = tsd$season[i],
         growth_rate = growth_rates$estimate[1],
         lower_growth_rate = growth_rates$estimate[2],

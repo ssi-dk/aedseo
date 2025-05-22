@@ -42,7 +42,8 @@ stratify the observations by. If set to \code{NULL}, it means no stratification 
 A \code{seasonal_onset} object containing:
 \itemize{
 \item 'reference_time': The time point for which the growth rate is estimated.
-\item 'observation': The observation in the reference time point.
+\item 'observation': The observation at reference time point.
+\item 'population': The population at reference time point.
 \item 'season': The stratification of observables in corresponding seasons.
 \item 'growth_rate': The estimated growth rate.
 \item 'lower_growth_rate': The lower bound of the growth rate's confidence interval.

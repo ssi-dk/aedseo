@@ -32,7 +32,8 @@ rd_season_start_end <- function(usage = NULL) {
 rd_seasonal_onset_return <- paste(
   "\nA `seasonal_onset` object containing:\n",
   "- 'reference_time': The time point for which the growth rate is estimated.\n",
-  "- 'observation': The observation in the reference time point.\n",
+  "- 'observation': The observation at reference time point.\n",
+  "- 'population': The population at reference time point.\n",
   "- 'season': The stratification of observables in corresponding seasons.\n",
   "- 'growth_rate': The estimated growth rate.\n",
   "- 'lower_growth_rate': The lower bound of the growth rate's confidence interval.\n",

@@ -174,6 +174,9 @@ test_that("Test that adding population works as expected", {
     k = 3,
   )
 
+  with_pop_stable <- with_pop_stable |>
+    dplyr::select(-population)
+
   expect_equal(no_pop, with_pop_stable)
 
   # Change population size during period
@@ -186,6 +189,9 @@ test_that("Test that adding population works as expected", {
       ),
     k = 3,
   )
+
+  with_pop <- with_pop |>
+    dplyr::select(-population)
 
   expect_false(identical(no_pop, with_pop))
 })
