@@ -98,6 +98,8 @@ combined_seasonal_output <- function(
       burden_args)
   )
 
+  if ()
+
   onset_output <- do.call(
     seasonal_onset,
     c(list(tsd = tsd, disease_threshold = disease_threshold, family = family,
