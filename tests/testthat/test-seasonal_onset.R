@@ -150,3 +150,92 @@ test_that("Test that selection of current and all seasons work as expected", {
   tsd_na_rows <- seasonal_onset(tsd_last_season, season_start = 21, only_current_season = TRUE)
   expect_length(tsd_na_rows$observation, length(current_onset$observation[-(1:4)]))
 })
+
+test_that("Test that adding population works as expected", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Generate seasonal data
+  observation <- c(100, 120, 150, 180, 220, 270, 300, 500, 320, 234, 100, 5)
+  tsd_data <- to_time_series(
+    observation = observation,
+    time = seq(as.Date("2020-01-01"), by = "week", length.out = length(observation)),
+    time_interval = "week"
+  )
+
+  # Calculate growth rates with stable population - should be identical
+  no_pop <- seasonal_onset(
+    tsd = tsd_data,
+    k = 3,
+  )
+
+  with_pop_stable <- seasonal_onset(
+    tsd = tsd_data |>
+      dplyr::bind_cols(population = rep(100000, length(observation))),
+    k = 3,
+  )
+
+  with_pop_stable <- with_pop_stable |>
+    dplyr::select(-population)
+
+  expect_equal(no_pop, with_pop_stable)
+
+  # Change population size during period
+  with_pop <- seasonal_onset(
+    tsd = tsd_data |>
+      dplyr::bind_cols(
+        population = c(rep(100000, length(observation) / 2),
+          rep(200000, length(observation) / 2)
+        )
+      ),
+    k = 3,
+  )
+
+  with_pop <- with_pop |>
+    dplyr::select(-population)
+
+  expect_false(identical(no_pop, with_pop))
+})
+
+test_that("family works the same via name, generator or object", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Generate seasonal data
+  tsd_data <- generate_seasonal_data(
+    years = 3,
+    start_date = as.Date("2021-01-04")
+  )
+
+  # Apply methods
+  fam_inputs <- list(
+    character = "poisson",
+    generator = stats::poisson,
+    object = stats::poisson(),
+    object_with_link = stats::poisson(link = "log")
+  )
+
+  # Run seasonal_onset on all methods
+  onset_outputs <- lapply(fam_inputs, function(fam) {
+    seasonal_onset(tsd = tsd_data, family = fam)
+  })
+
+  # Check all results are equal
+  purrr::walk(
+    onset_outputs[-1],
+    ~ expect_equal(.x, (onset_outputs[[1]]), ignore_attr = TRUE)
+  )
+
+  expect_error(seasonal_onset(
+    tsd = tsd_data,
+    family = 4,
+  ))
+
+  expect_error(seasonal_onset(
+    tsd = tsd_data,
+    family = "hello",
+  ))
+
+  expect_error(seasonal_onset(
+    tsd = tsd_data,
+    family = stats::binomial,
+  ))
+})

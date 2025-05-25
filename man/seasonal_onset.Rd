@@ -9,7 +9,7 @@ seasonal_onset(
   k = 5,
   level = 0.95,
   disease_threshold = NA_integer_,
-  family = c("poisson", "quasipoisson"),
+  family = c("quasipoisson", "poisson"),
   na_fraction_allowed = 0.4,
   season_start = NULL,
   season_end = season_start - 1,
@@ -27,7 +27,8 @@ seasonal_onset(
 onset alarm. If the total number of cases in a window of size k exceeds \code{disease_threshold * k}, a seasonal
 onset alarm can be triggered.}
 
-\item{family}{A character string specifying the family for modeling}
+\item{family}{A character string specifying the family for modeling. Choose between 'poisson', or 'quasipoisson'.
+Must be one of: character, family-generator, or family object.}
 
 \item{na_fraction_allowed}{Numeric value between 0 and 1 specifying the fraction of observables in the window
 of size k that are allowed to be NA or zero, i.e. without cases, in onset calculations.}
@@ -41,7 +42,8 @@ stratify the observations by. If set to \code{NULL}, it means no stratification 
 A \code{seasonal_onset} object containing:
 \itemize{
 \item 'reference_time': The time point for which the growth rate is estimated.
-\item 'observation': The observation in the reference time point.
+\item 'observation': The observation at reference time point.
+\item 'population': The population at reference time point.
 \item 'season': The stratification of observables in corresponding seasons.
 \item 'growth_rate': The estimated growth rate.
 \item 'lower_growth_rate': The lower bound of the growth rate's confidence interval.
@@ -57,6 +59,7 @@ A \code{seasonal_onset} object containing:
 \description{
 This function performs automated and early detection of seasonal epidemic onsets on a time series dataset.
 It estimates growth rates for consecutive time intervals and calculates the sum of cases (sum_of_cases).
+If the time series data includes a population column it will be used as offset to adjust the growth rate in the glm.
 }
 \examples{
 # Create a tibble object from sample data

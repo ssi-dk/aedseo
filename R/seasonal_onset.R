@@ -4,6 +4,7 @@
 #'
 #' This function performs automated and early detection of seasonal epidemic onsets on a time series dataset.
 #' It estimates growth rates for consecutive time intervals and calculates the sum of cases (sum_of_cases).
+#' If the time series data includes a population column it will be used as offset to adjust the growth rate in the glm.
 #'
 #' @param tsd `r rd_tsd`
 #' @param k An integer specifying the window size for modeling growth rates for the onset.
@@ -52,9 +53,8 @@ seasonal_onset <- function(                                     # nolint: cycloc
     level = 0.95,
     disease_threshold = NA_integer_,
     family = c(
-      "poisson",
-      "quasipoisson"
-      # TODO: #10 Include negative.binomial regressions. @telkamp7
+      "quasipoisson",
+      "poisson"
     ),
     na_fraction_allowed = 0.4,
     season_start = NULL,
@@ -64,7 +64,12 @@ seasonal_onset <- function(                                     # nolint: cycloc
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(tsd, add = coll)
   checkmate::assert_class(tsd, "tsd", add = coll)
-  checkmate::assert_names(colnames(tsd), identical.to = c("time", "observation"), add = coll)
+  checkmate::assert_names(
+    colnames(tsd),
+    must.include = c("time", "observation"),
+    subset.of = c("time", "observation", "population"),
+    add = coll
+  )
   checkmate::assert_numeric(level, lower = 0, upper = 1, add = coll)
   checkmate::assert_numeric(na_fraction_allowed, lower = 0, upper = 1,
                             add = coll)
@@ -85,9 +90,6 @@ seasonal_onset <- function(                                     # nolint: cycloc
     coll$push("If season_start is assigned only_current_season must also be assigned")
   }
   checkmate::reportAssertions(coll)
-
-  # Throw an error if any of the inputs are not supported
-  family <- rlang::arg_match(family)
 
   # Add the seasons to tsd if available
   if (!is.null(season_start)) {
@@ -148,7 +150,8 @@ seasonal_onset <- function(                                     # nolint: cycloc
     } else {
       # Estimate growth rates
       growth_rates <- fit_growth_rate(
-        observations = obs_iter$observation,
+        observation = obs_iter$observation,
+        population = if ("population" %in% names(tsd)) obs_iter$population else NULL,
         level = level,
         family = family
       )
@@ -172,6 +175,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
       tibble::tibble(
         reference_time = tsd$time[i],
         observation = tsd$observation[i],
+        population = if ("population" %in% names(tsd)) tsd$population[i] else NULL,
         season = tsd$season[i],
         growth_rate = growth_rates$estimate[1],
         lower_growth_rate = growth_rates$estimate[2],

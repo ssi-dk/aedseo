@@ -7,7 +7,7 @@
 combined_seasonal_output(
   tsd,
   disease_threshold = 20,
-  family = c("poisson", "quasipoisson"),
+  family = c("quasipoisson", "poisson"),
   family_quant = c("lnorm", "weibull", "exp"),
   season_start = 21,
   season_end = season_start - 1,
@@ -24,7 +24,8 @@ trigger a seasonal onset alarm. If the total number of cases in a window of size
 time-step disease threshold that has to be surpassed for the observation to be included in the level
 calculations.}
 
-\item{family}{A character string specifying the family for modeling  seasonal onset.}
+\item{family}{A character string specifying the family for modeling. Choose between 'poisson', or 'quasipoisson'.
+Must be one of: character, family-generator, or family object.  This is passed to 'seasonal_onset()'.}
 
 \item{family_quant}{A character string specifying the family for modeling burden levels.}
 
@@ -43,7 +44,8 @@ onset_output:
 A \code{seasonal_onset} object containing:
 \itemize{
 \item 'reference_time': The time point for which the growth rate is estimated.
-\item 'observation': The observation in the reference time point.
+\item 'observation': The observation at reference time point.
+\item 'population': The population at reference time point.
 \item 'season': The stratification of observables in corresponding seasons.
 \item 'growth_rate': The estimated growth rate.
 \item 'lower_growth_rate': The lower bound of the growth rate's confidence interval.

@@ -82,3 +82,39 @@ test_that("Test that default arguments can be overwritten", {
 
   expect_false(identical(default_args$onset_output$sum_of_cases, changed_window$onset_output$sum_of_cases))
 })
+
+test_that("Test that family argument works as expected", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Generate seasonal data
+  tsd_data <- generate_seasonal_data(
+    years = 3,
+    start_date = as.Date("2021-01-04")
+  )
+
+  expect_no_error(combined_seasonal_output(
+    tsd = tsd_data,
+    family = "poisson",
+  ))
+
+  expect_no_error(combined_seasonal_output(
+    tsd = tsd_data,
+    family = stats::poisson(),
+  ))
+
+  expect_no_error(combined_seasonal_output(
+    tsd = tsd_data,
+    family = stats::poisson(link = "log"),
+  ))
+
+  expect_error(combined_seasonal_output(
+    tsd = tsd_data,
+    family = "stats::poisson(link = log)",
+  ))
+
+  expect_error(combined_seasonal_output(
+    tsd = tsd_data,
+    family = "hello",
+  ))
+
+})

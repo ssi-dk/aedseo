@@ -213,11 +213,11 @@ seasonal_burden_levels <- function(
   # Select seasons for output based on only_current_season input argument
   if (only_current_season == FALSE) {
     # Group seasons to get results for all seasons available
-    unique_seasons <- unique(rev(peak_seasonal_tsd$season))
+    unique_seasons <- unique(rev(seasonal_tsd$season))
     season_groups <- purrr::accumulate(unique_seasons, `c`)
     season_groups_data <- purrr::map(season_groups[-1], ~ peak_seasonal_tsd |> dplyr::filter(.data$season %in% .x))
-
-    level_results <- purrr::map(season_groups_data, ~ main_level_fun(.x, current_season = max(.x$season)))
+    level_results <- purrr::map2(season_groups_data, season_groups[-1],
+                                 ~ main_level_fun(.x, current_season = max(.y)))
 
   } else {
     level_results <- main_level_fun(peak_seasonal_tsd, current_season = max(seasonal_tsd$season))
