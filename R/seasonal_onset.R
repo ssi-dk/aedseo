@@ -98,6 +98,13 @@ seasonal_onset <- function(                                     # nolint: cycloc
     tsd <- tsd |> dplyr::mutate(season = "not_defined")
   }
 
+  # Create incidence column if assigned
+  incidence_rate <- attr(tsd, "incidence_rate")
+  if (!is.null(incidence_rate)) {
+    tsd <- tsd |>
+      dplyr::mutate(incidence = (.data$observation / .data$population) * incidence_rate)
+  }
+
   # Extract only current season if assigned
   if (!is.null(season_start) && only_current_season == TRUE) {
     seasons <- tsd |>
@@ -176,6 +183,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
         reference_time = tsd$time[i],
         observation = tsd$observation[i],
         population = if ("population" %in% names(tsd)) tsd$population[i] else NULL,
+        incidence = if (is.null(incidence_rate)) NULL else tsd$incidence[i],
         season = tsd$season[i],
         growth_rate = growth_rates$estimate[1],
         lower_growth_rate = growth_rates$estimate[2],
@@ -213,6 +221,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
 
   # Keep attributes from the `tsd` class
   attr(ans, "time_interval") <- attr(tsd, "time_interval")
+  attr(ans, "incidence_rate") <- attr(tsd, "incidence_rate")
 
   return(ans)
 }

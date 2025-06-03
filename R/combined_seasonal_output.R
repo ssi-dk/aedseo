@@ -90,6 +90,13 @@ combined_seasonal_output <- function(
   onset_allowed <- names(formals(seasonal_onset))
   onset_args <- extra_args[names(extra_args) %in% onset_allowed]
 
+  onset_output <- do.call(
+    seasonal_onset,
+    c(list(tsd = tsd, disease_threshold = disease_threshold, family = family,
+           season_start = season_start, season_end = season_end, only_current_season = only_current_season),
+      onset_args)
+  )   # nolint: object_usage_linter.
+
   # Run the models
   burden_output <- do.call(
     seasonal_burden_levels,
@@ -97,15 +104,6 @@ combined_seasonal_output <- function(
            disease_threshold = disease_threshold, family = family_quant, only_current_season = only_current_season),
       burden_args)
   )
-
-  if ()
-
-  onset_output <- do.call(
-    seasonal_onset,
-    c(list(tsd = tsd, disease_threshold = disease_threshold, family = family,
-           season_start = season_start, season_end = season_end, only_current_season = only_current_season),
-      onset_args)
-  )   # nolint: object_usage_linter.
 
   # Combine both results in lists
   seasonal_output <- list(

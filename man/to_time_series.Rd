@@ -8,6 +8,7 @@ to_time_series(
   observation,
   time,
   population = NULL,
+  incidence_rate = NULL,
   time_interval = c("day", "week", "month")
 )
 }
@@ -17,6 +18,8 @@ to_time_series(
 \item{time}{A date vector containing the corresponding dates.}
 
 \item{population}{A numeric vector containing the background population (optional).}
+
+\item{incidence_rate}{An integer >= 1, specifying the incidence rate (e.g. observations per 1,000 population)}
 
 \item{time_interval}{A character vector specifying the time interval. Choose between 'day', 'week', or 'month'.}
 }
@@ -31,7 +34,11 @@ A \code{tsd} object containing:
 \description{
 This function takes observations and the corresponding date vector and converts it into a \code{tsd} object, which is
 a time series data structure that can be used for time series analysis.
-Optionally the background population can be added.
+Options:
+\itemize{
+\item Background population, used to adjust the growth rate in \code{seasonal_onset()}.
+\item Incidence rate, used to convert observations to incidences in all future calculations.
+}
 }
 \examples{
 # Create a `tsd` object from daily data

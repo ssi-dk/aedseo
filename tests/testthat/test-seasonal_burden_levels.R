@@ -282,31 +282,30 @@ test_that("Test that levels are always included in output", {
   expect_equal(length(current_level), nr_seasons - 1) # exclude first season
   expect_equal(current_level[[2]]$values, current_level[[3]]$values)
 })
-  
+
 test_that("Convert to incidence work as expected", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
+
   # Generate seasonal data
-  tsd_data <- generate_seasonal_data(years = 1, start_date = as.Date("2021-01-04"))
-  tsd_data_inc_stable <- tsd_data |>
-    dplyr::mutate(pop = 1000000)
+  tsd_data <- generate_seasonal_data(
+    years = 1,
+    start_date = as.Date("2021-01-04"),
+    amplitude = 10000
+  )
   tsd_data_inc <- tsd_data |>
-    dplyr::bind_cols(
-      pop = c(rep(1000000, length(tsd_data$observation) / 2),
-              rep(1000500, length(tsd_data$observation) / 2)
-      )
-    )
+    dplyr::mutate(population = 100000)
+  attr(tsd_data_inc, "incidence_rate") <- 100
 
-
-  stable_inc <- seasonal_burden_levels(
-    tsd = tsd_data_inc_stable,
-    incidence_conversion = TRUE,
-    incidence_rate = 100000
+  with_inc <- seasonal_burden_levels(
+    tsd = tsd_data_inc,
+    disease_threshold = 5
   )
 
-  seasonal_burden_levels(
-    tsd_data)
+  no_inc <- seasonal_burden_levels(
+    tsd = tsd_data,
+    disease_threshold = 5
+  )
 
-  seasonal_burden_levels(
-    tsd_data_inc)
+  expect_gt(no_inc$values[4], with_inc$values[4])
 })

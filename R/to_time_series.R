@@ -4,11 +4,14 @@
 #'
 #' This function takes observations and the corresponding date vector and converts it into a `tsd` object, which is
 #' a time series data structure that can be used for time series analysis.
-#' Optionally the background population can be added.
+#' Options:
+#'  - Background population, used to adjust the growth rate in `seasonal_onset()`.
+#'  - Incidence rate, used to convert observations to incidences in all future calculations.
 #'
 #' @param observation `r rd_observation`
 #' @param time A date vector containing the corresponding dates.
 #' @param population `r rd_population`
+#' @param incidence_rate `r rd_incidence_rate`
 #' @param time_interval `r rd_time_interval`
 #'
 #' @return A `tsd` object containing:
@@ -51,6 +54,7 @@ to_time_series <- function(
   observation,
   time,
   population = NULL,
+  incidence_rate = NULL,
   time_interval = c("day", "week", "month")
 ) {
   # Check input arguments
@@ -58,7 +62,11 @@ to_time_series <- function(
   checkmate::assert_date(time, add = coll)
   checkmate::assert_numeric(observation, add = coll)
   checkmate::assert_numeric(population, null.ok = TRUE, add = coll)
+  checkmate::assert_integerish(incidence_rate, lower = 1, len = 1, null.ok = TRUE, add = coll)
   checkmate::reportAssertions(coll)
+  if (is.null(population) && !is.null(incidence_rate)) {
+    coll$push("If incidence_rate is assigned population should also be assigned")
+  }
 
   # Throw an error if any of the inputs are not supported
   time_interval <- rlang::arg_match(time_interval)
@@ -75,7 +83,8 @@ to_time_series <- function(
   tsd <- tibble::new_tibble(
     x = tbl,
     class = "tsd",
-    time_interval = time_interval
+    time_interval = time_interval,
+    incidence_rate = incidence_rate
   )
 
   return(tsd)
