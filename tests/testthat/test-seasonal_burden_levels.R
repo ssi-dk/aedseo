@@ -304,8 +304,9 @@ test_that("Convert to incidence work as expected", {
 
   no_inc <- seasonal_burden_levels(
     tsd = tsd_data,
-    disease_threshold = 5
+    disease_threshold = (5 / 100) * 100000
   )
 
-  expect_gt(no_inc$values[4], with_inc$values[4])
+  expect_gt(no_inc$values["medium"], with_inc$values["medium"])
+  expect_equal(round(((with_inc$values / 100) * 100000))["medium"], round(no_inc$values["medium"]))
 })
