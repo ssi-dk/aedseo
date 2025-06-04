@@ -6,6 +6,7 @@
 #' It uses the previous seasons to estimate the levels of the current season.
 #' The output is results regarding the current season in the time series observations.
 #' NOTE: The data must include data for a complete previous season to make predictions for the current season.
+#' Output will be in incidence if `population` and `incidence` are assigned in input.
 #'
 #' @param tsd `r rd_tsd`
 #' @param family `r rd_family()`
@@ -115,11 +116,7 @@ seasonal_burden_levels <- function(
   }
 
   incidence_rate <- attr(tsd, "incidence_rate")
-  if (is.null(incidence_rate) && "population" %in% names(tsd)) {
-    tsd <- tsd |>
-      dplyr::select(-"population")
-  }
-  if (!is.null(incidence_rate) && "population" %in% names(tsd)) {
+  if (!is.na(incidence_rate) && "population" %in% names(tsd)) {
     tsd <- tsd |>
       dplyr::mutate(observation = (.data$observation / .data$population) * incidence_rate) |>
       dplyr::select(-"population")
@@ -178,7 +175,8 @@ seasonal_burden_levels <- function(
           values = stats::setNames(c(disease_threshold, model_output$values),
                                    c("very low", "low", "medium", "high")),
           optim = percentiles_fit,
-          disease_threshold = disease_threshold
+          disease_threshold = disease_threshold,
+          incidence = incidence_rate
         )
       },
       intensity_levels = {
@@ -197,7 +195,8 @@ seasonal_burden_levels <- function(
             high_conf_level = percentiles_fit$conf_levels,
             family = percentiles_fit$family
           ),
-          disease_threshold = disease_threshold
+          disease_threshold = disease_threshold,
+          incidence = incidence_rate
         )
       }
     )

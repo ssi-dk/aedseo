@@ -54,7 +54,7 @@ to_time_series <- function(
   observation,
   time,
   population = NULL,
-  incidence_rate = NULL,
+  incidence_rate = if (is.null(population)) NA else 1e5,
   time_interval = c("day", "week", "month")
 ) {
   # Check input arguments
@@ -64,7 +64,7 @@ to_time_series <- function(
   checkmate::assert_numeric(population, null.ok = TRUE, add = coll)
   checkmate::assert_integerish(incidence_rate, lower = 1, len = 1, null.ok = TRUE, add = coll)
   checkmate::reportAssertions(coll)
-  if (is.null(population) && !is.null(incidence_rate)) {
+  if (is.null(population) && !is.na(incidence_rate)) {
     coll$push("If incidence_rate is assigned population should also be assigned")
   }
 

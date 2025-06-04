@@ -99,6 +99,7 @@ This function estimates the burden levels of time series observations that are s
 It uses the previous seasons to estimate the levels of the current season.
 The output is results regarding the current season in the time series observations.
 NOTE: The data must include data for a complete previous season to make predictions for the current season.
+Output will be in incidence if \code{population} and \code{incidence} are assigned in input.
 }
 \examples{
 # Generate random flu season

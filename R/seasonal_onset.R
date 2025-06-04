@@ -100,7 +100,8 @@ seasonal_onset <- function(                                     # nolint: cycloc
 
   # Create incidence column if assigned
   incidence_rate <- attr(tsd, "incidence_rate")
-  if (!is.null(incidence_rate)) {
+
+  if (!is.na(incidence_rate) && "population" %in% names(tsd)) {
     tsd <- tsd |>
       dplyr::mutate(incidence = (.data$observation / .data$population) * incidence_rate)
   }
@@ -158,7 +159,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
       # Estimate growth rates
       growth_rates <- fit_growth_rate(
         observation = obs_iter$observation,
-        population = if ("population" %in% names(tsd)) obs_iter$population else NULL,
+        population = if (!is.na(incidence_rate) && "population" %in% names(tsd)) obs_iter$population else NULL,
         level = level,
         family = family
       )
@@ -182,8 +183,8 @@ seasonal_onset <- function(                                     # nolint: cycloc
       tibble::tibble(
         reference_time = tsd$time[i],
         observation = tsd$observation[i],
-        population = if ("population" %in% names(tsd)) tsd$population[i] else NULL,
-        incidence = if (is.null(incidence_rate)) NULL else tsd$incidence[i],
+        population = if ("population" %in% names(tsd)) tsd$population[i] else NA,
+        incidence = if (!is.na(incidence_rate) && "population" %in% names(tsd)) tsd$incidence[i] else NA,
         season = tsd$season[i],
         growth_rate = growth_rates$estimate[1],
         lower_growth_rate = growth_rates$estimate[2],

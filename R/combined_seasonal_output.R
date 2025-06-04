@@ -6,6 +6,8 @@
 #' levels from time series dataset stratified by season. The seasonal onset estimates growth rates for consecutive
 #' time intervals and calculates the sum of cases. The burden levels use the previous seasons to estimate the levels
 #' of the current season.
+#' Output will be in incidence if `population` and `incidence` are assigned in input.
+#'
 #' @inheritParams seasonal_burden_levels
 #' @inheritParams seasonal_onset
 #' @param disease_threshold `r rd_disease_threshold(usage = "combined")`

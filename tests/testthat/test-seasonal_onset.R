@@ -162,38 +162,44 @@ test_that("Test that adding population works as expected", {
     time_interval = "week"
   )
 
+  tsd_data_pop <- to_time_series(
+    observation = observation,
+    time = seq(as.Date("2020-01-01"), by = "week", length.out = length(observation)),
+    population = rep(100000, length(observation)),
+    time_interval = "week"
+  )
+
   # Calculate growth rates with stable population - should be identical
   no_pop <- seasonal_onset(
     tsd = tsd_data,
-    k = 3,
+    k = 3
   )
 
   with_pop_stable <- seasonal_onset(
-    tsd = tsd_data |>
-      dplyr::bind_cols(population = rep(100000, length(observation))),
-    k = 3,
+    tsd = tsd_data_pop,
+    k = 3
   )
 
   with_pop_stable <- with_pop_stable |>
-    dplyr::select(-population)
+    dplyr::select(-c("population", "incidence"))
 
-  expect_equal(no_pop, with_pop_stable)
+  no_pop <- no_pop |>
+    dplyr::select(-c("population", "incidence"))
+
+  expect_equal(no_pop, with_pop_stable, ignore_attr = TRUE)
+  expect_false(identical(attr(no_pop, "incidence_rate"), attr(with_pop_stable, "incidence_rate")))
 
   # Change population size during period
   with_pop <- seasonal_onset(
-    tsd = tsd_data |>
-      dplyr::bind_cols(
-        population = c(rep(100000, length(observation) / 2),
-          rep(200000, length(observation) / 2)
-        )
-      ),
-    k = 3,
+    tsd = tsd_data_pop |>
+      dplyr::mutate(population = population + seq(from = 1000, by = 100, length.out = dplyr::n())),
+    k = 3
   )
 
   with_pop <- with_pop |>
-    dplyr::select(-population)
+    dplyr::select(-c("population", "incidence"))
 
-  expect_false(identical(no_pop, with_pop))
+  expect_false(isTRUE(all.equal(no_pop, with_pop_stable, ignore_attr = TRUE)))
 })
 
 test_that("family works the same via name, generator or object", {

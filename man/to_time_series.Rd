@@ -8,7 +8,7 @@ to_time_series(
   observation,
   time,
   population = NULL,
-  incidence_rate = NULL,
+  incidence_rate = if (is.null(population)) NA else 1e+05,
   time_interval = c("day", "week", "month")
 )
 }
