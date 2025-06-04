@@ -4,6 +4,8 @@
 
 ## Features
 
+* Added new argument `incidence_rate` to `to_time_series()` that allows the user to get all output in incidence rate (#84).
+
 * Added new argument `population` to `to_time_series()` and `fit_growth_rate()` that allows the user to add the background population connected to each observation (#83).
 
 * Added new argument `use_offset` to `seasonal_onset()` that allows the user to add the background population to adjust the growth rate estimations (#83).
