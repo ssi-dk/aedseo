@@ -6,14 +6,13 @@
 #' It uses the previous seasons to estimate the levels of the current season.
 #' The output is results regarding the current season in the time series observations.
 #' NOTE: The data must include data for a complete previous season to make predictions for the current season.
-#' Output will be in incidence if `population` and `incidence` are assigned in input.
+#' Observations will be incidence if `population` and `incidence` are available in the `tsd` object.
 #'
 #' @param tsd `r rd_tsd`
 #' @param family `r rd_family()`
 #' @param season_start,season_end `r rd_season_start_end()`
 #' @param method A character string specifying the model to be used in the level calculations.
-#' Both model predict the levels of the current series of
-#' observations.
+#' Both model predict the levels of the current series of observations.
 #'  - `intensity_levels`: models the risk compared to what has been observed in previous seasons.
 #'  - `peak_levels`: models the risk compared to what has been observed in the `n_peak` observations each season.
 #' @param conf_levels A numeric vector specifying the confidence levels for parameter estimates. The values have
@@ -64,9 +63,8 @@
 #'                          by = "week")
 #'
 #' tsd_data <- tsd(
-#'   observation = c(season_1, season_2),
-#'   time = as.Date(weekly_dates),
-#'   time_interval = "week"
+#'   cases = c(season_1, season_2),
+#'   time = as.Date(weekly_dates)
 #' )
 #'
 #' # Print seasonal burden results
@@ -94,8 +92,8 @@ seasonal_burden_levels <- function(
   checkmate::assert_class(tsd, "tsd", add = coll)
   checkmate::assert_names(
     colnames(tsd),
-    must.include = c("time", "observation"),
-    subset.of = c("time", "observation", "population"),
+    must.include = c("time", "cases"),
+    subset.of = c("time", "cases", "incidence", "population"),
     add = coll
   )
   checkmate::assert_integerish(season_start, lower = 1, upper = 53,
@@ -115,11 +113,13 @@ seasonal_burden_levels <- function(
                               unique = TRUE, sorted = TRUE, add = coll)
   }
 
-  incidence_rate <- attr(tsd, "incidence_rate")
-  if (!is.na(incidence_rate) && "population" %in% names(tsd)) {
+  # Define observation based on data in `tsd`.
+  if ("incidence" %in% names(tsd)) {
     tsd <- tsd |>
-      dplyr::mutate(observation = (.data$observation / .data$population) * incidence_rate) |>
-      dplyr::select(-"population")
+      dplyr::mutate(observation = .data$incidence)
+  } else {
+    tsd <- tsd |>
+      dplyr::mutate(observation = .data$cases)
   }
 
   # Add the seasons to data
@@ -176,7 +176,7 @@ seasonal_burden_levels <- function(
                                    c("very low", "low", "medium", "high")),
           optim = percentiles_fit,
           disease_threshold = disease_threshold,
-          incidence = incidence_rate
+          incidence = attr(tsd, "incidence_denominator")
         )
       },
       intensity_levels = {
@@ -196,7 +196,7 @@ seasonal_burden_levels <- function(
             family = percentiles_fit$family
           ),
           disease_threshold = disease_threshold,
-          incidence = incidence_rate
+          incidence = attr(tsd, "incidence_denominator")
         )
       }
     )
@@ -219,7 +219,7 @@ seasonal_burden_levels <- function(
 
   # Keep attributes from the `tsd` class
   attr(level_results, "time_interval") <- attr(tsd, "time_interval")
-  attr(level_results, "incidence_rate") <- attr(tsd, "incidence_rate")
+  attr(level_results, "incidence_denominator") <- attr(tsd, "incidence_denominator")
 
   return(level_results)
 }

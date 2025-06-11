@@ -49,7 +49,7 @@ summary.tsd_onset <- function(object, ...) {
 
   # Latest cases
   latest_cases <- last_observation |>
-    dplyr::pull(.data$observation)
+    dplyr::pull(.data$cases)
 
   # Latest sum of cases warning
   latest_sum_of_cases_warning <- object |>
@@ -104,7 +104,7 @@ summary.tsd_onset <- function(object, ...) {
     )
     seasonal_onset_obs <- as.character(
       seasonal_onset_ref_obs |>
-        dplyr::pull(.data$observation)
+        dplyr::pull(.data$cases)
     )
     seasonal_onset_sum_obs <- as.character(
       seasonal_onset_ref_obs |>
@@ -126,8 +126,8 @@ summary.tsd_onset <- function(object, ...) {
       "Summary of tsd_onset object without disease_threshold
 
       Model output:
-        Reference time point (last observation in series): %s
-        Observations at reference time point: %s
+        Reference time point (last case in series): %s
+        Cases at reference time point: %s
         Sum of cases at reference time point: %d
         Total number of growth warnings in the series: %d
         Latest growth warning: %s
@@ -141,7 +141,7 @@ summary.tsd_onset <- function(object, ...) {
       Model settings:
         Called using distributional family: %s
         Window size for growth rate estimation and calculation of sum of cases: %d
-        The time interval for the observations: %s
+        The time interval for the cases: %s
         Disease specific threshold: %d",
       as.character(reference_time),
       as.character(latest_cases),
@@ -166,8 +166,8 @@ summary.tsd_onset <- function(object, ...) {
 
       Model output:
         Reference time point (first seasonal onset alarm in season): %s
-        Observations at reference time point: %s
-        Sum of observations at reference time point: %s
+        Cases at reference time point: %s
+        Sum of cases at reference time point: %s
         Growth rate estimate at reference time point:
           Estimate   Lower (%.1f%%)   Upper (%.1f%%)
             %.3f     %.3f          %.3f
@@ -182,7 +182,7 @@ summary.tsd_onset <- function(object, ...) {
       Model settings:
         Called using distributional family: %s
         Window size for growth rate estimation and calculation of sum of cases: %d
-        The time interval for the observations: %s
+        The time interval for the cases: %s
         Disease specific threshold: %d",
       seasonal_onset_ref_time,
       seasonal_onset_obs,

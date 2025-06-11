@@ -16,10 +16,10 @@ test_that("Returns the desired length", {
     family = "poisson"
   )
 
-  # Predict observations for the next 7 time steps
+  # Predict cases for the next 7 time steps
   prediction <- predict(object = tsd_results, n_step = 7)
 
-  # Return the number of prediction + the initial observation
+  # Return the number of prediction + the initial case
   expect_length(prediction$estimate, 8)
 })
 
@@ -41,10 +41,10 @@ test_that("Can correctly make an 'tsd_predict' class object", {
     family = "poisson"
   )
 
-  # Predict observations for the next 7 time steps
+  # Predict cases for the next 7 time steps
   prediction <- predict(object = tsd_results, n_step = 7)
 
-  # Return the number of prediction + the initial observation
+  # Return the number of prediction + the initial case
   expect_s3_class(object = prediction, class = "tsd_predict")
 })
 

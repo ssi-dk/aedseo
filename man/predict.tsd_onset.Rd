@@ -2,23 +2,23 @@
 % Please edit documentation in R/predict.R
 \name{predict.tsd_onset}
 \alias{predict.tsd_onset}
-\title{Predict Observations for Future Time Steps}
+\title{Predict Cases for Future Time Steps}
 \usage{
 \method{predict}{tsd_onset}(object, n_step = 3, ...)
 }
 \arguments{
 \item{object}{A \code{tsd_onset} object created using the \code{seasonal_onset()} function.}
 
-\item{n_step}{An integer specifying the number of future time steps for which you want to predict observations.}
+\item{n_step}{An integer specifying the number of future time steps for which you want to predict cases.}
 
 \item{...}{Additional arguments (not used).}
 }
 \value{
-A tibble-like object called \code{tsd_predict} containing the predicted observations, including reference time,
+A tibble-like object called \code{tsd_predict} containing the predicted cases, including reference time,
 lower confidence interval, and upper confidence interval for the specified number of future time steps.
 }
 \description{
-This function is used to predict future observations based on a \code{tsd_onset} object.
+This function is used to predict future cases based on a \code{tsd_onset} object.
 It uses the \code{time_interval} attribute from the \code{tsd_onset} object to make predictions.
 }
 \examples{
@@ -33,6 +33,6 @@ time_series_with_onset <- seasonal_onset(
   tsd = time_series,
   k = 7
 )
-# Predict observations for the next 7 time steps
+# Predict cases for the next 7 time steps
 predict(object = time_series_with_onset, n_step = 7)
 }

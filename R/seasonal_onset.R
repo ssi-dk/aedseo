@@ -2,12 +2,13 @@
 #'
 #' @description
 #'
-#' This function performs automated and early detection of seasonal epidemic onsets on a time series dataset.
-#' It estimates growth rates for consecutive time intervals and calculates the sum of cases (sum_of_cases).
-#' If the time series data includes a population column it will be used as offset to adjust the growth rate in the glm.
+#' This function performs automated and early detection of seasonal epidemic onsets on a `tsd` object.
+#' It estimates growth rates and calculates the average sum of cases for consecutive time intervals (`k`).
+#' If the time series data includes `population` it will be used as offset to adjust the growth rate in the glm,
+#' additionally the output will include incidence, population and average sum of incidence.
 #'
 #' @param tsd `r rd_tsd`
-#' @param k An integer specifying the window size for modeling growth rates for the onset.
+#' @param k An integer specifying the window size for modeling growth rates and average sum of cases.
 #' @param level The confidence level for onset parameter estimates, a numeric value between 0 and 1.
 #' @param disease_threshold `r rd_disease_threshold(usage = "onset")`
 #' @param family `r rd_family()`
@@ -24,28 +25,19 @@
 #' # Create a tibble object from sample data
 #' tsd_data <- tsd(
 #'   observation = c(100, 120, 150, 180, 220, 270),
-#'   time = as.Date(c(
-#'     "2023-01-01",
-#'     "2023-01-02",
-#'     "2023-01-03",
-#'     "2023-01-04",
-#'     "2023-01-05",
-#'     "2023-01-06"
-#'   )),
-#'   time_interval = "day"
+#'   time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 6)
 #' )
 #'
-#' # Estimate seasonal onset with a 3-day window and a Poisson family model
+#' # Estimate seasonal onset with a 3-day window
 #' seasonal_onset(
 #'   tsd = tsd_data,
 #'   k = 3,
-#'   level = 0.95,
-#'   disease_threshold = 20,
-#'   family = "poisson",
+#'   level = 0.975,
+#'   disease_threshold = 5,
 #'   na_fraction_allowed = 0.4,
-#'   season_start = NULL,
-#'   season_end = NULL,
-#'   only_current_season = NULL
+#'   season_start = 21,
+#'   season_end = 20,
+#'   only_current_season = FALSE
 #' )
 seasonal_onset <- function(                                     # nolint: cyclocomp_linter.
     tsd,
@@ -66,8 +58,8 @@ seasonal_onset <- function(                                     # nolint: cycloc
   checkmate::assert_class(tsd, "tsd", add = coll)
   checkmate::assert_names(
     colnames(tsd),
-    must.include = c("time", "observation"),
-    subset.of = c("time", "observation", "population"),
+    must.include = c("time", "cases"),
+    subset.of = c("time", "cases", "incidence", "population"),
     add = coll
   )
   checkmate::assert_numeric(level, lower = 0, upper = 1, add = coll)
@@ -98,13 +90,9 @@ seasonal_onset <- function(                                     # nolint: cycloc
     tsd <- tsd |> dplyr::mutate(season = "not_defined")
   }
 
-  # Create incidence column if assigned
-  incidence_rate <- attr(tsd, "incidence_rate")
-
-  if (!is.na(incidence_rate) && "population" %in% names(tsd)) {
-    tsd <- tsd |>
-      dplyr::mutate(incidence = (.data$observation / .data$population) * incidence_rate)
-  }
+  # Define observation as cases in `tsd`.
+  tsd <- tsd |>
+    dplyr::mutate(observation = .data$cases)
 
   # Extract only current season if assigned
   if (!is.null(season_start) && only_current_season == TRUE) {
@@ -150,7 +138,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
     obs_iter <- tsd[(i - k + 1):i, ]
 
     # Evaluate NA and zero values in windows
-    if (sum(is.na(obs_iter) | obs_iter == 0) > k * na_fraction_allowed) {
+    if (sum(is.na(obs_iter$observation) | obs_iter$observation == 0) > k * na_fraction_allowed) {
       skipped_window[i] <- TRUE
       # Set fields to NA since the window is skipped
       growth_rates <- list(estimate = c(NA, NA, NA),
@@ -158,8 +146,8 @@ seasonal_onset <- function(                                     # nolint: cycloc
     } else {
       # Estimate growth rates
       growth_rates <- fit_growth_rate(
-        observation = obs_iter$observation,
-        population = if (!is.na(incidence_rate) && "population" %in% names(tsd)) obs_iter$population else NULL,
+        cases = obs_iter$observation,
+        population = if ("incidence" %in% names(tsd)) obs_iter$population else NULL,
         level = level,
         family = family
       )
@@ -168,30 +156,30 @@ seasonal_onset <- function(                                     # nolint: cycloc
     # See if the growth rate is significantly higher than zero
     growth_warning <- growth_rates$estimate[2] > 0
 
-    # Calculate Sum of Cases (sum_of_cases)
-    sum_of_cases <- base::sum(obs_iter$observation, na.rm = TRUE)
+    # Calculate Average Sum of Cases
+    average_sum_of_cases <- base::sum(obs_iter$observation, na.rm = TRUE)
 
-    # Evaluate if sum_of_cases exceeds disease_threshold
-    sum_of_cases_warning <- sum_of_cases > (disease_threshold * k)
+    # Evaluate if average_sum_of_cases exceeds disease_threshold
+    average_sum_of_cases_warning <- average_sum_of_cases > disease_threshold
 
     # Give an seasonal_onset_alarm if both criteria are met
-    seasonal_onset_alarm <- growth_warning & sum_of_cases_warning
+    seasonal_onset_alarm <- growth_warning & average_sum_of_cases_warning
 
     # Collect the results
     res <- dplyr::bind_rows(
       res,
       tibble::tibble(
         reference_time = tsd$time[i],
-        observation = tsd$observation[i],
-        population = if ("population" %in% names(tsd)) tsd$population[i] else NA,
-        incidence = if (!is.na(incidence_rate) && "population" %in% names(tsd)) tsd$incidence[i] else NA,
+        cases = tsd$cases[i],
         season = tsd$season[i],
+        population = if ("incidence" %in% names(tsd)) tsd$population[i] else NA,
+        incidence = if ("incidence" %in% names(tsd)) tsd$incidence[i] else NA,
         growth_rate = growth_rates$estimate[1],
         lower_growth_rate = growth_rates$estimate[2],
         upper_growth_rate = growth_rates$estimate[3],
         growth_warning = growth_warning,
-        sum_of_cases = sum_of_cases,
-        sum_of_cases_warning = sum_of_cases_warning,
+        average_sum_of_cases = average_sum_of_cases,
+        average_sum_of_cases_warning = average_sum_of_cases_warning,
         seasonal_onset_alarm = seasonal_onset_alarm,
         skipped_window = skipped_window[i],
         converged = growth_rates$fit$converged
@@ -222,7 +210,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
 
   # Keep attributes from the `tsd` class
   attr(ans, "time_interval") <- attr(tsd, "time_interval")
-  attr(ans, "incidence_rate") <- attr(tsd, "incidence_rate")
+  attr(ans, "incidence_denominator") <- attr(tsd, "incidence_denominator")
 
   return(ans)
 }

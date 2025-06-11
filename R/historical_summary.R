@@ -75,8 +75,9 @@ historical_summary <- function(
     dplyr::group_by(.data$season) |>
     dplyr::summarise(
       onset_time = dplyr::first(.data$onset_time),
-      peak_time = .data$reference_time[which.max(.data$observation)],
-      peak_intensity = max(.data$observation, na.rm = TRUE),
+      peak_time = .data$reference_time[which.max(.data$cases)],
+      peak_intensity_cases = max(.data$cases, na.rm = TRUE),
+      peak_intensity_incidence = if ("incidence" %in% names(peak_df)) max(.data$incidence) else NA,
       lower_growth_rate_onset = .data$lower_growth_rate[which(.data$reference_time == .data$onset_time)],
       growth_rate_onset = .data$growth_rate[which(.data$reference_time == .data$onset_time)],
       upper_growth_rate_onset = .data$upper_growth_rate[which(.data$reference_time == .data$onset_time)],

@@ -46,8 +46,8 @@ test_that("generate_seasonal_data() - output structure and defaults", {
   # Check that the expected number of rows matches years * period
   expect_equal(nrow(sim_data), 3 * 52)
 
-  # Check that 'time' and 'observation' columns exist
-  expect_true(all(c("time", "observation") %in% names(sim_data)))
+  # Check that 'time' and 'cases' columns exist
+  expect_true(all(c("time", "cases") %in% names(sim_data)))
 
   # Check that the time_interval is stored correctly
   expect_equal(attr(sim_data, "time_interval"), "week")
@@ -80,8 +80,8 @@ test_that("generate_seasonal_data() - noise works as expected", {
   )
 
   # The two should differ (in most or all rows) due to random noise
-  expect_false(isTRUE(all.equal(no_noise_result$observation,
-                                noisy_result$observation)))
+  expect_false(isTRUE(all.equal(no_noise_result$cases,
+                                noisy_result$cases)))
 })
 
 test_that("generate_seasonal_data() - trend_rate = NULL implies no trend", {
@@ -110,9 +110,9 @@ test_that("generate_seasonal_data() - trend_rate = NULL implies no trend", {
     time_interval = "week"
   )
 
-  # Check difference in last vs. first observation for each
-  no_trend_diff   <- no_trend$observation[length(no_trend$observation)] - no_trend$observation[1]
-  with_trend_diff <- with_trend$observation[length(with_trend$observation)] - with_trend$observation[1]
+  # Check difference in last vs. first case for each
+  no_trend_diff   <- no_trend$cases[length(no_trend$cases)] - no_trend$cases[1]
+  with_trend_diff <- with_trend$cases[length(with_trend$cases)] - with_trend$cases[1]
 
   # With trend should have larger difference than no trend scenario
   expect_true(with_trend_diff > no_trend_diff)
@@ -151,7 +151,7 @@ test_that("generate_seasonal_data() - no variance", {
   )
 
   # Variance should be zero when no dispersion is set
-  expect_true(var(no_variance$observation) == 0)
+  expect_true(var(no_variance$cases) == 0)
 })
 
 test_that("generate_seasonal_data() - test increasing overdispersion", {
@@ -181,7 +181,7 @@ test_that("generate_seasonal_data() - test increasing overdispersion", {
     time_interval = "week"
   )
 
-  expect_true(var(noise_poisson$observation) < var(noise_nbinom$observation))
+  expect_true(var(noise_poisson$cases) < var(noise_nbinom$cases))
 })
 
 test_that("generate_seasonal_data() - test increasing relative epidemic concentration", {
@@ -213,8 +213,8 @@ test_that("generate_seasonal_data() - test increasing relative epidemic concentr
     time_interval = "week"
   )
 
-  sinusoidal_0 <- nrow(sinusoidal[sinusoidal$observation == 0, ])
-  concentrated_0 <- nrow(concentrated[concentrated$observation == 0, ])
+  sinusoidal_0 <- nrow(sinusoidal[sinusoidal$cases == 0, ])
+  concentrated_0 <- nrow(concentrated[concentrated$cases == 0, ])
 
   expect_gt(concentrated_0, sinusoidal_0)
 })

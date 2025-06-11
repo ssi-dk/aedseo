@@ -14,7 +14,7 @@ generate_seasonal_data(
   noise_overdispersion = NULL,
   relative_epidemic_concentration = 1,
   time_interval = c("week", "day", "month"),
-  lower_bound = 1e-06
+  lower_bound = 0.000001
 )
 }
 \arguments{
@@ -46,8 +46,8 @@ which is needed when \code{noise_overdispersion} is different from zero.}
 \value{
 A \code{tsd} object with simulated data containing:
 \itemize{
-\item 'time': The time point for for when the observation is observed.
-\item 'observation': The observed value at the time point.
+\item 'time': The time point for the corresponding data.
+\item 'cases': The number of cases at the time point.
 }
 }
 \description{

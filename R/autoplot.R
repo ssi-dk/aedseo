@@ -503,7 +503,7 @@ autoplot.tsd_growth_warning <- function(
       breaks = scales::breaks_extended(breaks_y_axis)
     ) +
     ggplot2::labs(
-      y = "Number of subsequent significant observations",
+      y = "Number of subsequent significant cases",
       x = paste("Rolling", k, "week mean of positive cases")
     ) +
     ggplot2::theme_bw() +

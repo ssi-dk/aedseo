@@ -40,24 +40,23 @@ test_that("Test if it works with weeks with NA values", {
     start_date = as.Date("2021-01-01")
   )
 
-  # Count the number of observations
+  # Count the number of cases
   n <- length(tsd_data$time)
 
-  # Add NA values to observation
+  # Add NA values to cases
   na_count <- 15
 
   # Randomly select indices to replace with NA
   na_indices <- sample(1:n, na_count, replace = FALSE)
 
   # Add NA values
-  tsd_data$observation[na_indices] <- NA
+  tsd_data$cases[na_indices] <- NA
 
   # Calculate seasonal_onset with a 3-day window
-  tsd_poisson_na <- seasonal_onset(
+  tsd_na <- seasonal_onset(
     tsd = tsd_data,
     k = 5,
     level = 0.95,
-    family = "poisson",
     disease_threshold = 20,
     na_fraction_allowed = 0.4
   )
@@ -70,15 +69,15 @@ test_that("Test if it works with weeks with NA values", {
 
   for (i in k:n) {
     obs_iter <- tsd_data[(i - k + 1):i, ]
-    if (sum(is.na(obs_iter) | obs_iter == 0) > k * na_fraction_allowed) {
+    if (sum(is.na(obs_iter$cases) | obs_iter$cases == 0) > k * na_fraction_allowed) {
       skipped_window_count <- skipped_window_count + 1
     }
   }
 
   # Not all will be converged due to NA injections
-  expect_false(all(tsd_poisson_na$converged))
+  expect_false(all(tsd_na$converged))
   # Count if the skipped windows are = ones in output
-  expect_equal(skipped_window_count, sum(tsd_poisson_na$skipped_window))
+  expect_equal(skipped_window_count, sum(tsd_na$skipped_window))
 })
 
 test_that("Test that input argument checks work", {
@@ -103,7 +102,7 @@ test_that("Test that input argument checks work", {
 
   # Expect error with random data frame
   r_df <- data.frame(
-    observation = c(100, 120, 150, 180, 220, 270),
+    cases = c(100, 120, 150, 180, 220, 270),
     time = as.Date(c(
       "2023-01-01",
       "2023-01-02",
@@ -140,7 +139,7 @@ test_that("Test that selection of current and all seasons work as expected", {
   expect_equal(current_season, unique(current_onset$season))
   expect_gt(length(unique(all_onsets$season)), 1)
 
-  # It adds k-1 rows from previous season if available, if not expect 4 less observations
+  # It adds k-1 rows from previous season if available, if not expect 4 less cases
   tsd_seasons <- tsd_data |>
     dplyr::mutate(season = epi_calendar(.data$time))
   tsd_last_season <- tsd_seasons |>
@@ -148,24 +147,24 @@ test_that("Test that selection of current and all seasons work as expected", {
     dplyr::select(-season)
 
   tsd_na_rows <- seasonal_onset(tsd_last_season, season_start = 21, only_current_season = TRUE)
-  expect_length(tsd_na_rows$observation, length(current_onset$observation[-(1:4)]))
+  expect_length(tsd_na_rows$cases, length(current_onset$cases[-(1:4)]))
 })
 
 test_that("Test that adding population works as expected", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
   # Generate seasonal data
-  observation <- c(100, 120, 150, 180, 220, 270, 300, 500, 320, 234, 100, 5)
+  cases <- c(100, 120, 150, 180, 220, 270, 300, 500, 320, 234, 100, 5)
   tsd_data <- to_time_series(
-    observation = observation,
-    time = seq(as.Date("2020-01-01"), by = "week", length.out = length(observation)),
+    cases = cases,
+    time = seq(as.Date("2020-01-01"), by = "week", length.out = length(cases)),
     time_interval = "week"
   )
 
   tsd_data_pop <- to_time_series(
-    observation = observation,
-    time = seq(as.Date("2020-01-01"), by = "week", length.out = length(observation)),
-    population = rep(100000, length(observation)),
+    cases = cases,
+    time = seq(as.Date("2020-01-01"), by = "week", length.out = length(cases)),
+    population = rep(100000, length(cases)),
     time_interval = "week"
   )
 
@@ -187,7 +186,7 @@ test_that("Test that adding population works as expected", {
     dplyr::select(-c("population", "incidence"))
 
   expect_equal(no_pop, with_pop_stable, ignore_attr = TRUE)
-  expect_false(identical(attr(no_pop, "incidence_rate"), attr(with_pop_stable, "incidence_rate")))
+  expect_false(identical(attr(no_pop, "incidence_denominator"), attr(with_pop_stable, "incidence_denominator")))
 
   # Change population size during period
   with_pop <- seasonal_onset(

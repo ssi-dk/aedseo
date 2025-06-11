@@ -1,6 +1,8 @@
 # Model documentation
+rd_cases <- "An integer vector containing the time series cases."
 rd_disease_threshold <- function(usage = NULL) {
-  paste("An integer specifying the threshold for considering a disease outbreak.",
+  paste("An integer specifying the threshold for considering a disease outbreak. Should be given as incidence if
+        `population` and `incidence_denominator` are in the `tsd` object else as cases.",
         if (usage == "onset") {
           paste("It defines the per time-step disease threshold that has to be surpassed to possibly trigger a seasonal
           onset alarm. If the total number of cases in a window of size k exceeds `disease_threshold * k`, a seasonal
@@ -21,10 +23,8 @@ rd_family <- function(usage = NULL) {
         Must be one of: character, family-generator, or family object.",
         ifelse(usage == "combined", paste(" This is passed to 'seasonal_onset()'.")))
 }
-rd_incidence_rate <- "An integer >= 1, specifying the incidence rate (e.g. observations per 1,000 population)"
-rd_observation <- "A numeric vector containing the time series observations."
 rd_only_current_season <- "Should the output only include results for the current season?"
-rd_population <- "A numeric vector containing the background population (optional)."
+rd_population <- "An integer vector containing the time series background population."
 rd_season_start_end <- function(usage = NULL) {
   paste("Integers giving the start and end weeks of the seasons to
   stratify the observations by.",
@@ -33,7 +33,7 @@ rd_season_start_end <- function(usage = NULL) {
 rd_seasonal_onset_return <- paste(
   "\nA `seasonal_onset` object containing:\n",
   "- 'reference_time': The time point for which the growth rate is estimated.\n",
-  "- 'observation': The observation at reference time point.\n",
+  "- 'cases': The cases at reference time point.\n",
   "- 'population': The population at reference time point.\n",
   "- 'incidence': The incidence at reference time point.\n",
   "- 'season': The stratification of observables in corresponding seasons.\n",
@@ -41,8 +41,8 @@ rd_seasonal_onset_return <- paste(
   "- 'lower_growth_rate': The lower bound of the growth rate's confidence interval.\n",
   "- 'upper_growth_rate': The upper bound of the growth rate's confidence interval.\n",
   "- 'growth_warning': Logical. Is the growth rate significantly higher than zero?\n",
-  "- 'sum_of_cases': The sum of cases within the time window.\n",
-  "- 'sum_of_cases_warning': Logical. Does the Sum of Cases exceed the disease threshold?\n",
+  "- 'average_sum_of_cases': The sum of cases within the time window.\n",
+  "- 'average_sum_of_cases_warning': Logical. Does the Average Sum of Cases exceed the disease threshold?\n",
   "- 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?\n",
   "- 'skipped_window': Logical. Was the window skipped due to missing?\n",
   "- 'converged': Logical. Was the IWLS judged to have converged?",
@@ -72,7 +72,7 @@ rd_seasonal_burden_levels_return <- paste(
   "   - 'exp': Uses the Exponential distribution for fitting.\n",
   "   - 'disease_threshold': The input disease threshold, which is also the very low level."
 )
-rd_tsd <- "An object containing time series data with 'time' and 'observation.'"
+rd_tsd <- "A `tsd` object containing time series data"
 
 # Autoplot and generate data documentation
 rd_disease_color <- "A character specifying the base color of the disease."

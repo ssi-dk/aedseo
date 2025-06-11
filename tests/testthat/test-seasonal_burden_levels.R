@@ -197,14 +197,14 @@ test_that("Test that when no obs above disease_threshold return NA and warning",
   expect_warning(
     obs_under_dt <- seasonal_burden_levels(
       tsd_data,
-      disease_threshold = max(tsd_data$observation) + 50
+      disease_threshold = max(tsd_data$cases) + 50
     ),
     "There are no observations above `disease_threshold`. Returning NA values."
   )
 
   expect_equal(
     unname(obs_under_dt$values),
-    c(max(tsd_data$observation) + 50, rep(NA, 3))
+    c(max(tsd_data$cases) + 50, rep(NA, 3))
   )
 })
 
@@ -220,8 +220,8 @@ test_that("Test that when only current season has an obs above disease_threshold
   max_obs <- tsd_data |>
     dplyr::mutate(season = epi_calendar(time)) |>
     dplyr::filter(season == dplyr::first(season)) |>
-    dplyr::slice_max(observation, n = 1) |>
-    dplyr::pull(observation)
+    dplyr::slice_max(cases, n = 1) |>
+    dplyr::pull(cases)
 
   expect_warning(
     obs_under_dt <- seasonal_burden_levels(
@@ -270,7 +270,7 @@ test_that("Test that levels are always included in output", {
   nr_seasons <- dplyr::n_distinct(tsd_data$season)
 
   new_tsd <- tsd_data |>
-    dplyr::mutate(observation = dplyr::if_else(season == "2022/2023", 1, observation)
+    dplyr::mutate(cases = dplyr::if_else(season == "2022/2023", 1, cases)
     ) |>
     dplyr::select(-season)
 
@@ -294,8 +294,9 @@ test_that("Convert to incidence work as expected", {
     amplitude = 10000
   )
   tsd_data_inc <- tsd_data |>
-    dplyr::mutate(population = 100000)
-  attr(tsd_data_inc, "incidence_rate") <- 100
+    dplyr::mutate(population = 100000,
+                  incidence = (cases / population) * 100)
+  attr(tsd_data_inc, "incidence_denominator") <- 100
 
   with_inc <- seasonal_burden_levels(
     tsd = tsd_data_inc,

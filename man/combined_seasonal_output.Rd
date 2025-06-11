@@ -16,9 +16,10 @@ combined_seasonal_output(
 )
 }
 \arguments{
-\item{tsd}{An object containing time series data with 'time' and 'observation.'}
+\item{tsd}{A \code{tsd} object containing time series data}
 
-\item{disease_threshold}{An integer specifying the threshold for considering a disease outbreak. For seasonal onset it defines the per time-step disease threshold that has to be surpassed to possibly
+\item{disease_threshold}{An integer specifying the threshold for considering a disease outbreak. Should be given as incidence if
+\code{population} and \code{incidence_denominator} are in the \code{tsd} object else as cases. For seasonal onset it defines the per time-step disease threshold that has to be surpassed to possibly
 trigger a seasonal onset alarm. If the total number of cases in a window of size k exceeds
 \code{disease_threshold * k}, a seasonal onset alarm can be triggered. For burden levels it defines the per
 time-step disease threshold that has to be surpassed for the observation to be included in the level
@@ -44,7 +45,7 @@ onset_output:
 A \code{seasonal_onset} object containing:
 \itemize{
 \item 'reference_time': The time point for which the growth rate is estimated.
-\item 'observation': The observation at reference time point.
+\item 'cases': The cases at reference time point.
 \item 'population': The population at reference time point.
 \item 'incidence': The incidence at reference time point.
 \item 'season': The stratification of observables in corresponding seasons.
@@ -52,8 +53,8 @@ A \code{seasonal_onset} object containing:
 \item 'lower_growth_rate': The lower bound of the growth rate's confidence interval.
 \item 'upper_growth_rate': The upper bound of the growth rate's confidence interval.
 \item 'growth_warning': Logical. Is the growth rate significantly higher than zero?
-\item 'sum_of_cases': The sum of cases within the time window.
-\item 'sum_of_cases_warning': Logical. Does the Sum of Cases exceed the disease threshold?
+\item 'average_sum_of_cases': The sum of cases within the time window.
+\item 'average_sum_of_cases_warning': Logical. Does the Average Sum of Cases exceed the disease threshold?
 \item 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?
 \item 'skipped_window': Logical. Was the window skipped due to missing?
 \item 'converged': Logical. Was the IWLS judged to have converged? - 'seasonal_onset': Logical. The first detected seasonal onset in the season?
@@ -128,9 +129,8 @@ weekly_dates <- seq.Date(from = start_date,
                          by = "week")
 
 tsd_data <- tsd(
-  observation = c(season_1, season_2),
-  time = as.Date(weekly_dates),
-  time_interval = "week"
+  cases = c(season_1, season_2),
+  time = as.Date(weekly_dates)
 )
 
 # Run the main function

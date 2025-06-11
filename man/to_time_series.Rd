@@ -2,71 +2,71 @@
 % Please edit documentation in R/to_time_series.R
 \name{to_time_series}
 \alias{to_time_series}
-\title{Create a tibble-like \code{tsd} (time-series data) object from observed data and corresponding dates.}
+\title{Create a tibble-like \code{tsd} (time-series data) object from time series data and corresponding dates.}
 \usage{
 to_time_series(
-  observation,
-  time,
+  cases = NULL,
+  incidence = NULL,
   population = NULL,
-  incidence_rate = if (is.null(population)) NA else 1e+05,
-  time_interval = c("day", "week", "month")
+  incidence_denominator = if (is.null(population)) NA else 100000,
+  time,
+  time_interval = c("week", "day", "month")
 )
 }
 \arguments{
-\item{observation}{A numeric vector containing the time series observations.}
+\item{cases}{An integer vector containing the time series cases.}
+
+\item{incidence}{A numeric vector containing the time series incidences.}
+
+\item{population}{An integer vector containing the time series background population.}
+
+\item{incidence_denominator}{An integer >= 1, specifying the cases per incidence_denominator.}
 
 \item{time}{A date vector containing the corresponding dates.}
-
-\item{population}{A numeric vector containing the background population (optional).}
-
-\item{incidence_rate}{An integer >= 1, specifying the incidence rate (e.g. observations per 1,000 population)}
 
 \item{time_interval}{A character vector specifying the time interval. Choose between 'day', 'week', or 'month'.}
 }
 \value{
 A \code{tsd} object containing:
 \itemize{
-\item 'time': The time point for for when the observation is observed.
-\item 'observation': The observed value at the time point.
-\item 'population': The background population for the observed value (optional)
+\item 'time': The time point for the corresponding data.
+\item 'cases': The number of cases at the time point.
+\item 'incidence': The incidence per \code{incidence_denominator} at the time point. (optional)
+\item 'population': The background population for the cases at the time point. (optional)
 }
 }
 \description{
-This function takes observations and the corresponding date vector and converts it into a \code{tsd} object, which is
-a time series data structure that can be used for time series analysis.
+This function takes \code{cases} and the corresponding date vector (\code{time}) and converts it into a \code{tsd} object, which is
+a time series data structure that can be used for time series analysis. If incidence is added, it will be used as
+observation in all future use of the \code{aedseo} package on the defined \code{tsd} object.
+
 Options:
 \itemize{
-\item Background population, used to adjust the growth rate in \code{seasonal_onset()}.
-\item Incidence rate, used to convert observations to incidences in all future calculations.
+\item \code{incidence} can be calculated if also supplying \code{cases}, \code{population}, and \code{incidence_denominator}.
+\item \code{cases} can be calculated if also supplying \code{incidence}, \code{population} and \code{incidence_denominator}.
+\item If background population changes during the time series,
+it is used to adjust the growth rate in \code{seasonal_onset()}.
 }
 }
 \examples{
-# Create a `tsd` object from daily data
-daily_tsd <- to_time_series(
-  observation = c(10, 15, 20, 18),
-  time = as.Date(
-    c("2023-01-01", "2023-01-02", "2023-01-03", "2023-01-04")
-  ),
-  time_interval = "day"
+# Create a `tsd` object with only cases
+tsd_cases <- to_time_series(
+  cases = c(10, 15, 20, 18),
+  time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4)
 )
 
-# Create a `tsd` object from weekly data
-weekly_tsd <- to_time_series(
-  observation = c(100, 120, 130),
-  time = as.Date(
-    c("2023-01-01", "2023-01-08", "2023-01-15")
-  ),
-  population = c(100000, 100000, 100000),
-  time_interval = "week"
+# Create a `tsd` object with incidence from cases, population and incidence_denominator
+tsd_calculate_incidence <- to_time_series(
+  cases = c(100, 120, 130, 150),
+  time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4),
+  population = c(3000000, 3000000, 3000000, 3000000)
 )
 
-# Create a `tsd` object from monthly data
-monthly_tsd <- to_time_series(
-  observation = c(500, 520, 540),
-  time = as.Date(
-    c("2023-01-01", "2023-02-01", "2023-03-01")
-  ),
-  time_interval = "month"
+# Create a `tsd` object with cases from incidence, population and incidence_denominator
+tsd_calculate_cases <- to_time_series(
+  incidence = c(5, 7.8, 8, 8.5),
+  time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4),
+  population = c(3000000, 3000000, 3000000, 3000000)
 )
 
 }

@@ -19,7 +19,7 @@ seasonal_burden_levels(
 )
 }
 \arguments{
-\item{tsd}{An object containing time series data with 'time' and 'observation.'}
+\item{tsd}{A \code{tsd} object containing time series data}
 
 \item{family}{A character string specifying the family for modeling. Choose between 'poisson', or 'quasipoisson'.
 Must be one of: character, family-generator, or family object.}
@@ -28,8 +28,7 @@ Must be one of: character, family-generator, or family object.}
 stratify the observations by.}
 
 \item{method}{A character string specifying the model to be used in the level calculations.
-Both model predict the levels of the current series of
-observations.
+Both model predict the levels of the current series of observations.
 \itemize{
 \item \code{intensity_levels}: models the risk compared to what has been observed in previous seasons.
 \item \code{peak_levels}: models the risk compared to what has been observed in the \code{n_peak} observations each season.
@@ -50,7 +49,8 @@ calculations. It is used as \code{decay_factor}^(number of seasons back), whereb
 will be \code{decay_factor}^0 = 1. This parameter allows for a decreasing weight assigned to prior seasons, such that
 the influence of older seasons diminishes exponentially.}
 
-\item{disease_threshold}{An integer specifying the threshold for considering a disease outbreak. It defines the per time-step disease threshold that has to be surpassed for the observation to be
+\item{disease_threshold}{An integer specifying the threshold for considering a disease outbreak. Should be given as incidence if
+\code{population} and \code{incidence_denominator} are in the \code{tsd} object else as cases. It defines the per time-step disease threshold that has to be surpassed for the observation to be
 included in the level calculations.}
 
 \item{n_peak}{A numeric value specifying the number of peak observations to be selected from each season in the
@@ -99,7 +99,7 @@ This function estimates the burden levels of time series observations that are s
 It uses the previous seasons to estimate the levels of the current season.
 The output is results regarding the current season in the time series observations.
 NOTE: The data must include data for a complete previous season to make predictions for the current season.
-Output will be in incidence if \code{population} and \code{incidence} are assigned in input.
+Observations will be incidence if \code{population} and \code{incidence} are available in the \code{tsd} object.
 }
 \examples{
 # Generate random flu season
@@ -128,9 +128,8 @@ weekly_dates <- seq.Date(from = start_date,
                          by = "week")
 
 tsd_data <- tsd(
-  observation = c(season_1, season_2),
-  time = as.Date(weekly_dates),
-  time_interval = "week"
+  cases = c(season_1, season_2),
+  time = as.Date(weekly_dates)
 )
 
 # Print seasonal burden results

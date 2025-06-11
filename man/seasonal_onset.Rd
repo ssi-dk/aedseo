@@ -17,13 +17,14 @@ seasonal_onset(
 )
 }
 \arguments{
-\item{tsd}{An object containing time series data with 'time' and 'observation.'}
+\item{tsd}{A \code{tsd} object containing time series data}
 
-\item{k}{An integer specifying the window size for modeling growth rates for the onset.}
+\item{k}{An integer specifying the window size for modeling growth rates and average sum of cases.}
 
 \item{level}{The confidence level for onset parameter estimates, a numeric value between 0 and 1.}
 
-\item{disease_threshold}{An integer specifying the threshold for considering a disease outbreak. It defines the per time-step disease threshold that has to be surpassed to possibly trigger a seasonal
+\item{disease_threshold}{An integer specifying the threshold for considering a disease outbreak. Should be given as incidence if
+\code{population} and \code{incidence_denominator} are in the \code{tsd} object else as cases. It defines the per time-step disease threshold that has to be surpassed to possibly trigger a seasonal
 onset alarm. If the total number of cases in a window of size k exceeds \code{disease_threshold * k}, a seasonal
 onset alarm can be triggered.}
 
@@ -42,7 +43,7 @@ stratify the observations by. If set to \code{NULL}, it means no stratification 
 A \code{seasonal_onset} object containing:
 \itemize{
 \item 'reference_time': The time point for which the growth rate is estimated.
-\item 'observation': The observation at reference time point.
+\item 'cases': The cases at reference time point.
 \item 'population': The population at reference time point.
 \item 'incidence': The incidence at reference time point.
 \item 'season': The stratification of observables in corresponding seasons.
@@ -50,43 +51,35 @@ A \code{seasonal_onset} object containing:
 \item 'lower_growth_rate': The lower bound of the growth rate's confidence interval.
 \item 'upper_growth_rate': The upper bound of the growth rate's confidence interval.
 \item 'growth_warning': Logical. Is the growth rate significantly higher than zero?
-\item 'sum_of_cases': The sum of cases within the time window.
-\item 'sum_of_cases_warning': Logical. Does the Sum of Cases exceed the disease threshold?
+\item 'average_sum_of_cases': The sum of cases within the time window.
+\item 'average_sum_of_cases_warning': Logical. Does the Average Sum of Cases exceed the disease threshold?
 \item 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?
 \item 'skipped_window': Logical. Was the window skipped due to missing?
 \item 'converged': Logical. Was the IWLS judged to have converged? - 'seasonal_onset': Logical. The first detected seasonal onset in the season?
 }
 }
 \description{
-This function performs automated and early detection of seasonal epidemic onsets on a time series dataset.
-It estimates growth rates for consecutive time intervals and calculates the sum of cases (sum_of_cases).
-If the time series data includes a population column it will be used as offset to adjust the growth rate in the glm.
+This function performs automated and early detection of seasonal epidemic onsets on a \code{tsd} object.
+It estimates growth rates and calculates the average sum of cases for consecutive time intervals (\code{k}).
+If the time series data includes \code{population} it will be used as offset to adjust the growth rate in the glm,
+additionally the output will include incidence, population and average sum of incidence.
 }
 \examples{
 # Create a tibble object from sample data
 tsd_data <- tsd(
   observation = c(100, 120, 150, 180, 220, 270),
-  time = as.Date(c(
-    "2023-01-01",
-    "2023-01-02",
-    "2023-01-03",
-    "2023-01-04",
-    "2023-01-05",
-    "2023-01-06"
-  )),
-  time_interval = "day"
+  time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 6)
 )
 
-# Estimate seasonal onset with a 3-day window and a Poisson family model
+# Estimate seasonal onset with a 3-day window
 seasonal_onset(
   tsd = tsd_data,
   k = 3,
-  level = 0.95,
-  disease_threshold = 20,
-  family = "poisson",
+  level = 0.975,
+  disease_threshold = 5,
   na_fraction_allowed = 0.4,
-  season_start = NULL,
-  season_end = NULL,
-  only_current_season = NULL
+  season_start = 21,
+  season_end = 20,
+  only_current_season = FALSE
 )
 }

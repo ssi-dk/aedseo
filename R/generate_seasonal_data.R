@@ -22,8 +22,8 @@
 #' which is needed when `noise_overdispersion` is different from zero.
 #'
 #' @return A `tsd` object with simulated data containing:
-#'   - 'time': The time point for for when the observation is observed.
-#'   - 'observation': The observed value at the time point.
+#'   - 'time': The time point for the corresponding data.
+#'   - 'cases': The number of cases at the time point.
 #'
 #' @export
 #'
@@ -132,7 +132,7 @@ generate_seasonal_data <- function(
 
   # Construct a 'tsd' object with the time series data
   sim_tsd_data <- to_time_series(
-    observation = round(seasonal_component),
+    cases = round(seasonal_component),
     time = dates,
     time_interval = time_interval
   )

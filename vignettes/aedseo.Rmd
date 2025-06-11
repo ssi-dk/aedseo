@@ -31,13 +31,13 @@ observations based on previous seasons.
 ### Seasonal data
 
 To apply the `aedseo` algorithm, data needs to be transformed into a `tsd` object.
-If you have your own data, the `to_time_series()` function can be used with the arguments: `observation`, `time`, `time_interval`.
-In the following section, the application of the algorithm is shown with simulated data created with the `generate_seasonal_data()`function.
-More information about the function can be found in the `vignette("generate_seasonal_wave")`
-
+If you have your own data, the `to_time_series()` function can be used with the arguments: `cases`, `incidence`, `population`, `incidence_denominator`
+`time` and `time_interval`. As default both `seasonal_onset()` and `seasonal_burden_levels()` use `cases`. If `population` is additionally given as arguments the function will calculate the `incidence` per 100.000 (default for `incidence_denominator` which can be changed in argument). If `incidence` is available `seasonal_burden_levels()` will be estimated with `incidence` instead of `cases`.
+In the following section, the application of the algorithm is shown with simulated cases created with the `generate_seasonal_data()`function.
+More information about the function can be found in the `vignette("generate_seasonal_wave").
 ```{r, include = FALSE}
 withr::local_seed(222)
-# Construct an 'tsd' object with time series data
+# Construct an 'tsd' object with time series cases
 tsd_data <- generate_seasonal_data(
   years = 5,
   start_date = as.Date("2020-10-18"),
@@ -52,8 +52,8 @@ tsd_data <- tsd_data |>
 
 ```
 
-In the following figure simulated data (solid circles) are visualised as individual observations.
-The solid line connects these points, representing the underlying mean trend over three years of weekly data.
+In the following figure simulated data (solid circles) are visualised as cases over time (weeks).
+The solid line connects these points, representing the underlying mean trend over five years of weekly data.
 ```{r, dpi=300}
 plot(tsd_data)
 ```
@@ -65,22 +65,22 @@ To include all data, the season in the example is set from week 21 to week 20 in
 In this example burden levels and seasonal onset will be estimated for season *2024/2025*.
 
 ### Determining the disease specific threshold
-When observations are low there is a risk that randomness will result in significant growth estimates in isolated periods.
+When cases are low there is a risk that randomness will result in significant growth estimates in isolated periods.
 To increase the robustness of the method a disease-specific threshold is introduced. It should be set such that subsequent
 estimates of growth are likely to be significant as well.
 The disease-specific threshold can be determined by examining continuous periods with sustained significant growth,
-and determine at what number of observations these events occur.
+and determine at what number of cases these events occur.
 
-In this example the disease-specific threshold is determined based on consecutive significant observations from all available previous seasons.
-Significant observations are defined as those with a significant positive growth rate.
+In this example the disease-specific threshold is determined based on consecutive significant cases from all available previous seasons.
+Significant cases are defined as those with a significant positive growth rate.
 
 To capture short-term changes and fluctuations in the data, a rolling window of size $k = 5$ is used to create subsets of the data for model fitting,
 and the `quasipoisson` family is used to account for overdispersion.
 
 The disease-specific threshold will be estimated with the four available previous seasons.
 The `seasonal_onset()` function can be used for this purpose, without providing the disease-specific threshold.
-Then the `consecutive_growth_warnings()` function can be used to create groups with subsequent significant observations.
-The data can then be analysed, else you can use plot/autoplot to visualise the sequences of significant observations for each season.
+Then the `consecutive_growth_warnings()` function can be used to create groups with subsequent significant cases.
+The data can then be analysed, else you can use plot/autoplot to visualise the sequences of significant cases for each season.
 
 The `sum_of_cases` variable is divided by five to represent an average over a five-week window, defining the 
 disease-specific threshold for each time-step.

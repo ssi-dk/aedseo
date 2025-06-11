@@ -52,9 +52,8 @@
 #'                          by = "week")
 #'
 #' tsd_data <- tsd(
-#'   observation = c(season_1, season_2),
-#'   time = as.Date(weekly_dates),
-#'   time_interval = "week"
+#'   cases = c(season_1, season_2),
+#'   time = as.Date(weekly_dates)
 #' )
 #'
 #' # Run the main function

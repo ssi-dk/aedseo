@@ -66,3 +66,30 @@ test_that("Historical summary checks tsd_object correctly", {
     "Column 'seasonal_onset' not found in tsd_onset object."
   )
 })
+
+test_that("Historical summary also contains peak_intensity_incidence if available", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+
+  # Create tsd object with incidence
+  tsd_cal_incidence <- to_time_series(
+    cases = c(10, 15, 20, 100, 200, 350, 200),
+    population = c(1e+06, 1e+06, 1e+06, 1e+06, 1e+06, 1e+06, 1e+06),
+    time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 7)
+  )
+
+  # Estimate seasonal_onset
+  tsd_onset <- seasonal_onset(
+    tsd = tsd_cal_incidence,
+    disease_threshold = 2,
+    family = "quasipoisson",
+    season_start = 21,
+    season_end = 20,
+    only_current_season = FALSE
+  )
+
+  hs <- historical_summary(tsd_onset)
+
+  expect_contains(names(hs), "peak_intensity_incidence")
+  expect_false(is.na(hs$peak_intensity_incidence))
+})
