@@ -66,7 +66,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
   checkmate::assert_numeric(na_fraction_allowed, lower = 0, upper = 1,
                             add = coll)
   checkmate::assert_integerish(k, add = coll)
-  checkmate::assert_integerish(disease_threshold, add = coll)
+  checkmate::assert_numeric(disease_threshold, add = coll)
   checkmate::assert_integerish(season_start, lower = 1, upper = 53,
                                null.ok = TRUE, add = coll)
   checkmate::assert_integerish(season_end, lower = 1, upper = 53,
@@ -88,6 +88,12 @@ seasonal_onset <- function(                                     # nolint: cycloc
     tsd <- tsd |> dplyr::mutate(season = epi_calendar(.data$time, start = season_start, end = season_end))
   } else {
     tsd <- tsd |> dplyr::mutate(season = "not_defined")
+  }
+
+  # Use incidence if in tsd else use cases
+  use_incidence <- FALSE
+  if ("population" %in% names(tsd) && "incidence" %in% names(tsd)) {
+    use_incidence <- TRUE
   }
 
   # Define observation as cases in `tsd`.
@@ -147,7 +153,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
       # Estimate growth rates
       growth_rates <- fit_growth_rate(
         cases = obs_iter$observation,
-        population = if ("incidence" %in% names(tsd)) obs_iter$population else NULL,
+        population = if ("population" %in% names(tsd)) obs_iter$population else NULL,
         level = level,
         family = family
       )
@@ -156,14 +162,18 @@ seasonal_onset <- function(                                     # nolint: cycloc
     # See if the growth rate is significantly higher than zero
     growth_warning <- growth_rates$estimate[2] > 0
 
-    # Calculate Average Sum of Cases
-    average_sum_of_cases <- base::sum(obs_iter$observation, na.rm = TRUE)
-
-    # Evaluate if average_sum_of_cases exceeds disease_threshold
-    average_sum_of_cases_warning <- average_sum_of_cases > disease_threshold
+    if (use_incidence) {
+      # Calculate average incidence in window (k)
+      average_observations_window <- base::sum(obs_iter$incidence, na.rm = TRUE) / k
+    } else {
+      # Calculate average cases in window (k)
+      average_observations_window <- base::sum(obs_iter$cases, na.rm = TRUE) / k
+    }
+    # Evaluate if average_incidence_window exceeds disease_threshold
+    average_observations_warning <- average_observations_window > disease_threshold
 
     # Give an seasonal_onset_alarm if both criteria are met
-    seasonal_onset_alarm <- growth_warning & average_sum_of_cases_warning
+    seasonal_onset_alarm <- growth_warning & average_observations_warning
 
     # Collect the results
     res <- dplyr::bind_rows(
@@ -172,14 +182,14 @@ seasonal_onset <- function(                                     # nolint: cycloc
         reference_time = tsd$time[i],
         cases = tsd$cases[i],
         season = tsd$season[i],
-        population = if ("incidence" %in% names(tsd)) tsd$population[i] else NA,
+        population = if ("population" %in% names(tsd)) tsd$population[i] else NA,
         incidence = if ("incidence" %in% names(tsd)) tsd$incidence[i] else NA,
         growth_rate = growth_rates$estimate[1],
         lower_growth_rate = growth_rates$estimate[2],
         upper_growth_rate = growth_rates$estimate[3],
         growth_warning = growth_warning,
-        average_sum_of_cases = average_sum_of_cases,
-        average_sum_of_cases_warning = average_sum_of_cases_warning,
+        average_observations_window = average_observations_window,
+        average_observations_warning = average_observations_warning,
         seasonal_onset_alarm = seasonal_onset_alarm,
         skipped_window = skipped_window[i],
         converged = growth_rates$fit$converged

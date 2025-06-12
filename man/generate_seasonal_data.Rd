@@ -14,7 +14,7 @@ generate_seasonal_data(
   noise_overdispersion = NULL,
   relative_epidemic_concentration = 1,
   time_interval = c("week", "day", "month"),
-  lower_bound = 0.000001
+  lower_bound = 1e-06
 )
 }
 \arguments{

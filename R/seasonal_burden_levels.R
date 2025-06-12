@@ -102,7 +102,7 @@ seasonal_burden_levels <- function(
                                null.ok = FALSE, add = coll)
   checkmate::assert_numeric(decay_factor, lower = 0, upper = 1, len = 1, add = coll)
   checkmate::assert_numeric(n_peak, lower = 1, len = 1, add = coll)
-  checkmate::assert_integerish(disease_threshold, len = 1, add = coll)
+  checkmate::assert_numeric(disease_threshold, len = 1, add = coll)
   checkmate::assert_logical(only_current_season, add = coll)
   # Assert conf_levels based on the method chosen
   if (method == "intensity_levels") {
@@ -176,7 +176,7 @@ seasonal_burden_levels <- function(
                                    c("very low", "low", "medium", "high")),
           optim = percentiles_fit,
           disease_threshold = disease_threshold,
-          incidence = attr(tsd, "incidence_denominator")
+          incidence_denominator = attr(tsd, "incidence_denominator")
         )
       },
       intensity_levels = {
@@ -196,7 +196,7 @@ seasonal_burden_levels <- function(
             family = percentiles_fit$family
           ),
           disease_threshold = disease_threshold,
-          incidence = attr(tsd, "incidence_denominator")
+          incidence_denominator = attr(tsd, "incidence_denominator")
         )
       }
     )

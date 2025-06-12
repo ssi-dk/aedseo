@@ -49,7 +49,7 @@ calculations. It is used as \code{decay_factor}^(number of seasons back), whereb
 will be \code{decay_factor}^0 = 1. This parameter allows for a decreasing weight assigned to prior seasons, such that
 the influence of older seasons diminishes exponentially.}
 
-\item{disease_threshold}{An integer specifying the threshold for considering a disease outbreak. Should be given as incidence if
+\item{disease_threshold}{A number specifying the threshold for considering a disease outbreak. Should be given as incidence if
 \code{population} and \code{incidence_denominator} are in the \code{tsd} object else as cases. It defines the per time-step disease threshold that has to be surpassed for the observation to be
 included in the level calculations.}
 
@@ -67,6 +67,8 @@ A list containing:
 \item 'high_conf_level': (only for intensity_level method) The conf_level chosen for the high level.
 \item 'conf_levels': (only for peak_level method) The conf_levels chosen to fit the 'low', 'medium', 'high' levels.
 \item 'values': A named vector with values for 'very low', 'low', 'medium', 'high' levels.
+\item 'optim' A list containing:
+\itemize{
 \item 'par': The fit parameters for the chosen family.
 \itemize{
 \item par_1:
@@ -82,7 +84,7 @@ A list containing:
 \item For 'exp': Not applicable (set to NA).
 }
 }
-\item 'obj_value': The value of the objective function - (negative log-likelihood), which represent the minimized
+\item 'obj_value': The value of the objective function - (negative log-likelihood), which represent the minimised
 objective function value from the optimisation. Smaller value equals better optimisation.
 \item 'converged': Logical. TRUE if the optimisation converged.
 \item 'family': The distribution family used for the optimization.
@@ -90,8 +92,11 @@ objective function value from the optimisation. Smaller value equals better opti
 \item 'weibull': Uses the Weibull distribution for fitting.
 \item 'lnorm': Uses the Log-normal distribution for fitting.
 \item 'exp': Uses the Exponential distribution for fitting.
-\item 'disease_threshold': The input disease threshold, which is also the very low level.
 }
+}
+\item 'disease_threshold': The input disease threshold, which is also the very low level.
+\item 'incidence_denominator': The observations per incidence-denominator.
+\item Attributes: \code{time_interval} and \code{incidence_denominator}.
 }
 }
 \description{

@@ -8,7 +8,7 @@ to_time_series(
   cases = NULL,
   incidence = NULL,
   population = NULL,
-  incidence_denominator = if (is.null(population)) NA else 100000,
+  incidence_denominator = if (is.null(population)) NA else 1e+05,
   time,
   time_interval = c("week", "day", "month")
 )
@@ -20,7 +20,7 @@ to_time_series(
 
 \item{population}{An integer vector containing the time series background population.}
 
-\item{incidence_denominator}{An integer >= 1, specifying the cases per incidence_denominator.}
+\item{incidence_denominator}{An integer >= 1, specifying the observations per incidence-denominator.}
 
 \item{time}{A date vector containing the corresponding dates.}
 

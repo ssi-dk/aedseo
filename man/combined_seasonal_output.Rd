@@ -18,12 +18,11 @@ combined_seasonal_output(
 \arguments{
 \item{tsd}{A \code{tsd} object containing time series data}
 
-\item{disease_threshold}{An integer specifying the threshold for considering a disease outbreak. Should be given as incidence if
+\item{disease_threshold}{A number specifying the threshold for considering a disease outbreak. Should be given as incidence if
 \code{population} and \code{incidence_denominator} are in the \code{tsd} object else as cases. For seasonal onset it defines the per time-step disease threshold that has to be surpassed to possibly
-trigger a seasonal onset alarm. If the total number of cases in a window of size k exceeds
-\code{disease_threshold * k}, a seasonal onset alarm can be triggered. For burden levels it defines the per
-time-step disease threshold that has to be surpassed for the observation to be included in the level
-calculations.}
+trigger a seasonal onset alarm. If the average observation count in a window of size k exceeds \code{disease_threshold},
+a seasonal onset alarm can be triggered. For burden levels it defines the per time-step disease threshold that
+has to be surpassed for the observation to be included in the level calculations.}
 
 \item{family}{A character string specifying the family for modeling. Choose between 'poisson', or 'quasipoisson'.
 Must be one of: character, family-generator, or family object.  This is passed to 'seasonal_onset()'.}
@@ -53,11 +52,13 @@ A \code{seasonal_onset} object containing:
 \item 'lower_growth_rate': The lower bound of the growth rate's confidence interval.
 \item 'upper_growth_rate': The upper bound of the growth rate's confidence interval.
 \item 'growth_warning': Logical. Is the growth rate significantly higher than zero?
-\item 'average_sum_of_cases': The sum of cases within the time window.
-\item 'average_sum_of_cases_warning': Logical. Does the Average Sum of Cases exceed the disease threshold?
+\item 'average_observation_window': The sum of cases or incidence within the time window.
+\item 'average_observation_warning': Logical. Does the average observations exceed the disease threshold?
 \item 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?
 \item 'skipped_window': Logical. Was the window skipped due to missing?
-\item 'converged': Logical. Was the IWLS judged to have converged? - 'seasonal_onset': Logical. The first detected seasonal onset in the season?
+\item 'converged': Logical. Was the IWLS judged to have converged?
+\item 'seasonal_onset': Logical. The first detected seasonal onset in the season.
+\item Attributes: \code{time_interval} and \code{incidence_denominator}.
 }
 
 burden_output:
@@ -68,6 +69,8 @@ A list containing:
 \item 'high_conf_level': (only for intensity_level method) The conf_level chosen for the high level.
 \item 'conf_levels': (only for peak_level method) The conf_levels chosen to fit the 'low', 'medium', 'high' levels.
 \item 'values': A named vector with values for 'very low', 'low', 'medium', 'high' levels.
+\item 'optim' A list containing:
+\itemize{
 \item 'par': The fit parameters for the chosen family.
 \itemize{
 \item par_1:
@@ -83,7 +86,7 @@ A list containing:
 \item For 'exp': Not applicable (set to NA).
 }
 }
-\item 'obj_value': The value of the objective function - (negative log-likelihood), which represent the minimized
+\item 'obj_value': The value of the objective function - (negative log-likelihood), which represent the minimised
 objective function value from the optimisation. Smaller value equals better optimisation.
 \item 'converged': Logical. TRUE if the optimisation converged.
 \item 'family': The distribution family used for the optimization.
@@ -91,8 +94,11 @@ objective function value from the optimisation. Smaller value equals better opti
 \item 'weibull': Uses the Weibull distribution for fitting.
 \item 'lnorm': Uses the Log-normal distribution for fitting.
 \item 'exp': Uses the Exponential distribution for fitting.
-\item 'disease_threshold': The input disease threshold, which is also the very low level.
 }
+}
+\item 'disease_threshold': The input disease threshold, which is also the very low level.
+\item 'incidence_denominator': The observations per incidence-denominator.
+\item Attributes: \code{time_interval} and \code{incidence_denominator}.
 }
 }
 \description{

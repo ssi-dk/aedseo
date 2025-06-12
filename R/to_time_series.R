@@ -15,7 +15,7 @@
 #' @param cases `r rd_cases`
 #' @param incidence A numeric vector containing the time series incidences.
 #' @param population `r rd_population`
-#' @param incidence_denominator An integer >= 1, specifying the cases per incidence_denominator.
+#' @param incidence_denominator An integer >= 1, specifying the observations per incidence-denominator.
 #' @param time A date vector containing the corresponding dates.
 #' @param time_interval `r rd_time_interval`
 #'

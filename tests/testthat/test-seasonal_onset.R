@@ -95,8 +95,7 @@ test_that("Test that input argument checks work", {
   expect_error(seasonal_onset(tsd_data, family = "ttt"))
 
   # Expect errors from wrong input arguments
-  expect_error(seasonal_onset(tsd_data, k = 1.4, disease_threshold = 1.5))
-  expect_error(seasonal_onset(tsd_data, disease_threshold = 1.5))
+  expect_error(seasonal_onset(tsd_data, k = 1.4))
   expect_error(seasonal_onset(tsd_data, level = 2))
   expect_error(seasonal_onset(tsd_data, na_fraction_allowed = 2))
 

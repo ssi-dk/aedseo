@@ -68,7 +68,7 @@ test_that("Test that default arguments can be overwritten", {
 
   changed_dt <- combined_seasonal_output(
     tsd_data,
-    disease_threshold = 50
+    disease_threshold = 500
   )
 
   expect_false(default_args$burden_output$values[["medium"]] == changed_dt$burden_output$values[["medium"]])
@@ -80,7 +80,12 @@ test_that("Test that default arguments can be overwritten", {
     k = 10
   )
 
-  expect_false(identical(default_args$onset_output$sum_of_cases, changed_window$onset_output$sum_of_cases))
+  expect_false(
+    identical(
+      default_args$onset_output$average_observations_window,
+      changed_window$onset_output$average_observations_window
+    )
+  )
 })
 
 test_that("Test that family argument works as expected", {

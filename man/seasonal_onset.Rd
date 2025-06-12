@@ -23,9 +23,9 @@ seasonal_onset(
 
 \item{level}{The confidence level for onset parameter estimates, a numeric value between 0 and 1.}
 
-\item{disease_threshold}{An integer specifying the threshold for considering a disease outbreak. Should be given as incidence if
+\item{disease_threshold}{A number specifying the threshold for considering a disease outbreak. Should be given as incidence if
 \code{population} and \code{incidence_denominator} are in the \code{tsd} object else as cases. It defines the per time-step disease threshold that has to be surpassed to possibly trigger a seasonal
-onset alarm. If the total number of cases in a window of size k exceeds \code{disease_threshold * k}, a seasonal
+onset alarm. If the average observation count in a window of size k exceeds \code{disease_threshold}, a seasonal
 onset alarm can be triggered.}
 
 \item{family}{A character string specifying the family for modeling. Choose between 'poisson', or 'quasipoisson'.
@@ -51,11 +51,13 @@ A \code{seasonal_onset} object containing:
 \item 'lower_growth_rate': The lower bound of the growth rate's confidence interval.
 \item 'upper_growth_rate': The upper bound of the growth rate's confidence interval.
 \item 'growth_warning': Logical. Is the growth rate significantly higher than zero?
-\item 'average_sum_of_cases': The sum of cases within the time window.
-\item 'average_sum_of_cases_warning': Logical. Does the Average Sum of Cases exceed the disease threshold?
+\item 'average_observation_window': The sum of cases or incidence within the time window.
+\item 'average_observation_warning': Logical. Does the average observations exceed the disease threshold?
 \item 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?
 \item 'skipped_window': Logical. Was the window skipped due to missing?
-\item 'converged': Logical. Was the IWLS judged to have converged? - 'seasonal_onset': Logical. The first detected seasonal onset in the season?
+\item 'converged': Logical. Was the IWLS judged to have converged?
+\item 'seasonal_onset': Logical. The first detected seasonal onset in the season.
+\item Attributes: \code{time_interval} and \code{incidence_denominator}.
 }
 }
 \description{
