@@ -40,7 +40,6 @@ sim_data <- generate_seasonal_data(
 # Estimate seasonal onset
 tsd_onset <- seasonal_onset(
   tsd = sim_data,
-  family = "quasipoisson",
   season_start = 21,
   season_end = 20,
   only_current_season = FALSE

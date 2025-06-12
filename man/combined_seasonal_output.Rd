@@ -20,9 +20,9 @@ combined_seasonal_output(
 
 \item{disease_threshold}{A number specifying the threshold for considering a disease outbreak. Should be given as incidence if
 \code{population} and \code{incidence_denominator} are in the \code{tsd} object else as cases. For seasonal onset it defines the per time-step disease threshold that has to be surpassed to possibly
-trigger a seasonal onset alarm. If the average observation count in a window of size k exceeds \code{disease_threshold},
-a seasonal onset alarm can be triggered. For burden levels it defines the per time-step disease threshold that
-has to be surpassed for the observation to be included in the level calculations.}
+trigger a seasonal onset alarm. If the average observation count in a window of size k exceeds
+\code{disease_threshold}, a seasonal onset alarm can be triggered. For burden levels it defines the per time-step
+disease threshold that has to be surpassed for the observation to be included in the level calculations.}
 
 \item{family}{A character string specifying the family for modeling. Choose between 'poisson', or 'quasipoisson'.
 Must be one of: character, family-generator, or family object.  This is passed to 'seasonal_onset()'.}

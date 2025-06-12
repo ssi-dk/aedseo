@@ -110,7 +110,7 @@ test_that("Test that input argument checks work", {
       "2023-01-05",
       "2023-01-06"
     )),
-    time_interval = "day"
+    time_interval = "days"
   )
 
   expect_error(seasonal_onset(r_df))
@@ -156,15 +156,13 @@ test_that("Test that adding population works as expected", {
   cases <- c(100, 120, 150, 180, 220, 270, 300, 500, 320, 234, 100, 5)
   tsd_data <- to_time_series(
     cases = cases,
-    time = seq(as.Date("2020-01-01"), by = "week", length.out = length(cases)),
-    time_interval = "week"
+    time = seq(as.Date("2020-01-01"), by = "week", length.out = length(cases))
   )
 
   tsd_data_pop <- to_time_series(
     cases = cases,
     time = seq(as.Date("2020-01-01"), by = "week", length.out = length(cases)),
-    population = rep(100000, length(cases)),
-    time_interval = "week"
+    population = rep(100000, length(cases))
   )
 
   # Calculate growth rates with stable population - should be identical

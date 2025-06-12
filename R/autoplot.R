@@ -468,6 +468,12 @@ autoplot.tsd_growth_warning <- function(
   breaks_y_axis = 8,
   ...
 ) {
+  # Use incidence if in onset_output else use cases
+  observation <- "cases"
+  if (!is.na(attr(object, "incidence_denominator"))) {
+    observation <- attr(object, "incidence_denominator")
+  }
+  time_interval <- attr(object, "time_interval")
 
   if (skip_current_season) {
     object <- object |>
@@ -481,7 +487,7 @@ autoplot.tsd_growth_warning <- function(
 
   object |>
     dplyr::filter(!is.na(.data$significant_counter)) |>
-    ggplot2::ggplot(mapping = ggplot2::aes(x = .data$sum_of_cases / k)) +
+    ggplot2::ggplot(mapping = ggplot2::aes(x = .data$average_observations_window)) +
     ggplot2::geom_line(
       mapping = ggplot2::aes(
         y = .data$significant_counter,
@@ -503,8 +509,8 @@ autoplot.tsd_growth_warning <- function(
       breaks = scales::breaks_extended(breaks_y_axis)
     ) +
     ggplot2::labs(
-      y = "Number of subsequent significant cases",
-      x = paste("Rolling", k, "week mean of positive cases")
+      y = paste("Number of subsequent significant", time_interval),
+      x = paste("Rolling", k, time_interval, "average of", observation)
     ) +
     ggplot2::theme_bw() +
     ggplot2::theme(
@@ -514,5 +520,4 @@ autoplot.tsd_growth_warning <- function(
       legend.text = ggplot2::element_text(size = 11, color = "black", family = text_family),
       legend.background = ggplot2::element_blank()
     )
-
 }

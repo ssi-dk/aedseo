@@ -50,7 +50,7 @@
 #'   mean = 3000,
 #'   trend_rate = 1.002,
 #'   noise_overdispersion = 1.1,
-#'   time_interval = c("week")
+#'   time_interval = c("weeks")
 #' )
 #' plot(sim_data, time_interval = "2 months")
 generate_seasonal_data <- function(
@@ -62,7 +62,7 @@ generate_seasonal_data <- function(
   trend_rate = NULL,
   noise_overdispersion = NULL,
   relative_epidemic_concentration = 1,
-  time_interval = c("week", "day", "month"),
+  time_interval = c("weeks", "days", "months"),
   lower_bound = 1e-6
 ) {
   # Check input arguments
@@ -82,11 +82,11 @@ generate_seasonal_data <- function(
   checkmate::assert_numeric(lower_bound, len = 1, lower = 0, add = coll)
   checkmate::reportAssertions(coll)
 
-  if (time_interval == "week") {
+  if (time_interval == "weeks") {
     period <- 52
-  } else if (time_interval == "day") {
+  } else if (time_interval == "days") {
     period <- 365
-  } else if (time_interval == "month") {
+  } else if (time_interval == "months") {
     period <- 12
   }
 

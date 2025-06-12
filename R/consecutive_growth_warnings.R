@@ -33,7 +33,6 @@
 #' # Estimate seasonal onset
 #' tsd_onset <- seasonal_onset(
 #'   tsd = sim_data,
-#'   family = "quasipoisson",
 #'   season_start = 21,
 #'   season_end = 20,
 #'   only_current_season = FALSE
@@ -76,6 +75,8 @@ consecutive_growth_warnings <- function(
     dplyr::ungroup()
 
   class(significant_counter) <- c("tsd_growth_warning", class(significant_counter))
+  attr(significant_counter, "time_interval") <- attr(onset_output, "time_interval")
+  attr(significant_counter, "incidence_denominator") <- attr(onset_output, "incidence_denominator")
 
   return(significant_counter)  # nolint: return_linter
 }

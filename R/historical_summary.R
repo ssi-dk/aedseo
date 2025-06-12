@@ -73,7 +73,7 @@ historical_summary <- function(
 
   # Use incidence if in onset_output else use cases
   use_incidence <- FALSE
-  if (all(!is.na(onset_output$incidence))) {
+  if (!is.na(attr(onset_output, "incidence_denominator"))) {
     use_incidence <- TRUE
   }
 

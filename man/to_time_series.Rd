@@ -10,7 +10,7 @@ to_time_series(
   population = NULL,
   incidence_denominator = if (is.null(population)) NA else 1e+05,
   time,
-  time_interval = c("week", "day", "month")
+  time_interval = c("weeks", "days", "months")
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ to_time_series(
 
 \item{time}{A date vector containing the corresponding dates.}
 
-\item{time_interval}{A character vector specifying the time interval. Choose between 'day', 'week', or 'month'.}
+\item{time_interval}{A character vector specifying the time interval. Choose between 'days', 'weeks', or 'months'.}
 }
 \value{
 A \code{tsd} object containing:

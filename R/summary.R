@@ -32,7 +32,7 @@ summary.tsd_onset <- function(object, ...) {
 
   # Use incidence if in onset_output else use cases
   use_incidence <- FALSE
-  if (all(!is.na(object$incidence))) {
+  if (!is.null(attr(object, "incidence_denominator"))) {
     use_incidence <- TRUE
   }
 

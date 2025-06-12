@@ -50,7 +50,7 @@ test_that("generate_seasonal_data() - output structure and defaults", {
   expect_true(all(c("time", "cases") %in% names(sim_data)))
 
   # Check that the time_interval is stored correctly
-  expect_equal(attr(sim_data, "time_interval"), "week")
+  expect_equal(attr(sim_data, "time_interval"), "weeks")
 })
 
 test_that("generate_seasonal_data() - noise works as expected", {
@@ -64,7 +64,7 @@ test_that("generate_seasonal_data() - noise works as expected", {
     phase         = 0,
     trend_rate    = 1.001,
     noise_overdispersion      = 10,
-    time_interval = "week"
+    time_interval = "weeks"
   )
 
   # Compare to a non-noisy version
@@ -76,7 +76,7 @@ test_that("generate_seasonal_data() - noise works as expected", {
     phase         = 0,
     trend_rate    = 1.001,
     noise_overdispersion      = NULL,
-    time_interval = "week"
+    time_interval = "weeks"
   )
 
   # The two should differ (in most or all rows) due to random noise
@@ -95,7 +95,7 @@ test_that("generate_seasonal_data() - trend_rate = NULL implies no trend", {
     phase         = 0,
     trend_rate    = NULL,     # No trend
     noise_overdispersion      = NULL,
-    time_interval = "week"
+    time_interval = "weeks"
   )
 
   # With a non-zero trend
@@ -107,7 +107,7 @@ test_that("generate_seasonal_data() - trend_rate = NULL implies no trend", {
     phase         = 0,
     trend_rate    = 1.01,
     noise_overdispersion      = NULL,
-    time_interval = "week"
+    time_interval = "weeks"
   )
 
   # Check difference in last vs. first case for each
@@ -130,7 +130,7 @@ test_that("generate_seasonal_data() - lower_bound must be non-negative", {
       phase         = 0,
       trend_rate    = NULL,     # No trend
       noise_overdispersion      = NULL,
-      time_interval = "week",
+      time_interval = "weeks",
       lower_bound = -1
     )
   )
@@ -147,7 +147,7 @@ test_that("generate_seasonal_data() - no variance", {
     phase         = 0,
     trend_rate    = NULL,     # No trend
     noise_overdispersion      = NULL,
-    time_interval = "week"
+    time_interval = "weeks"
   )
 
   # Variance should be zero when no dispersion is set
@@ -166,7 +166,7 @@ test_that("generate_seasonal_data() - test increasing overdispersion", {
     phase         = 0,
     trend_rate    = NULL,
     noise_overdispersion      = 1,
-    time_interval = "week"
+    time_interval = "weeks"
   )
 
   # With negative binomial noise
@@ -178,7 +178,7 @@ test_that("generate_seasonal_data() - test increasing overdispersion", {
     phase         = 0,
     trend_rate    = NULL,
     noise_overdispersion      = 4,
-    time_interval = "week"
+    time_interval = "weeks"
   )
 
   expect_true(var(noise_poisson$cases) < var(noise_nbinom$cases))
@@ -197,7 +197,7 @@ test_that("generate_seasonal_data() - test increasing relative epidemic concentr
     trend_rate    = NULL,
     noise_overdispersion = 1,
     relative_epidemic_concentration = 1,
-    time_interval = "week"
+    time_interval = "weeks"
   )
 
   # Concentrated
@@ -210,7 +210,7 @@ test_that("generate_seasonal_data() - test increasing relative epidemic concentr
     trend_rate    = NULL,
     noise_overdispersion = 1,
     relative_epidemic_concentration = 3,
-    time_interval = "week"
+    time_interval = "weeks"
   )
 
   sinusoidal_0 <- nrow(sinusoidal[sinusoidal$cases == 0, ])

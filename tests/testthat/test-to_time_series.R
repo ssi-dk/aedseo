@@ -5,7 +5,7 @@ test_that("Can correctly make an 'tsd' class object", {
   )
 
   expect_s3_class(object = tsd_week, class = "tsd")
-  expect_equal(attr(tsd_week, "time_interval"), "week")
+  expect_equal(attr(tsd_week, "time_interval"), "weeks")
 })
 
 test_that("Test that input argument checks work", {
@@ -19,14 +19,14 @@ test_that("Test that input argument checks work", {
     cases = c(100, 120, 150, 180, 220, 270),
     population = c(100000, 100050, 100000, 100000, 100002, 100100),
     time = seq(from = as.Date("2023-01-01"), by = "1 day", length.out = 6),
-    time_interval = "day"
+    time_interval = "days"
   ))
 
   #  Expect error for observation not being numeric
   expect_error(to_time_series(
     cases = c("100", "120", "150", "180", "220", "270"),
     time = seq(from = as.Date("2023-01-01"), by = "1 day", length.out = 6),
-    time_interval = "day"
+    time_interval = "days"
   ))
 
   #  Expect error for time not being dates
@@ -40,14 +40,14 @@ test_that("Test that input argument checks work", {
       "2023-01-05",
       "2023-01-06"
     ),
-    time_interval = "day"
+    time_interval = "days"
   ))
 
   #  Expect error for wrong time_interval
   expect_error(to_time_series(
     cases = c(100, 120, 150, 180, 220, 270),
     time = seq(from = as.Date("2023-01-01"), by = "1 day", length.out = 6),
-    time_interval = "year"
+    time_interval = "years"
   ))
 })
 

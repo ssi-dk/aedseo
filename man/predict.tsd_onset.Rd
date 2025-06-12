@@ -26,7 +26,7 @@ It uses the \code{time_interval} attribute from the \code{tsd_onset} object to m
 set.seed(123)
 time_series <- generate_seasonal_data(
   years = 1,
-  time_interval = "day"
+  time_interval = "days"
 )
 # Apply `seasonal_onset` analysis
 time_series_with_onset <- seasonal_onset(

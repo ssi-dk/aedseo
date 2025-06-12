@@ -54,7 +54,7 @@ to_time_series <- function(                                     # nolint: cycloc
   population = NULL,
   incidence_denominator = if (is.null(population)) NA else 1e5,
   time,
-  time_interval = c("week", "day", "month")
+  time_interval = c("weeks", "days", "months")
 ) {
   # Check input arguments
   coll <- checkmate::makeAssertCollection()

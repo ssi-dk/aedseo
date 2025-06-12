@@ -21,7 +21,7 @@
 #' set.seed(123)
 #' time_series <- generate_seasonal_data(
 #'   years = 1,
-#'   time_interval = "day"
+#'   time_interval = "days"
 #' )
 #' # Apply `seasonal_onset` analysis
 #' time_series_with_onset <- seasonal_onset(
@@ -37,9 +37,9 @@ predict.tsd_onset <- function(object, n_step = 3, ...) {
   steps <- seq_len(n_step)
   t_int <- switch(
     attr(object, "time_interval"),
-    "day" = c(0, rep(1, n_step) * steps),
-    "week" = c(0, rep(7, n_step) * steps),
-    "month" = {
+    "days" = c(0, rep(1, n_step) * steps),
+    "weeks" = c(0, rep(7, n_step) * steps),
+    "months" = {
       last_month <- dplyr::last(object$reference_time)
       months <- c(last_month, purrr::map(steps, ~ lubridate::add_with_rollback(last_month, months(.x))))
       month_days <- as.numeric(diff(months))

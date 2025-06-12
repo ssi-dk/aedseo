@@ -12,9 +12,9 @@ rd_disease_threshold <- function(usage = NULL) {
           included in the level calculations.")
         } else if (usage == "combined") {
           paste("For seasonal onset it defines the per time-step disease threshold that has to be surpassed to possibly
-          trigger a seasonal onset alarm. If the average observation count in a window of size k exceeds `disease_threshold`,
-          a seasonal onset alarm can be triggered. For burden levels it defines the per time-step disease threshold that
-          has to be surpassed for the observation to be included in the level calculations.")
+          trigger a seasonal onset alarm. If the average observation count in a window of size k exceeds
+          `disease_threshold`, a seasonal onset alarm can be triggered. For burden levels it defines the per time-step
+          disease threshold that has to be surpassed for the observation to be included in the level calculations.")
         })
 }
 rd_family <- function(usage = NULL) {
@@ -83,7 +83,7 @@ rd_text_family <- "A character specifying the font family for the text labels."
 rd_legend_position <- "A character specifying the position of the legend on the plot."
 rd_line_width <- "A numeric specifying the width of line connecting observations."
 rd_obs_size <- "A numeric, specifying the size of observational points."
-rd_time_interval <- "A character vector specifying the time interval. Choose between 'day', 'week', or 'month'."
+rd_time_interval <- "A character vector specifying the time interval. Choose between 'days', 'weeks', or 'months'."
 rd_time_interval_step <- "A character vector specifying the time interval and how many time steps are desired
  on the x-axis, e.g. '10 days', '4 weeks', or '3 months'."
 rd_y_label <- "A character vector specifying the y label text."
