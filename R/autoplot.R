@@ -8,7 +8,7 @@ autoplot <- function(object, ...) {
 #'
 #' @description
 #' Generates a complete 'ggplot' object suitable for visualizing time series data in a
-#' `tsd`, `tsd_onset` or `tsd_onset_and_burden` object.
+#' `tsd`, `tsd_onset`, `tsd_onset_and_burden` or `tsd_growth_warning` object.
 #'
 #' `autoplot(tsd)`
 #' - Generates points for each observation and connects them with a line.
@@ -442,7 +442,7 @@ autoplot.tsd_onset_and_burden <- function(
 }
 #' Autoplot a `tsd_growth_warning` object
 #'
-#' @param object A `tsd_onset` object
+#' @param object A `tsd_growth_warning` object
 #' @param k An integer specifying the window size used to create the `tsd_onset` object.
 #' @param skip_current_season A logical. Do you want to skip your current season?
 #' @param line_width `r rd_line_width`
