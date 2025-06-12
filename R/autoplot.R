@@ -29,7 +29,6 @@ autoplot <- function(object, ...) {
 #' @param obs_size `r rd_obs_size`
 #' @param time_interval_step `r rd_time_interval_step`
 #' @param text_family `r rd_text_family`
-#' @param y_label `r rd_y_label`
 #' @param ... Additional arguments (not used).
 #'
 #' @return A 'ggplot' object for visualizing the `tsd` data.
@@ -51,17 +50,24 @@ autoplot.tsd <- function(
   obs_size = 2,
   text_family = "sans",
   time_interval_step = "5 weeks",
-  y_label = "Weekly observations",
   ...
 ) {
   start_date <- min(object$time)
   end_date <- max(object$time)
 
+  # Use incidence if in onset_output else use cases
+  obs_name <- "cases"
+  y_label <- "Cases"
+  if (!is.na(attr(object, "incidence_denominator"))) {
+    obs_name <- "incidence"
+    y_label <- "Incidence"
+  }
+
   object |>
     ggplot2::ggplot(
       mapping = ggplot2::aes(
         x = .data$time,
-        y = .data$observation
+        y = .data[[obs_name]]
       )
     ) +
     ggplot2::geom_point() +
@@ -95,7 +101,6 @@ autoplot.tsd <- function(
 #' @param text_family `r rd_text_family`
 #' @param legend_position `r rd_legend_position`
 #' @param time_interval_step `r rd_time_interval_step`
-#' @param y_label `r rd_y_label`
 #' @param ... Additional arguments (not used).
 #'
 #' @return A 'ggplot' object for visualizing the `tsd_onset` data.
@@ -125,12 +130,18 @@ autoplot.tsd_onset <- function(
   text_family = "sans",
   legend_position = "bottom",
   time_interval_step = "5 weeks",
-  y_label = "Weekly observations",
   ...
 ) {
-
   start_date <- min(object$reference_time)
   end_date <- max(object$reference_time)
+
+  # Use incidence if in onset_output else use cases
+  obs_name <- "cases"
+  y_label <- "Cases"
+  if (!is.na(attr(object, "incidence_denominator"))) {
+    obs_name <- "incidence"
+    y_label <- "Incidence"
+  }
 
   # Set growth_warning to FALSE if NA
   object <- object |>
@@ -145,7 +156,7 @@ autoplot.tsd_onset <- function(
     ggplot2::ggplot(
       mapping = ggplot2::aes(
         x = .data$reference_time,
-        y = .data$observation
+        y = .data[[obs_name]]
       )
     ) +
     ggplot2::geom_point(
@@ -243,7 +254,6 @@ autoplot.tsd_onset <- function(
 #' @param disease_color `r rd_disease_color`
 #' @param season_start,season_end `r rd_season_start_end()`
 #' @param time_interval_step `r rd_time_interval_step`
-#' @param y_label `r rd_y_label`
 #' @param fill_alpha A numeric vector specifying the transparency levels for the fill colors of burden levels.
 #' Must match the number of levels.
 #' @param text_burden_size A numeric specifying the size of the text labels.
@@ -283,7 +293,6 @@ autoplot.tsd_onset_and_burden <- function(
   season_start = 21,
   season_end = season_start - 1,
   time_interval_step = "3 weeks",
-  y_label = "Weekly observations",
   text_burden_size = 10 / 2.8,
   fill_alpha = c(0.45, 0.6, 0.75, 0.89, 1),
   text_family = "sans",
@@ -296,7 +305,6 @@ autoplot.tsd_onset_and_burden <- function(
   legend_position = "right",
   ...
 ) {
-
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_class(object, "tsd_onset_and_burden", add = coll)
@@ -317,6 +325,14 @@ autoplot.tsd_onset_and_burden <- function(
   # Extract onset data
   virus_df <- object$onset_output |>
     dplyr::filter(.data$season == max(.data$season))
+
+  # Use incidence if in onset_output else use cases
+  obs_name <- "cases"
+  y_label <- "Cases"
+  if (!is.na(attr(object$burden_output, "incidence_denominator"))) {
+    obs_name <- "incidence"
+    y_label <- "Incidence"
+  }
 
   # Current week
   cur_week <- max(virus_df$reference_time)
@@ -355,7 +371,7 @@ autoplot.tsd_onset_and_burden <- function(
   # Plot
   virus_df |>
     ggplot2::ggplot(ggplot2::aes(x = .data$reference_time,
-                                 y = pmax(.data$observation, y_lower_bound))) +
+                                 y = pmax(.data[[obs_name]], y_lower_bound))) +
     theme_custom +
     ggplot2::geom_rect(
       data = levels_df,
@@ -383,7 +399,7 @@ autoplot.tsd_onset_and_burden <- function(
     ) +
     ggplot2::scale_fill_identity() +
     ggplot2::geom_line(
-      ggplot2::aes(group = 1, linetype = "Observations"),
+      ggplot2::aes(group = 1, linetype = y_label),
       color = line_color
     ) +
     ggplot2::geom_vline(
@@ -400,9 +416,7 @@ autoplot.tsd_onset_and_burden <- function(
     ) +
     ggplot2::scale_linetype_manual(
       name = "",
-      values = c(
-        "Observations" = line_type
-      )
+      values = setNames(line_type, y_label)
     ) +
     ggplot2::scale_color_manual(
       name = "",
@@ -469,9 +483,9 @@ autoplot.tsd_growth_warning <- function(
   ...
 ) {
   # Use incidence if in onset_output else use cases
-  observation <- "cases"
+  obs_name <- "cases"
   if (!is.na(attr(object, "incidence_denominator"))) {
-    observation <- attr(object, "incidence_denominator")
+    obs_name <- "incidence"
   }
   time_interval <- attr(object, "time_interval")
 
@@ -510,7 +524,7 @@ autoplot.tsd_growth_warning <- function(
     ) +
     ggplot2::labs(
       y = paste("Number of subsequent significant", time_interval),
-      x = paste("Rolling", k, time_interval, "average of", observation)
+      x = paste("Rolling", k, time_interval, "average of", obs_name)
     ) +
     ggplot2::theme_bw() +
     ggplot2::theme(

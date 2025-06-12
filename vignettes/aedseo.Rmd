@@ -22,7 +22,8 @@ library(aedseo)
 
 The `aedseo` package performs automated and early detection of seasonal epidemic onsets and estimates
 the breakpoints for burden levels from time series data stratified by season.
-The seasonal onset (`seasonal_onset()`) estimates growth rates for consecutive time intervals and calculates the sum of cases.
+The seasonal onset (`seasonal_onset()`) estimates growth rates for consecutive time intervals and calculates the rolling
+average of observations (cases or incidence) in the selected time intervals.
 The burden levels (`seasonal_burden_levels()`) use the previous seasons to estimate the burden levels of the current season.
 The algorithm allows for surveillance of pathogens, by alarming when the observations have significant growth in
 the selected time interval and based on the disease-specific threshold, while also evaluating the burden of current
@@ -31,20 +32,19 @@ observations based on previous seasons.
 ### Seasonal data
 
 To apply the `aedseo` algorithm, data needs to be transformed into a `tsd` object.
-If you have your own data, the `to_time_series()` function can be used with the arguments: `cases`, `incidence`, `population`, `incidence_denominator`
-`time` and `time_interval`. As default both `seasonal_onset()` and `seasonal_burden_levels()` use `cases`. If `population` is additionally given as arguments the function will calculate the `incidence` per 100.000 (default for `incidence_denominator` which can be changed in argument). If `incidence` is available `seasonal_burden_levels()` will be estimated with `incidence` instead of `cases`.
+If you have your own data, the `to_time_series()` function can be used with the arguments: `cases`, `incidence`, `population`, `incidence_denominator`, `time` and `time_interval`. As default both `seasonal_onset()` and `seasonal_burden_levels()` use `cases`. If `population` is additionally given as arguments the function will calculate the `incidence` per 100.000 (default for `incidence_denominator` which can be changed in input). If `incidence` is available `seasonal_burden_levels()` will be estimated with `incidence` instead of `cases`.
 In the following section, the application of the algorithm is shown with simulated cases created with the `generate_seasonal_data()`function.
 More information about the function can be found in the `vignette("generate_seasonal_wave").
 ```{r, include = FALSE}
 withr::local_seed(222)
-# Construct an 'tsd' object with time series cases
+# Construct a 'tsd' object with time series cases
 tsd_data <- generate_seasonal_data(
   years = 5,
   start_date = as.Date("2020-10-18"),
   trend_rate = 1.002,
   noise_overdispersion = 5,
   relative_epidemic_concentration = 3,
-  time_interval = "week"
+  time_interval = "weeks"
 )
 
 tsd_data <- tsd_data |>

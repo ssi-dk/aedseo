@@ -86,4 +86,3 @@ rd_obs_size <- "A numeric, specifying the size of observational points."
 rd_time_interval <- "A character vector specifying the time interval. Choose between 'days', 'weeks', or 'months'."
 rd_time_interval_step <- "A character vector specifying the time interval and how many time steps are desired
  on the x-axis, e.g. '10 days', '4 weeks', or '3 months'."
-rd_y_label <- "A character vector specifying the y label text."
