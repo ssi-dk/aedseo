@@ -65,7 +65,7 @@ autoplot(object, ...)
 )
 }
 \arguments{
-\item{object}{A \code{tsd_onset} object}
+\item{object}{A \code{tsd_growth_warning} object}
 
 \item{...}{Additional arguments (not used).}
 
@@ -128,7 +128,7 @@ A 'ggplot' object for visualizing the \code{tsd_growth_warning} data.
 }
 \description{
 Generates a complete 'ggplot' object suitable for visualizing time series data in a
-\code{tsd}, \code{tsd_onset} or \code{tsd_onset_and_burden} object.
+\code{tsd}, \code{tsd_onset}, \code{tsd_onset_and_burden} or \code{tsd_growth_warning} object.
 
 \code{autoplot(tsd)}
 \itemize{

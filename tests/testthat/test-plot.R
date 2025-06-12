@@ -99,7 +99,7 @@ test_that("Test that plot works for cases and incidence in `tsd_growth_warning` 
 
   tsd_growth_w_incidence <- consecutive_growth_warnings(tsd_onset_incidence)
 
-  plot(tsd_growth_w_incidence)
+  incidence_plot <- plot(tsd_growth_w_incidence)
 
   expect_false(all(is.na(incidence_plot$data$incidence)))
 })
