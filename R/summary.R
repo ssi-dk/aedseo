@@ -32,7 +32,7 @@ summary.tsd_onset <- function(object, ...) {
 
   # Use incidence if in onset_output else use cases
   use_incidence <- FALSE
-  if (!is.null(attr(object, "incidence_denominator"))) {
+  if (!is.na(attr(object, "incidence_denominator"))) {
     use_incidence <- TRUE
   }
 
@@ -42,19 +42,24 @@ summary.tsd_onset <- function(object, ...) {
   # Extract the reference time
   reference_time <- last_observation$reference_time
 
-  # Extract the time_interval
+  # Extract attributes
   time_interval <- attr(object, "time_interval")
+  incidence_denominator <- attr(object, "incidence_denominator")
 
   # Extract the season
   last_season <- last_observation$season
 
   # Latest observation
   if (use_incidence) {
-    latest_observation <- last_observation |>
-      dplyr::pull(.data$incidence)
+    latest_observation <- as.numeric(
+      last_observation |>
+        dplyr::pull(.data$incidence)
+    )
   } else {
-    latest_observation <- last_observation |>
-      dplyr::pull(.data$cases)
+    latest_observation <- as.numeric(
+      last_observation |>
+        dplyr::pull(.data$cases)
+    )
   }
 
   # Latest average of observations in window
@@ -113,12 +118,13 @@ summary.tsd_onset <- function(object, ...) {
         dplyr::pull(.data$reference_time)
     )
     if (use_incidence) {
-      seasonal_onset_obs <- as.character(
+      seasonal_onset_obs <- as.numeric(
         seasonal_onset_ref_obs |>
-          dplyr::pull(.data$incidence)
+          dplyr::pull(.data$incidence) |>
+          as.numeric()
       )
     } else {
-      seasonal_onset_obs <- as.character(
+      seasonal_onset_obs <- as.numeric(
         seasonal_onset_ref_obs |>
           dplyr::pull(.data$cases)
       )
@@ -144,8 +150,8 @@ summary.tsd_onset <- function(object, ...) {
 
       Model output:
         Reference time point (last case in series): %s
-        Cases at reference time point: %s
-        Sum of cases at reference time point: %d
+        Observations at reference time point: %d
+        Average observations (in k window) at reference time point: %d
         Total number of growth warnings in the series: %d
         Latest growth warning: %s
         Growth rate estimate at reference time point:
@@ -157,12 +163,13 @@ summary.tsd_onset <- function(object, ...) {
 
       Model settings:
         Called using distributional family: %s
-        Window size for growth rate estimation and calculation of sum of cases: %d
-        The time interval for the cases: %s
-        Disease specific threshold: %d",
+        Window size: %d
+        The time interval for the observations: %s
+        Disease specific threshold: %d
+        Incidence denominator: %d",
       as.character(reference_time),
-      as.character(latest_observation),
-      as.integer(latest_average_observations_window),
+      latest_observation,
+      as.numeric(latest_average_observations_window),
       sum_of_growth_warnings,
       as.character(latest_growth_warning),
       lower_confidence_interval * 100,
@@ -174,7 +181,8 @@ summary.tsd_onset <- function(object, ...) {
       family,
       k,
       time_interval,
-      disease_threshold
+      disease_threshold,
+      incidence_denominator
     )
   } else {
     # Generate the summary message
@@ -183,14 +191,14 @@ summary.tsd_onset <- function(object, ...) {
 
       Model output:
         Reference time point (first seasonal onset alarm in season): %s
-        Cases at reference time point: %s
-        Sum of cases at reference time point: %s
+        Observations at reference time point: %d
+        Average observations (in k window) at reference time point: %s
         Growth rate estimate at reference time point:
           Estimate   Lower (%.1f%%)   Upper (%.1f%%)
             %.3f     %.3f          %.3f
         Total number of growth warnings in the series: %d
         Latest growth warning: %s
-        Latest sum of cases warning: %s
+        Latest average observations warning: %s
         Latest seasonal onset alarm: %s
 
       The season for reference time point:
@@ -198,9 +206,10 @@ summary.tsd_onset <- function(object, ...) {
 
       Model settings:
         Called using distributional family: %s
-        Window size for growth rate estimation and calculation of sum of cases: %d
-        The time interval for the cases: %s
-        Disease specific threshold: %d",
+        Window size: %d
+        The time interval for the observations: %s
+        Disease specific threshold: %d
+        Incidence denominator: %d",
       seasonal_onset_ref_time,
       seasonal_onset_obs,
       seasonal_onset_sum_obs,
@@ -217,7 +226,8 @@ summary.tsd_onset <- function(object, ...) {
       family,
       k,
       time_interval,
-      disease_threshold
+      disease_threshold,
+      incidence_denominator
     )
   }
 

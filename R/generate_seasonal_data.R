@@ -66,7 +66,6 @@ generate_seasonal_data <- function(
   lower_bound = 1e-6
 ) {
   # Check input arguments
-  time_interval <- rlang::arg_match(time_interval)
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_integerish(years, len = 1, lower = 1, add = coll)
   checkmate::assert_date(start_date, add = coll)
@@ -85,11 +84,11 @@ generate_seasonal_data <- function(
   # Throw an error if any of the inputs are not supported
   time_interval <- match.arg(time_interval)
 
-  if (time_interval == "weeks") {
+  if (grepl(time_interval, "weeks")) {
     period <- 52
-  } else if (time_interval == "days") {
+  } else if (grepl(time_interval, "days")) {
     period <- 365
-  } else if (time_interval == "months") {
+  } else if (grepl(time_interval, "months")) {
     period <- 12
   }
 

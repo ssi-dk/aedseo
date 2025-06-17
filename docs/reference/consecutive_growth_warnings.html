@@ -115,7 +115,6 @@ significant observation starts and ends. The first number is how many subsequent
 <span class="r-in"><span><span class="co"># Estimate seasonal onset</span></span></span>
 <span class="r-in"><span><span class="va">tsd_onset</span> <span class="op">&lt;-</span> <span class="fu"><a href="seasonal_onset.html">seasonal_onset</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  tsd <span class="op">=</span> <span class="va">sim_data</span>,</span></span>
-<span class="r-in"><span>  family <span class="op">=</span> <span class="st">"quasipoisson"</span>,</span></span>
 <span class="r-in"><span>  season_start <span class="op">=</span> <span class="fl">21</span>,</span></span>
 <span class="r-in"><span>  season_end <span class="op">=</span> <span class="fl">20</span>,</span></span>
 <span class="r-in"><span>  only_current_season <span class="op">=</span> <span class="cn">FALSE</span></span></span>
@@ -123,22 +122,23 @@ significant observation starts and ends. The first number is how many subsequent
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Get consecutive significant observations</span></span></span>
 <span class="r-in"><span><span class="fu">consecutive_growth_warnings</span><span class="op">(</span><span class="va">tsd_onset</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 256 × 16</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    reference_time observation season    growth_rate lower_growth_rate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 2022-06-23             101 2022/2023      0.218             0.110 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 2022-06-30             113 2022/2023      0.226             0.130 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 2022-07-07             159 2022/2023      0.288             0.234 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 2022-07-14             152 2022/2023      0.200             0.111 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 2022-07-21             155 2022/2023      0.109             0.031<span style="text-decoration: underline;">0</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 2022-07-28             201 2022/2023      0.111             0.038<span style="text-decoration: underline;">9</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 2022-08-04             197 2022/2023      0.072<span style="text-decoration: underline;">5</span>            0.016<span style="text-decoration: underline;">6</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 2022-08-11             237 2022/2023      0.113             0.069<span style="text-decoration: underline;">9</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 2022-08-18             196 2022/2023      0.059<span style="text-decoration: underline;">9</span>           -<span style="color: #BB0000;">0.022</span><span style="color: #BB0000; text-decoration: underline;">0</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 2022-08-25             235 2022/2023      0.031<span style="text-decoration: underline;">4</span>           -<span style="color: #BB0000;">0.028</span><span style="color: #BB0000; text-decoration: underline;">7</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 256 × 18</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    reference_time cases season    population incidence growth_rate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 2022-06-23       101 2022/2023 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.218 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 2022-06-30       113 2022/2023 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.226 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 2022-07-07       159 2022/2023 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.288 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 2022-07-14       152 2022/2023 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.200 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 2022-07-21       155 2022/2023 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.109 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 2022-07-28       201 2022/2023 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.111 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 2022-08-04       197 2022/2023 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.072<span style="text-decoration: underline;">5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 2022-08-11       237 2022/2023 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.113 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 2022-08-18       196 2022/2023 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.059<span style="text-decoration: underline;">9</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 2022-08-25       235 2022/2023 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.031<span style="text-decoration: underline;">4</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 246 more rows</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 11 more variables: upper_growth_rate &lt;dbl&gt;, growth_warning &lt;lgl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   sum_of_cases &lt;dbl&gt;, sum_of_cases_warning &lt;lgl&gt;, seasonal_onset_alarm &lt;lgl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 12 more variables: lower_growth_rate &lt;dbl&gt;, upper_growth_rate &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   growth_warning &lt;lgl&gt;, average_observations_window &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   average_observations_warning &lt;lgl&gt;, seasonal_onset_alarm &lt;lgl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   skipped_window &lt;lgl&gt;, converged &lt;lgl&gt;, counter &lt;dbl&gt;, changeFlag &lt;lgl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   groupID &lt;int&gt;, significant_counter &lt;dbl&gt;</span></span>
 </code></pre></div>

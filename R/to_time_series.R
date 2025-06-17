@@ -53,7 +53,7 @@ to_time_series <- function(                                     # nolint: cycloc
   cases = NULL,
   incidence = NULL,
   population = NULL,
-  incidence_denominator = if (is.null(population)) NA else 1e5,
+  incidence_denominator = if (is.null(population)) NA_real_ else 1e5,
   time,
   time_interval = c("weeks", "days", "months")
 ) {
@@ -93,7 +93,7 @@ to_time_series <- function(                                     # nolint: cycloc
       dplyr::mutate(incidence = (.data$cases / .data$population) * incidence_denominator)
   }
   # Calculate cases from input
-  if (is.null(cases) && !is.null(population) && !is.null(incidence) && !is.null(incidence_denominator)) {
+  if (is.null(cases) && !is.null(population) && !is.null(incidence) && !is.na(incidence_denominator)) {
     tbl <- tbl |>
       dplyr::mutate(cases = (.data$incidence * .data$population) / incidence_denominator)
   }

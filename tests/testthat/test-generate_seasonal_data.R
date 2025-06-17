@@ -27,7 +27,7 @@ test_that("generate_seasonal_data() - input argument checks", {
 
   expect_error(
     generate_seasonal_data(time_interval = "year"),
-    "time_interval.*must be one of"
+    "'arg' should be one of"
   )
 
   expect_error(

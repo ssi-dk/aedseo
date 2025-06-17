@@ -8,7 +8,7 @@ seasonal_onset(
   tsd,
   k = 5,
   level = 0.95,
-  disease_threshold = NA_integer_,
+  disease_threshold = NA_real_,
   family = c("quasipoisson", "poisson"),
   na_fraction_allowed = 0.4,
   season_start = NULL,
@@ -69,7 +69,7 @@ additionally the output will include incidence, population and average sum of in
 \examples{
 # Create a tibble object from sample data
 tsd_data <- tsd(
-  observation = c(100, 120, 150, 180, 220, 270),
+  cases = c(100, 120, 150, 180, 220, 270),
   time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 6)
 )
 

@@ -416,7 +416,7 @@ autoplot.tsd_onset_and_burden <- function(
     ) +
     ggplot2::scale_linetype_manual(
       name = "",
-      values = setNames(line_type, y_label)
+      values = stats::setNames(line_type, y_label)
     ) +
     ggplot2::scale_color_manual(
       name = "",

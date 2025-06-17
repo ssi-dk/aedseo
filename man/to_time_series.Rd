@@ -8,7 +8,7 @@ to_time_series(
   cases = NULL,
   incidence = NULL,
   population = NULL,
-  incidence_denominator = if (is.null(population)) NA else 1e+05,
+  incidence_denominator = if (is.null(population)) NA_real_ else 1e+05,
   time,
   time_interval = c("weeks", "days", "months")
 )

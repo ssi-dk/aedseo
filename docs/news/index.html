@@ -62,12 +62,14 @@
 </div>
 <div class="section level3">
 <h3 id="features-development-version">Features<a class="anchor" aria-label="anchor" href="#features-development-version"></a></h3>
-<ul><li><p>Added new argument <code>pop</code> to <code><a href="../reference/to_time_series.html">to_time_series()</a></code> and <code><a href="../reference/fit_growth_rate.html">fit_growth_rate()</a></code> that allows the user to add the background population connected to each observation (<a href="https://github.com/ssi-dk/aedseo/issues/83" class="external-link">#83</a>).</p></li>
+<ul><li><p>Added new arguments <code>incidence</code> and <code>incidence_denominator</code> to <code><a href="../reference/to_time_series.html">to_time_series()</a></code> that allows the user to get output as incidence (<a href="https://github.com/ssi-dk/aedseo/issues/84" class="external-link">#84</a>).</p></li>
+<li><p>Added new argument <code>population</code> to <code><a href="../reference/to_time_series.html">to_time_series()</a></code> and <code><a href="../reference/fit_growth_rate.html">fit_growth_rate()</a></code> that allows the user to add the background population connected to each observation (<a href="https://github.com/ssi-dk/aedseo/issues/83" class="external-link">#83</a>).</p></li>
 <li><p>Added new argument <code>use_offset</code> to <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> that allows the user to add the background population to adjust the growth rate estimations (<a href="https://github.com/ssi-dk/aedseo/issues/83" class="external-link">#83</a>).</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="improvements-development-version">Improvements<a class="anchor" aria-label="anchor" href="#improvements-development-version"></a></h3>
-</div>
+<ul><li>Observations are now divided into <code>cases</code> and <code>incidence</code>, which is implemented into all functions in the package. Cases are used as default, but if the user additionally inputs <code>population</code> the output will be incidence (<a href="https://github.com/ssi-dk/aedseo/issues/84" class="external-link">#84</a>).</li>
+</ul></div>
 <div class="section level3">
 <h3 id="minor-changes-development-version">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-development-version"></a></h3>
 </div>

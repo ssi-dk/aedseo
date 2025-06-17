@@ -74,7 +74,7 @@ This function assumes 365 days, 52 weeks, and 12 months per year. Leap years are
 <span>  trend_rate <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  noise_overdispersion <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  relative_epidemic_concentration <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  time_interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"week"</span>, <span class="st">"day"</span>, <span class="st">"month"</span><span class="op">)</span>,</span>
+<span>  time_interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"weeks"</span>, <span class="st">"days"</span>, <span class="st">"months"</span><span class="op">)</span>,</span>
 <span>  lower_bound <span class="op">=</span> <span class="fl">1e-06</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -118,7 +118,7 @@ A value of 1 gives the pure sinusoidal curve, and greater values concentrate the
 
 
 <dt>time_interval</dt>
-<dd><p>A character vector specifying the time interval. Choose between 'day', 'week', or 'month'.</p></dd>
+<dd><p>A character vector specifying the time interval. Choose between 'days', 'weeks', or 'months'.</p></dd>
 
 
 <dt>lower_bound</dt>
@@ -130,8 +130,8 @@ which is needed when <code>noise_overdispersion</code> is different from zero.</
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A <code>tsd</code> object with simulated data containing:</p><ul><li><p>'time': The time point for for when the observation is observed.</p></li>
-<li><p>'observation': The observed value at the time point.</p></li>
+<p>A <code>tsd</code> object with simulated data containing:</p><ul><li><p>'time': The time point for the corresponding data.</p></li>
+<li><p>'cases': The number of cases at the time point.</p></li>
 </ul></div>
 
     <div class="section level2">
@@ -161,7 +161,7 @@ which is needed when <code>noise_overdispersion</code> is different from zero.</
 <span class="r-in"><span>  mean <span class="op">=</span> <span class="fl">3000</span>,</span></span>
 <span class="r-in"><span>  trend_rate <span class="op">=</span> <span class="fl">1.002</span>,</span></span>
 <span class="r-in"><span>  noise_overdispersion <span class="op">=</span> <span class="fl">1.1</span>,</span></span>
-<span class="r-in"><span>  time_interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"week"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  time_interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"weeks"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot.html">plot</a></span><span class="op">(</span><span class="va">sim_data</span>, time_interval <span class="op">=</span> <span class="st">"2 months"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="generate_seasonal_data-4.png" alt="" width="700" height="433"></span>
