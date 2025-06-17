@@ -49,6 +49,13 @@ test_that("Test that input argument checks work", {
     time = seq(from = as.Date("2023-01-01"), by = "1 day", length.out = 6),
     time_interval = "years"
   ))
+
+  #  Accept names that match time_interval
+  expect_no_error(to_time_series(
+    cases = c(100, 120, 150, 180, 220, 270),
+    time = seq(from = as.Date("2023-01-01"), by = "1 day", length.out = 6),
+    time_interval = "w"
+  ))
 })
 
 test_that("cases vs. incidence input/conversion works as expected", {
@@ -76,7 +83,7 @@ test_that("cases vs. incidence input/conversion works as expected", {
     population = c(1e+06, 1e+06, 1e+06, 1e+06),
     time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4)
   ),
-  "Either cases or incidence must be assigned")
+  "Either cases or incidence must be given")
 
   tsd_miss_cases <- to_time_series(
     incidence = c(1.0, 1.5, 2.0, 1.8),

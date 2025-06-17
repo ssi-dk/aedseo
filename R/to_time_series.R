@@ -14,6 +14,7 @@
 #'
 #' @param cases `r rd_cases`
 #' @param incidence A numeric vector containing the time series incidences.
+#' With the given incidence_denominator.
 #' @param population `r rd_population`
 #' @param incidence_denominator An integer >= 1, specifying the observations per incidence-denominator.
 #' @param time A date vector containing the corresponding dates.
@@ -34,14 +35,14 @@
 #'   time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4)
 #' )
 #'
-#' # Create a `tsd` object with incidence from cases, population and incidence_denominator
+#' # Create a `tsd` object with incidence from cases, population and default incidence_denominator
 #' tsd_calculate_incidence <- to_time_series(
 #'   cases = c(100, 120, 130, 150),
 #'   time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4),
 #'   population = c(3000000, 3000000, 3000000, 3000000)
 #' )
 #'
-#' # Create a `tsd` object with cases from incidence, population and incidence_denominator
+#' # Create a `tsd` object with cases from incidence, population and default incidence_denominator
 #' tsd_calculate_cases <- to_time_series(
 #'   incidence = c(5, 7.8, 8, 8.5),
 #'   time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4),
@@ -65,7 +66,7 @@ to_time_series <- function(                                     # nolint: cycloc
   checkmate::assert_integerish(incidence_denominator, lower = 1, len = 1, null.ok = TRUE, add = coll)
   checkmate::reportAssertions(coll)
   if (is.null(cases) && is.null(incidence)) {
-    coll$push("Either cases or incidence must be assigned")
+    coll$push("Either cases or incidence must be given")
   }
   if (is.null(cases) && is.null(population) && !is.null(incidence)) {
     coll$push("seasonal_onset() assumes integer counts, please supply population and incidence_denominator")
@@ -76,7 +77,7 @@ to_time_series <- function(                                     # nolint: cycloc
   checkmate::reportAssertions(coll)
 
   # Throw an error if any of the inputs are not supported
-  time_interval <- rlang::arg_match(time_interval)
+  time_interval <- match.arg(time_interval)
 
   # Collect the input in a tibble
   tbl <- purrr::compact(list( # compact discards empty vectors

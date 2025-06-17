@@ -16,7 +16,8 @@ to_time_series(
 \arguments{
 \item{cases}{An integer vector containing the time series cases.}
 
-\item{incidence}{A numeric vector containing the time series incidences.}
+\item{incidence}{A numeric vector containing the time series incidences.
+With the given incidence_denominator.}
 
 \item{population}{An integer vector containing the time series background population.}
 
@@ -55,14 +56,14 @@ tsd_cases <- to_time_series(
   time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4)
 )
 
-# Create a `tsd` object with incidence from cases, population and incidence_denominator
+# Create a `tsd` object with incidence from cases, population and default incidence_denominator
 tsd_calculate_incidence <- to_time_series(
   cases = c(100, 120, 130, 150),
   time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4),
   population = c(3000000, 3000000, 3000000, 3000000)
 )
 
-# Create a `tsd` object with cases from incidence, population and incidence_denominator
+# Create a `tsd` object with cases from incidence, population and default incidence_denominator
 tsd_calculate_cases <- to_time_series(
   incidence = c(5, 7.8, 8, 8.5),
   time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4),

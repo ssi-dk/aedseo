@@ -78,8 +78,16 @@ fit_percentiles <- function(
   checkmate::assert_tibble(weighted_observations, add = coll)
   checkmate::assert_numeric(conf_levels, lower = 0, upper = 1,
                             unique = TRUE, sorted = TRUE, add = coll)
-  checkmate::assert_names(colnames(weighted_observations),
-                          subset.of = c("observation", "cases", "incidence", "weight"), add = coll)
+  checkmate::assert_true(
+    length(weighted_observations) >= 2,
+    add = coll
+  )
+  checkmate::assert_names(
+    colnames(weighted_observations),
+    must.include = "weight",
+    subset.of = c("weight", "cases", "incidence", "observation"),
+    add = coll
+  )
   checkmate::assert_numeric(lower_optim, add = coll)
   checkmate::assert_numeric(upper_optim, add = coll)
   checkmate::reportAssertions(coll)
@@ -87,8 +95,17 @@ fit_percentiles <- function(
   family <- rlang::arg_match(family)
   optim_method <- rlang::arg_match(optim_method)
 
-  # Rename cases or incidence to observation
-  names(weighted_observations)[names(weighted_observations) %in% c("cases", "incidence")] <- "observation"
+  # Rename cases or incidence to observation if they are present and observation is not
+  if ("incidence" %in% names(weighted_observations) && !"observation" %in% names(weighted_observations)) {
+    weighted_observations <- weighted_observations |>
+      dplyr::rename(observation = "incidence")
+  }
+  if ("cases" %in% names(weighted_observations) &&
+      !any(c("observation", "incidence") %in% names(weighted_observations))
+  ) {
+    weighted_observations <- weighted_observations |>
+      dplyr::rename(observation = "cases")
+  }
 
   # If there is only one unique observation we cannot optimise -> return NA
   if (length(unique(weighted_observations$observation)) == 1) {

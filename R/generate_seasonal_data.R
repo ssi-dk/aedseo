@@ -82,6 +82,9 @@ generate_seasonal_data <- function(
   checkmate::assert_numeric(lower_bound, len = 1, lower = 0, add = coll)
   checkmate::reportAssertions(coll)
 
+  # Throw an error if any of the inputs are not supported
+  time_interval <- match.arg(time_interval)
+
   if (time_interval == "weeks") {
     period <- 52
   } else if (time_interval == "days") {

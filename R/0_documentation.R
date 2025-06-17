@@ -40,7 +40,7 @@ rd_seasonal_onset_return <- paste(
   "- 'lower_growth_rate': The lower bound of the growth rate's confidence interval.\n",
   "- 'upper_growth_rate': The upper bound of the growth rate's confidence interval.\n",
   "- 'growth_warning': Logical. Is the growth rate significantly higher than zero?\n",
-  "- 'average_observation_window': The sum of cases or incidence within the time window.\n",
+  "- 'average_observation_window': The average of cases or incidence within the time window.\n",
   "- 'average_observation_warning': Logical. Does the average observations exceed the disease threshold?\n",
   "- 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?\n",
   "- 'skipped_window': Logical. Was the window skipped due to missing?\n",
