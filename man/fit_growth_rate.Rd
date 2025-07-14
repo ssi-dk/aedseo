@@ -2,19 +2,19 @@
 % Please edit documentation in R/fit_growth_rate.R
 \name{fit_growth_rate}
 \alias{fit_growth_rate}
-\title{Fit a growth rate model to time series observations.}
+\title{Fit a growth rate model to time series cases.}
 \usage{
 fit_growth_rate(
-  observation,
+  cases,
   population = NULL,
   level = 0.95,
   family = c("quasipoisson", "poisson")
 )
 }
 \arguments{
-\item{observation}{A numeric vector containing the time series observations..}
+\item{cases}{An integer vector containing the time series cases.}
 
-\item{population}{A numeric vector containing the background population (optional).}
+\item{population}{An integer vector containing the time series background population.}
 
 \item{level}{The confidence level for parameter estimates, a numeric value between 0 and 1.}
 
@@ -32,7 +32,7 @@ confidence intervals.
 }
 }
 \description{
-This function fits a growth rate model to time series observations and provides parameter estimates along with
+This function fits a growth rate model to time series cases and provides parameter estimates along with
 confidence intervals.
 }
 \examples{
@@ -40,7 +40,7 @@ confidence intervals.
 # (e.g., population growth)
 data <- c(100, 120, 150, 180, 220, 270)
 fit_growth_rate(
-  observation = data,
+  cases = data,
   level = 0.95,
   family = "poisson"
 )

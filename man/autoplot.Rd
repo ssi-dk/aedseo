@@ -16,7 +16,6 @@ autoplot(object, ...)
   obs_size = 2,
   text_family = "sans",
   time_interval_step = "5 weeks",
-  y_label = "Weekly observations",
   ...
 )
 
@@ -30,7 +29,6 @@ autoplot(object, ...)
   text_family = "sans",
   legend_position = "bottom",
   time_interval_step = "5 weeks",
-  y_label = "Weekly observations",
   ...
 )
 
@@ -42,7 +40,6 @@ autoplot(object, ...)
   season_start = 21,
   season_end = season_start - 1,
   time_interval_step = "3 weeks",
-  y_label = "Weekly observations",
   text_burden_size = 10/2.8,
   fill_alpha = c(0.45, 0.6, 0.75, 0.89, 1),
   text_family = "sans",
@@ -68,7 +65,7 @@ autoplot(object, ...)
 )
 }
 \arguments{
-\item{object}{A \code{tsd_onset} object}
+\item{object}{A \code{tsd_growth_warning} object}
 
 \item{...}{Additional arguments (not used).}
 
@@ -80,8 +77,6 @@ autoplot(object, ...)
 
 \item{time_interval_step}{A character vector specifying the time interval and how many time steps are desired
 on the x-axis, e.g. '10 days', '4 weeks', or '3 months'.}
-
-\item{y_label}{A character vector specifying the y label text.}
 
 \item{disease_color}{A character specifying the base color of the disease.}
 
@@ -133,7 +128,7 @@ A 'ggplot' object for visualizing the \code{tsd_growth_warning} data.
 }
 \description{
 Generates a complete 'ggplot' object suitable for visualizing time series data in a
-\code{tsd}, \code{tsd_onset} or \code{tsd_onset_and_burden} object.
+\code{tsd}, \code{tsd_onset}, \code{tsd_onset_and_burden} or \code{tsd_growth_warning} object.
 
 \code{autoplot(tsd)}
 \itemize{

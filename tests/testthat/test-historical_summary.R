@@ -19,7 +19,6 @@ test_that("Historical summary prints a row for each input season", {
   tsd_onset <- seasonal_onset(
     tsd = tsd_data,
     disease_threshold = 10,
-    family = "quasipoisson",
     season_start = 21,
     season_end = 20,
     only_current_season = FALSE
@@ -32,6 +31,33 @@ test_that("Historical summary prints a row for each input season", {
 
   # Verify that the summary printed without errors
   expect_identical(org_seasons, hs_seasons)
+})
+
+test_that("Historical summary prints a message for seasons with no onset", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Generate seasonal data
+  tsd_data <- generate_seasonal_data(
+    years = 5,
+    trend_rate = 0.997,
+    noise_overdispersion = 3,
+    start_date = as.Date("2021-01-01")
+  )
+
+  # Estimate seasonal_onset
+  tsd_onset <- seasonal_onset(
+    tsd = tsd_data,
+    disease_threshold = 100,
+    season_start = 21,
+    season_end = 20,
+    only_current_season = FALSE
+  )
+
+  # Get historical summary seasons
+  expect_message(
+    historical_summary(tsd_onset),
+    "Following seasons do not have an onset, 2020/2021, 2024/2025, 2025/2026"
+  )
 })
 
 test_that("Historical summary checks tsd_object correctly", {
@@ -65,4 +91,30 @@ test_that("Historical summary checks tsd_object correctly", {
     historical_summary(tsd_onset_2),
     "Column 'seasonal_onset' not found in tsd_onset object."
   )
+})
+
+test_that("Historical summary uses incidence if available", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+
+  # Create tsd object with incidence
+  tsd_cal_incidence <- to_time_series(
+    cases = c(10, 15, 20, 100, 200, 350, 200),
+    population = c(1e+06, 1e+06, 1e+06, 1e+06, 1e+06, 1e+06, 1e+06),
+    time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 7)
+  )
+
+  # Estimate seasonal_onset
+  tsd_onset <- seasonal_onset(
+    tsd = tsd_cal_incidence,
+    disease_threshold = 1.5,
+    family = "quasipoisson",
+    season_start = 21,
+    season_end = 20,
+    only_current_season = FALSE
+  )
+
+  hs <- historical_summary(tsd_onset)
+
+  expect_equal(max(tsd_cal_incidence$incidence), hs$peak_intensity)
 })

@@ -102,7 +102,7 @@ be divided into two essential criteria:</p>
 <ol style="list-style-type: decimal">
 <li>The local estimate of the exponential growth rate, <span class="math inline">\(r\)</span>, is significantly greater than
 zero.</li>
-<li>The sum of cases (SoC) over the past <span class="math inline">\(k\)</span> units of time exceeds a
+<li>The average observation count over the past <span class="math inline">\(k\)</span> units of time exceeds a
 disease-specific threshold.</li>
 </ol>
 <p>Here, <span class="math inline">\(k\)</span> denotes the window size
@@ -112,16 +112,17 @@ onset of the seasonal epidemic is detected.</p>
 <p>The model is implemented in the <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code>
 function of the <code>aedseo</code> package. Criteria one is fulfilled
 if the <code>growth_warning</code> in the output is <code>TRUE</code>.
-Criteria two is fulfilled if the <code>sum_of_cases_warning</code> in
-the output is <code>TRUE</code>.</p>
+Criteria two is fulfilled if the
+<code>average_observation_warning</code> in the output is
+<code>TRUE</code>.</p>
 <div class="section level3">
 <h3 id="exponential-growth-rate">Exponential growth rate<a class="anchor" aria-label="anchor" href="#exponential-growth-rate"></a>
 </h3>
 <p>The exponential growth rate, denoted as <span class="math inline">\(r\)</span>, represents the per capita change in
-the number of new cases per unit of time. Given that incidence data are
+the number of new cases per unit of time. Given that number of cases are
 integer-valued, the proposed method relies on generalized linear models
 (GLM). For count data, the Poisson distribution is a suitable choice as
-a model. Hence, the count observations denoted as <span class="math inline">\(Y\)</span> are assumed to follow a Poisson
+a model. Hence, the cases denoted as <span class="math inline">\(Y\)</span> are assumed to follow a Poisson
 distribution</p>
 <p><span class="math display">\[\begin{equation}
 Y \sim \mathrm{Pois}(\lambda)
@@ -148,12 +149,15 @@ addressed within a model in various ways. One approach is to employ
 quasi-Poisson regression, which assumes <span class="math inline">\(v=\sigma\lambda\)</span>, or to use negative
 binomial regression (not implemented yet), which assumes <span class="math inline">\(v=\lambda+\lambda^2/\theta\)</span>, where both
 <span class="math inline">\(\sigma\)</span> and <span class="math inline">\(\theta\)</span> are overdispersion parameters.</p>
+<p>If the background population changes during the time-span for the
+cases, the growth rate estimations can be adjusted by applying
+population as offset in the model.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="applying-the-seasonal_onset-algorithm">Applying the seasonal_onset algorithm<a class="anchor" aria-label="anchor" href="#applying-the-seasonal_onset-algorithm"></a>
 </h2>
-<p>First we generate some data as an <code>tsd</code> object, with the
+<p>First we generate cases in a <code>tsd</code> object, with the
 <code><a href="../reference/generate_seasonal_data.html">generate_seasonal_data()</a></code> function.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Construct an 'tsd' object with time series data</span></span>
@@ -164,26 +168,31 @@ binomial regression (not implemented yet), which assumes <span class="math inlin
 <span>  trend_rate <span class="op">=</span> <span class="fl">1.002</span>,</span>
 <span>  noise_overdispersion <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  relative_epidemic_concentration <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  time_interval <span class="op">=</span> <span class="st">"week"</span></span>
+<span>  time_interval <span class="op">=</span> <span class="st">"weeks"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Next, the <code>tsd</code> object is passed to the
 <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> function. Here, a window size of
 <code>k=5</code> is specified, meaning that a total of 5 weeks is used
 in the local estimate of the exponential growth rate.
 <code>na_fraction_allowed = 0.4</code> defines how large a fraction of
-observations in the <code>k</code> window that are allowed to be
-<code>NA</code>, here <code>0.4*5 = 2</code> observations. Additionally,
-a 95% confidence interval is specified. Finally, the exponential growth
-rate is estimated using quasi-Poisson regression to account for
+cases in the <code>k</code> window that are allowed to be
+<code>NA</code>, here <code>0.4*5 = 2</code> cases. Additionally, a 95%
+confidence interval is specified. Finally, the exponential growth rate
+is estimated using quasi-Poisson regression to account for
 overdispersion in the data. A disease-specific threshold can
 additionally be passed to the function, but is not necessary if only the
 growth rate estimations are wanted. <code>season_start</code> and
 <code>season_end</code> can be used to specify the season to stratify
-the observations by. This algorithm runs across seasons, such that the
-first observation in a new season will use the last <code>k-1</code>
-observations from the previous season. The <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code>
-function provides a <code>tsd_onset</code> object with a comprehensive
-seasonal onset analysis.</p>
+the cases by. This algorithm runs across seasons, such that the first
+cases in a new season will use the last <code>k-1</code> cases from the
+previous season. The <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> function provides a
+<code>tsd_onset</code> object with a comprehensive seasonal onset
+analysis.</p>
+<p><em>NOTE: </em>As default the output is in cases, but if
+<code>incidence</code> and <code>population</code> is in the
+<code>tsd</code> object the average observations will be in incidence
+and the model will use <code>population</code> as offset in each time
+point.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seasonal_onset_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/seasonal_onset.html">seasonal_onset</a></span><span class="op">(</span></span>
 <span>  tsd <span class="op">=</span> <span class="va">tsd_data</span>,</span>
@@ -199,12 +208,12 @@ seasonal onset analysis.</p>
 <div class="section level2">
 <h2 id="visualising-growth-rates">Visualising Growth Rates<a class="anchor" aria-label="anchor" href="#visualising-growth-rates"></a>
 </h2>
-<p>In the first figure, observations over time are shown with a legend
-for the seasonal onset alarm. In the second figure, the local estimates
-of the growth rates are presented along with their corresponding 95%
-confidence interval with a legend for the growth warning. This
-visualisation can be generated by utilizing the <code><a href="../reference/plot.html">plot()</a></code> S3
-method with objects of the <code>tsd_onset</code> class.</p>
+<p>In the first figure, cases over time are shown with a legend for the
+seasonal onset alarm. In the second figure, the local estimates of the
+growth rates are presented along with their corresponding 95% confidence
+interval with a legend for the growth warning. This visualisation can be
+generated by utilizing the <code><a href="../reference/plot.html">plot()</a></code> S3 method with objects of
+the <code>tsd_onset</code> class.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">seasonal_onset_results</span><span class="op">)</span></span></code></pre></div>
 <p><img src="seasonal_onset_files/figure-html/unnamed-chunk-4-1.png" width="2187.5"><img src="seasonal_onset_files/figure-html/unnamed-chunk-4-2.png" width="2187.5"></p>
@@ -214,8 +223,8 @@ method with objects of the <code>tsd_onset</code> class.</p>
 </h2>
 <p>The <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> S3 method for <code>tsd_onset</code>
 objects allows you to make predictions for future time steps based on
-the estimated growth rates. Following is an example of predict
-observations for the next 5 weekly time steps.</p>
+the estimated growth rates. Following is an example of predicted cases
+for the next 5 weekly time steps.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prediction</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">seasonal_onset_results</span>, n_step <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="seasonal_onset_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
@@ -224,8 +233,8 @@ rates for the next 5 time steps, according to the
 <code>time_interval = "week"</code> in the <code>tsd_onset</code>
 object. The <code>n_step</code> argument specifies the number of steps
 into the future you want to forecast. The resulting
-<code>tsd_predict</code> object contains observation estimates, lower
-bounds, and upper bounds for each time step.</p>
+<code>tsd_predict</code> object contains case estimates, lower bounds,
+and upper bounds for each time step.</p>
 </div>
 <div class="section level2">
 <h2 id="summarising-seasonal_onset-results">Summarising seasonal_onset results<a class="anchor" aria-label="anchor" href="#summarising-seasonal_onset-results"></a>
@@ -246,13 +255,13 @@ analysis.</p>
 <span><span class="co">#&gt;       Model output:</span></span>
 <span><span class="co">#&gt;         Reference time point (first seasonal onset alarm in season): 2023-09-24</span></span>
 <span><span class="co">#&gt;         Observations at reference time point: 38</span></span>
-<span><span class="co">#&gt;         Sum of observations at reference time point: 102</span></span>
+<span><span class="co">#&gt;         Average observations (in k window) at reference time point: 20.4</span></span>
 <span><span class="co">#&gt;         Growth rate estimate at reference time point:</span></span>
 <span><span class="co">#&gt;           Estimate   Lower (2.5%)   Upper (97.5%)</span></span>
 <span><span class="co">#&gt;             0.391     0.596          0.199</span></span>
 <span><span class="co">#&gt;         Total number of growth warnings in the series: 52</span></span>
 <span><span class="co">#&gt;         Latest growth warning: 2023-10-08</span></span>
-<span><span class="co">#&gt;         Latest sum of cases warning: 2023-10-08</span></span>
+<span><span class="co">#&gt;         Latest average observations warning: 2023-10-08</span></span>
 <span><span class="co">#&gt;         Latest seasonal onset alarm: 2023-10-08</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;       The season for reference time point:</span></span>
@@ -260,9 +269,10 @@ analysis.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;       Model settings:</span></span>
 <span><span class="co">#&gt;         Called using distributional family: quasipoisson</span></span>
-<span><span class="co">#&gt;         Window size for growth rate estimation and calculation of sum of cases: 5</span></span>
-<span><span class="co">#&gt;         The time interval for the observations: week</span></span>
-<span><span class="co">#&gt;         Disease specific threshold: 20</span></span></code></pre></div>
+<span><span class="co">#&gt;         Window size: 5</span></span>
+<span><span class="co">#&gt;         The time interval for the observations: weeks</span></span>
+<span><span class="co">#&gt;         Disease specific threshold: 20</span></span>
+<span><span class="co">#&gt;         Incidence denominator: NA</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

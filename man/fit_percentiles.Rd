@@ -14,8 +14,8 @@ fit_percentiles(
 )
 }
 \arguments{
-\item{weighted_observations}{A tibble containing two columns of length n; \code{observation}, which contains the data
-points, and \code{weight}, which is the importance assigned to the observation. Higher weights indicate that an
+\item{weighted_observations}{A tibble containing two columns of length n; \code{observation}, which contains either cases
+or incidences, and \code{weight}, which is the importance assigned to the observation. Higher weights indicate that an
 observation has more influence on the model outcome, while lower weights reduce its impact.}
 
 \item{conf_levels}{A numeric vector specifying the confidence levels for parameter estimates. The values have
@@ -64,8 +64,8 @@ objective function value from the optimisation. Smaller value equals better opti
 }
 }
 \description{
-This function estimates the percentiles of weighted time series observations. The output contains the percentiles
-from the fitted distribution.
+This function estimates the percentiles of weighted time series cases or incidences.
+The output contains the percentiles from the fitted distribution.
 }
 \examples{
 # Create three seasons with random observations

@@ -4,11 +4,15 @@
 
 ## Features
 
+* Added new arguments `incidence` and `incidence_denominator` to `to_time_series()` that allows the user to get output as incidence (#84).
+
 * Added new argument `population` to `to_time_series()` and `fit_growth_rate()` that allows the user to add the background population connected to each observation (#83).
 
 * Added new argument `use_offset` to `seasonal_onset()` that allows the user to add the background population to adjust the growth rate estimations (#83).
 
 ## Improvements
+
+* Observations are now divided into `cases` and `incidence`, which is implemented into all functions in the package. Cases are used as default, but if the user additionally inputs `population` the output will be incidence (#84).
 
 ## Minor changes
 

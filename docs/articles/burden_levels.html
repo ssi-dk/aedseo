@@ -115,10 +115,13 @@ for the burden levels, and are visualised on following plot.</p>
 <h2 id="methodology">Methodology<a class="anchor" aria-label="anchor" href="#methodology"></a>
 </h2>
 <p>The methodology used to define the burden levels of seasonal
-epidemics is based on observations from previous seasons. Historical
-data from all available seasons is used to establish the levels for the
-current season. This is done by:</p>
+epidemics is based on observations (cases or incidence) from previous
+seasons. Historical data from all available seasons is used to establish
+the levels for the current season. This is done by:</p>
 <ul>
+<li>Using either cases or incidence as observations (default is
+<code>cases</code>, but if <code>incidence</code> is in the
+<code>tsd</code> object it will be used instead).</li>
 <li>Using <code>n</code> highest (peak) observations from each
 season.</li>
 <li>Selecting only observations if they surpass the disease-specific
@@ -279,6 +282,7 @@ for the current season.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Model settings:</span></span>
 <span><span class="co">#&gt;       Disease specific threshold: 10</span></span>
+<span><span class="co">#&gt;       Incidence denominator: NA</span></span>
 <span><span class="co">#&gt;       Called using distributional family: lnorm</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -310,6 +314,7 @@ to align with mem, we use <code>n_peak = 8</code></p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Model settings:</span></span>
 <span><span class="co">#&gt;       Disease specific threshold: 10</span></span>
+<span><span class="co">#&gt;       Incidence denominator: NA</span></span>
 <span><span class="co">#&gt;       Called using distributional family: lnorm</span></span></code></pre></div>
 </div>
 </div>
@@ -333,7 +338,7 @@ arguments.</p>
 <span>      <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>season <span class="op">=</span> <span class="fu">aedseo</span><span class="fu">::</span><span class="fu"><a href="../reference/epi_calendar.html">epi_calendar</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span>,</span>
 <span>                    week <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/week.html" class="external-link">isoweek</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>      <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">time</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">season</span>, values_from <span class="op">=</span> <span class="va">observation</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">season</span>, values_from <span class="op">=</span> <span class="va">cases</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>      <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">week</span><span class="op">)</span></span>
 <span>    <span class="co"># Run mem</span></span>
 <span>    <span class="va">mem_result</span> <span class="op">&lt;-</span> <span class="fu">mem</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mem/man/memmodel.html" class="external-link">memmodel</a></span><span class="op">(</span><span class="va">mem_data</span><span class="op">)</span></span>

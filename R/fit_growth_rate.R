@@ -1,11 +1,11 @@
-#' Fit a growth rate model to time series observations.
+#' Fit a growth rate model to time series cases.
 #'
 #' @description
 #'
-#' This function fits a growth rate model to time series observations and provides parameter estimates along with
+#' This function fits a growth rate model to time series cases and provides parameter estimates along with
 #' confidence intervals.
 #'
-#' @param observation `r rd_observation`.
+#' @param cases `r rd_cases`
 #' @param population `r rd_population`
 #' @param level The confidence level for parameter estimates, a numeric value between 0 and 1.
 #' @param family `r rd_family()`
@@ -23,12 +23,12 @@
 #' # (e.g., population growth)
 #' data <- c(100, 120, 150, 180, 220, 270)
 #' fit_growth_rate(
-#'   observation = data,
+#'   cases = data,
 #'   level = 0.95,
 #'   family = "poisson"
 #' )
 fit_growth_rate <- function(
-  observation,
+  cases,
   population = NULL,
   level = 0.95,
   family = c(
@@ -40,7 +40,7 @@ fit_growth_rate <- function(
 
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
-  checkmate::assert_numeric(observation, add = coll)
+  checkmate::assert_numeric(cases, add = coll)
   checkmate::assert_numeric(level, lower = 0, upper = 1, add = coll)
   checkmate::assert_numeric(population, null.ok = TRUE, add = coll)
   # Match the selected model
@@ -62,8 +62,8 @@ fit_growth_rate <- function(
 
   # Construct the data with growth rates for the glm model
   growth_data <- purrr::compact(list(
-    growth_rate = seq_along(observation),
-    x = observation,
+    growth_rate = seq_along(cases),
+    x = cases,
     population = population
   )) |>
     tibble::as_tibble()
@@ -77,7 +77,7 @@ fit_growth_rate <- function(
 
   # Fit the model
   growth_fit <- stats::glm(
-    formula = stats::reformulate(response = "observation", termlabels = terms),
+    formula = stats::reformulate(response = "cases", termlabels = terms),
     data = growth_data,
     family = fam_obj
   )

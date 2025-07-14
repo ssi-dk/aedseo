@@ -13,7 +13,7 @@ generate_seasonal_data(
   trend_rate = NULL,
   noise_overdispersion = NULL,
   relative_epidemic_concentration = 1,
-  time_interval = c("week", "day", "month"),
+  time_interval = c("weeks", "days", "months"),
   lower_bound = 1e-06
 )
 }
@@ -38,7 +38,7 @@ of the sine wave, hence the phase shift of the seasonal wave. The phase must be 
 \item{relative_epidemic_concentration}{A numeric that transforms the reference sinusoidal season.
 A value of 1 gives the pure sinusoidal curve, and greater values concentrate the epidemic around the peak.}
 
-\item{time_interval}{A character vector specifying the time interval. Choose between 'day', 'week', or 'month'.}
+\item{time_interval}{A character vector specifying the time interval. Choose between 'days', 'weeks', or 'months'.}
 
 \item{lower_bound}{A numeric value that can be used to ensure that intensities are always greater than zero,
 which is needed when \code{noise_overdispersion} is different from zero.}
@@ -46,8 +46,8 @@ which is needed when \code{noise_overdispersion} is different from zero.}
 \value{
 A \code{tsd} object with simulated data containing:
 \itemize{
-\item 'time': The time point for for when the observation is observed.
-\item 'observation': The observed value at the time point.
+\item 'time': The time point for the corresponding data.
+\item 'cases': The number of cases at the time point.
 }
 }
 \description{
@@ -77,7 +77,7 @@ sim_data <- generate_seasonal_data(
   mean = 3000,
   trend_rate = 1.002,
   noise_overdispersion = 1.1,
-  time_interval = c("week")
+  time_interval = c("weeks")
 )
 plot(sim_data, time_interval = "2 months")
 }

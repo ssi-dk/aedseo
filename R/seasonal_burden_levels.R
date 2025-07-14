@@ -6,13 +6,13 @@
 #' It uses the previous seasons to estimate the levels of the current season.
 #' The output is results regarding the current season in the time series observations.
 #' NOTE: The data must include data for a complete previous season to make predictions for the current season.
+#' Observations will be incidence if `population` and `incidence` are available in the `tsd` object.
 #'
 #' @param tsd `r rd_tsd`
 #' @param family `r rd_family()`
 #' @param season_start,season_end `r rd_season_start_end()`
 #' @param method A character string specifying the model to be used in the level calculations.
-#' Both model predict the levels of the current series of
-#' observations.
+#' Both model predict the levels of the current series of observations.
 #'  - `intensity_levels`: models the risk compared to what has been observed in previous seasons.
 #'  - `peak_levels`: models the risk compared to what has been observed in the `n_peak` observations each season.
 #' @param conf_levels A numeric vector specifying the confidence levels for parameter estimates. The values have
@@ -63,9 +63,8 @@
 #'                          by = "week")
 #'
 #' tsd_data <- tsd(
-#'   observation = c(season_1, season_2),
-#'   time = as.Date(weekly_dates),
-#'   time_interval = "week"
+#'   cases = c(season_1, season_2),
+#'   time = as.Date(weekly_dates)
 #' )
 #'
 #' # Print seasonal burden results
@@ -91,14 +90,19 @@ seasonal_burden_levels <- function(
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(tsd, add = coll)
   checkmate::assert_class(tsd, "tsd", add = coll)
-  checkmate::assert_names(colnames(tsd), identical.to = c("time", "observation"), add = coll)
+  checkmate::assert_names(
+    colnames(tsd),
+    must.include = c("time", "cases"),
+    subset.of = c("time", "cases", "incidence", "population"),
+    add = coll
+  )
   checkmate::assert_integerish(season_start, lower = 1, upper = 53,
                                null.ok = FALSE, add = coll)
   checkmate::assert_integerish(season_end, lower = 1, upper = 53,
                                null.ok = FALSE, add = coll)
   checkmate::assert_numeric(decay_factor, lower = 0, upper = 1, len = 1, add = coll)
   checkmate::assert_numeric(n_peak, lower = 1, len = 1, add = coll)
-  checkmate::assert_integerish(disease_threshold, len = 1, add = coll)
+  checkmate::assert_numeric(disease_threshold, len = 1, add = coll)
   checkmate::assert_logical(only_current_season, add = coll)
   # Assert conf_levels based on the method chosen
   if (method == "intensity_levels") {
@@ -108,6 +112,16 @@ seasonal_burden_levels <- function(
     checkmate::assert_numeric(conf_levels, lower = 0, upper = 1, len = 3,
                               unique = TRUE, sorted = TRUE, add = coll)
   }
+
+  # Define observation based on data in `tsd`.
+  if ("incidence" %in% names(tsd)) {
+    tsd <- tsd |>
+      dplyr::mutate(observation = .data$incidence)
+  } else {
+    tsd <- tsd |>
+      dplyr::mutate(observation = .data$cases)
+  }
+
   # Add the seasons to data
   seasonal_tsd <- tsd |>
     dplyr::mutate(season = epi_calendar(.data$time, start = season_start, end = season_end)) |>
@@ -161,7 +175,8 @@ seasonal_burden_levels <- function(
           values = stats::setNames(c(disease_threshold, model_output$values),
                                    c("very low", "low", "medium", "high")),
           optim = percentiles_fit,
-          disease_threshold = disease_threshold
+          disease_threshold = disease_threshold,
+          incidence_denominator = attr(tsd, "incidence_denominator")
         )
       },
       intensity_levels = {
@@ -180,7 +195,8 @@ seasonal_burden_levels <- function(
             high_conf_level = percentiles_fit$conf_levels,
             family = percentiles_fit$family
           ),
-          disease_threshold = disease_threshold
+          disease_threshold = disease_threshold,
+          incidence_denominator = attr(tsd, "incidence_denominator")
         )
       }
     )
@@ -200,6 +216,10 @@ seasonal_burden_levels <- function(
   }
 
   class(level_results) <- "tsd_burden_levels"
+
+  # Keep attributes from the `tsd` class
+  attr(level_results, "time_interval") <- attr(tsd, "time_interval")
+  attr(level_results, "incidence_denominator") <- attr(tsd, "incidence_denominator")
 
   return(level_results)
 }

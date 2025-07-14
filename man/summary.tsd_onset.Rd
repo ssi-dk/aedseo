@@ -30,7 +30,6 @@ tsd_onset <- seasonal_onset(
   season_start = 21,
   season_end = 20,
   level = 0.95,
-  family = "poisson",
   only_current_season = TRUE
 )
 # Print the summary

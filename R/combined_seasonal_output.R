@@ -6,6 +6,8 @@
 #' levels from time series dataset stratified by season. The seasonal onset estimates growth rates for consecutive
 #' time intervals and calculates the sum of cases. The burden levels use the previous seasons to estimate the levels
 #' of the current season.
+#' Output will be in incidence if `population` and `incidence` are assigned in input.
+#'
 #' @inheritParams seasonal_burden_levels
 #' @inheritParams seasonal_onset
 #' @param disease_threshold `r rd_disease_threshold(usage = "combined")`
@@ -50,9 +52,8 @@
 #'                          by = "week")
 #'
 #' tsd_data <- tsd(
-#'   observation = c(season_1, season_2),
-#'   time = as.Date(weekly_dates),
-#'   time_interval = "week"
+#'   cases = c(season_1, season_2),
+#'   time = as.Date(weekly_dates)
 #' )
 #'
 #' # Run the main function
@@ -91,19 +92,19 @@ combined_seasonal_output <- function(
   onset_args <- extra_args[names(extra_args) %in% onset_allowed]
 
   # Run the models
-  burden_output <- do.call(
-    seasonal_burden_levels,
-    c(list(tsd = tsd, season_start = season_start, season_end = season_end,
-           disease_threshold = disease_threshold, family = family_quant, only_current_season = only_current_season),
-      burden_args)
-  )
-
   onset_output <- do.call(
     seasonal_onset,
     c(list(tsd = tsd, disease_threshold = disease_threshold, family = family,
            season_start = season_start, season_end = season_end, only_current_season = only_current_season),
       onset_args)
   )   # nolint: object_usage_linter.
+
+  burden_output <- do.call(
+    seasonal_burden_levels,
+    c(list(tsd = tsd, season_start = season_start, season_end = season_end,
+           disease_threshold = disease_threshold, family = family_quant, only_current_season = only_current_season),
+      burden_args)
+  )
 
   # Combine both results in lists
   seasonal_output <- list(

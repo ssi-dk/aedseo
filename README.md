@@ -1,6 +1,4 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # aedseo <a href="https://ssi-dk.github.io/aedseo/"><img src="man/figures/logo.png" align="right" height="139" alt="aedseo website" /></a>
 
 <!-- badges: start -->
@@ -18,13 +16,13 @@ The Automated and Early Detection of Seasonal Epidemic Onset and Burden
 Levels (`aedseo`) package provides a powerful tool for automating the
 early detection of seasonal epidemic onsets in time series data. It
 offers the ability to estimate growth rates for consecutive time
-intervals and calculate the Sum of Cases (SoC) within those intervals.
-With use of a disease-specific threshold it also offers the possibility
-to estimate seasonal onset of epidemics. Additionally it offers the
-ability to estimate burden levels for seasons based on historical data.
-It is aimed towards epidemiologists, public health professionals, and
-researchers seeking to identify and respond to seasonal epidemics in a
-timely fashion.
+intervals. With use of the average observations within those intervals
+and an estimated disease-specific threshold it also offers the
+possibility to estimate seasonal onset of epidemics. Additionally it
+offers the ability to estimate burden levels for seasons based on
+historical data. It is aimed towards epidemiologists, public health
+professionals, and researchers seeking to identify and respond to
+seasonal epidemics in a timely fashion.
 
 ## Installation
 

@@ -22,8 +22,8 @@
 #' which is needed when `noise_overdispersion` is different from zero.
 #'
 #' @return A `tsd` object with simulated data containing:
-#'   - 'time': The time point for for when the observation is observed.
-#'   - 'observation': The observed value at the time point.
+#'   - 'time': The time point for the corresponding data.
+#'   - 'cases': The number of cases at the time point.
 #'
 #' @export
 #'
@@ -50,7 +50,7 @@
 #'   mean = 3000,
 #'   trend_rate = 1.002,
 #'   noise_overdispersion = 1.1,
-#'   time_interval = c("week")
+#'   time_interval = c("weeks")
 #' )
 #' plot(sim_data, time_interval = "2 months")
 generate_seasonal_data <- function(
@@ -62,11 +62,10 @@ generate_seasonal_data <- function(
   trend_rate = NULL,
   noise_overdispersion = NULL,
   relative_epidemic_concentration = 1,
-  time_interval = c("week", "day", "month"),
+  time_interval = c("weeks", "days", "months"),
   lower_bound = 1e-6
 ) {
   # Check input arguments
-  time_interval <- rlang::arg_match(time_interval)
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_integerish(years, len = 1, lower = 1, add = coll)
   checkmate::assert_date(start_date, add = coll)
@@ -82,11 +81,14 @@ generate_seasonal_data <- function(
   checkmate::assert_numeric(lower_bound, len = 1, lower = 0, add = coll)
   checkmate::reportAssertions(coll)
 
-  if (time_interval == "week") {
+  # Throw an error if any of the inputs are not supported
+  time_interval <- match.arg(time_interval)
+
+  if (grepl(time_interval, "weeks")) {
     period <- 52
-  } else if (time_interval == "day") {
+  } else if (grepl(time_interval, "days")) {
     period <- 365
-  } else if (time_interval == "month") {
+  } else if (grepl(time_interval, "months")) {
     period <- 12
   }
 
@@ -132,7 +134,7 @@ generate_seasonal_data <- function(
 
   # Construct a 'tsd' object with the time series data
   sim_tsd_data <- to_time_series(
-    observation = round(seasonal_component),
+    cases = round(seasonal_component),
     time = dates,
     time_interval = time_interval
   )
