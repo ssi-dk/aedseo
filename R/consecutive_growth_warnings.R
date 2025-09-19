@@ -3,7 +3,7 @@
 #' @description
 #'
 #' This function calculates the number of consecutive significant ("growth_warning") observations,
-#' grouping them accordingly. The result is stored in an S3 object of class `tsd_threshold`.
+#' grouping them accordingly. The result is stored in an S3 object of class `tsd_growth_warning`.
 #'
 #' Uses data from a `tsd_onset` object (output from `seasonal_onset()`).
 #'
