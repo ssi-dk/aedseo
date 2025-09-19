@@ -20,9 +20,9 @@
 #'  - `longest`: The longest sequence of size `min_significant_time` closest to the peak.
 #'  - `earliest`: The earliest sequence of size `min_significant_time` of the season.
 #' @param season_importance_decay A numeric value between 0 and 1, that specifies the weight applied to previous
-#' seasons. It is used as `decay_factor`^(number of seasons back), whereby the weight for the most recent season
-#' will be `decay_factor`^0 = 1. This parameter allows for a decreasing weight assigned to prior seasons, such that
-#' the influence of older seasons diminishes exponentially.
+#' seasons. It is used as `season_importance_decay`^(number of seasons back), whereby the weight for the most recent
+#' season will be `season_importance_decay`^0 = 1. This parameter allows for a decreasing weight assigned to prior
+#' seasons, such that the influence of older seasons diminishes exponentially.
 #' @param percentiles A numeric vector specifying the confidence levels for parameter estimates. The values have
 #' to be unique and in ascending order, the first percentile is the disease specific threshold.
 #' Specify one or three confidence levels e.g.: `c(0.25)` `c(0.25, 0.5, 0.75)`.
@@ -35,14 +35,14 @@
 #' @examples
 #'
 disease_threshold <- function(
-    onset_output,
-    skip_current_season = TRUE,
-    min_significant_time = 5,
-    use_prev_seasons_num = 3,
-    pick_significant_sequence = c("longest", "earliest"),
-    season_importance_decay = 0.8,
-    percentiles = c(0.25, 0.5, 0.75),
-    ...
+  onset_output,
+  skip_current_season = TRUE,
+  min_significant_time = 5,
+  use_prev_seasons_num = 3,
+  pick_significant_sequence = c("longest", "earliest"),
+  season_importance_decay = 0.8,
+  percentiles = c(0.25, 0.5, 0.75),
+  ...
 ) {
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
@@ -66,32 +66,32 @@ disease_threshold <- function(
 
   # Peak time per season
   peaks <- onset_output |>
-    arrange(season) |>
-    group_by(season) |>
-    slice_max(order_by = cases, n = 1, with_ties = FALSE, na_rm = TRUE) |>
-    ungroup() |>
-    select(season, peak_time = reference_time) |>
-    slice_tail(n = use_prev_seasons_num)
+    dplyr::arrange(.data$season) |>
+    dplyr::group_by(.data$season) |>
+    dplyr::slice_max(order_by = .data$cases, n = 1, with_ties = FALSE, na_rm = TRUE) |>
+    dplyr::ungroup() |>
+    dplyr::select(.data$season, peak_time = .data$reference_time) |>
+    dplyr::slice_tail(n = .data$use_prev_seasons_num)
 
   # Select candidate sequences
   cand_seq <- sign_warnings |>
-    right_join(peaks, by = "season") |>
-    arrange(reference_time) |>
-    reframe(
+    dplyr::right_join(peaks, by = "season") |>
+    dplyr::arrange(.data$reference_time) |>
+    dplyr::reframe(
       significant_observations_window = n() - 1,
-      start_window_time = first(reference_time),
-      end_window_time = last(reference_time),
-      peak_time = first(peak_time),
-      start_average_observations_window = first(average_observations_window),
+      start_window_time = first(.data$reference_time),
+      end_window_time = last(.data$reference_time),
+      peak_time = first(.data$peak_time),
+      start_average_observations_window = first(.data$average_observations_window),
       .by = c("season", "groupID")
     ) |>
-    filter(significant_observations_window > 1) |>
-    filter(significant_observations_window >= min_significant_time) |>
-    mutate(
+    dplyr::filter(.data$significant_observations_window > 1) |>
+    dplyr::filter(.data$significant_observations_window >= .data$min_significant_time) |>
+    dplyr::mutate(
       end_to_peak_gap = as.numeric(
         difftime(
-          peak_time,
-          end_window_time,
+          .data$peak_time,
+          .data$end_window_time,
           units = attr(onset_output, "time_interval")
           )
         )
@@ -117,27 +117,26 @@ disease_threshold <- function(
   # Select one consecutive significant sequence per season
   if (pick_significant_sequence == "earliest") {
     per_season_sequence <- cand_seq |>
-      group_by(season) |>
-      arrange(start_window_time) |>
-      slice_head(n = 1) |>
-      ungroup()
+      dplyr::group_by(season) |>
+      dplyr::arrange(start_window_time) |>
+      dplyr::slice_head(n = 1) |>
+      dplyr::ungroup()
   } else {
     per_season_sequence <- cand_seq |>
-      group_by(season) |>
-      mutate(end_to_peak_gap_abs = abs(end_to_peak_gap)) |>
-      arrange(desc(significant_observations_window), end_to_peak_gap_abs) |>
-      #arrange(desc(significant_observations_window)) |>
-      slice_head(n = 1) |>
-      ungroup()
+      dplyr::group_by(.data$season) |>
+      dplyr::mutate(end_to_peak_gap_abs = abs(.data$end_to_peak_gap)) |>
+      dplyr::arrange(desc(.data$significant_observations_window), .data$end_to_peak_gap_abs) |>
+      dplyr::slice_head(n = 1) |>
+      dplyr::ungroup()
   }
 
   # If average observations in the start of the window is 0 it will be converted to 1
   if (any(per_season_sequence$start_average_observations_window <= 0)) {
     per_season_sequence <- per_season_sequence |>
-      mutate(
+      dplyr::mutate(
         start_average_observations_window = dplyr::if_else(
-          start_average_observations_window <= 0, 1,
-          start_average_observations_window
+          .data$start_average_observations_window <= 0, 1,
+          .data$start_average_observations_window
           )
       )
   }
