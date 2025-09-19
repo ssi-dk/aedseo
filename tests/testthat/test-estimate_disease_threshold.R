@@ -14,6 +14,5 @@ test_that("Test that input argument checks work", {
     only_current_season = FALSE
   )
 
-  estimate_disease_threshold(onset_data)
-
+  expect_no_error(estimate_disease_threshold(onset_data))
 })

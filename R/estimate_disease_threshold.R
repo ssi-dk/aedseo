@@ -26,6 +26,7 @@
 #' @param percentiles A numeric vector specifying the confidence levels for parameter estimates. The values have
 #' to be unique and in ascending order, the first percentile is the disease specific threshold.
 #' Specify one or three confidence levels e.g.: `c(0.25)` `c(0.25, 0.5, 0.75)`.
+#' @param ... Arguments passed to the `fit_percentiles()` function.
 #'
 #' @return An object of class `tsd_disease_threshold`, containing;
 #' ....
@@ -33,8 +34,23 @@
 #' @export
 #'
 #' @examples
+#' # Generate seasonal data
+#' tsd_data <- generate_seasonal_data(
+#'  years = 1,
+#'  start_date = as.Date("2021-01-01")
+#' )
 #'
-disease_threshold <- function(
+#' # Genereate onset data with seasons
+#' onset_data <- seasonal_onset(
+#'  tsd = tsd_data,
+#'  season_start = 21,
+#'  only_current_season = FALSE
+#' )
+#'
+#' # Estimate disease threshold
+#' estimate_disease_threshold(onset_data)
+#'
+estimate_disease_threshold <- function(
   onset_output,
   skip_current_season = TRUE,
   min_significant_time = 5,
@@ -71,35 +87,35 @@ disease_threshold <- function(
     dplyr::slice_max(order_by = .data$cases, n = 1, with_ties = FALSE, na_rm = TRUE) |>
     dplyr::ungroup() |>
     dplyr::select(.data$season, peak_time = .data$reference_time) |>
-    dplyr::slice_tail(n = .data$use_prev_seasons_num)
+    dplyr::slice_tail(n = use_prev_seasons_num)
 
   # Select candidate sequences
   cand_seq <- sign_warnings |>
     dplyr::right_join(peaks, by = "season") |>
     dplyr::arrange(.data$reference_time) |>
     dplyr::reframe(
-      significant_observations_window = n() - 1,
-      start_window_time = first(.data$reference_time),
-      end_window_time = last(.data$reference_time),
-      peak_time = first(.data$peak_time),
-      start_average_observations_window = first(.data$average_observations_window),
+      significant_observations_window = dplyr::n() - 1,
+      start_window_time = dplyr::first(.data$reference_time),
+      end_window_time = dplyr::last(.data$reference_time),
+      peak_time = dplyr::first(.data$peak_time),
+      start_average_observations_window = dplyr::first(.data$average_observations_window),
       .by = c("season", "groupID")
     ) |>
     dplyr::filter(.data$significant_observations_window > 1) |>
-    dplyr::filter(.data$significant_observations_window >= .data$min_significant_time) |>
+    dplyr::filter(.data$significant_observations_window >= min_significant_time) |>
     dplyr::mutate(
       end_to_peak_gap = as.numeric(
         difftime(
           .data$peak_time,
           .data$end_window_time,
           units = attr(onset_output, "time_interval")
-          )
         )
+      )
     )
 
   # If no seasons have significant weeks
   if (nrow(cand_seq) == 0) {
-    return(list(
+    no_results <- list(
       note = "No seasons met the criteria.",
       seasons = unique(peaks$season),
       disease_threshold = NA_real_,
@@ -111,21 +127,23 @@ disease_threshold <- function(
                       percentiles = percentiles),
       incidence_denominator = attr(onset_output, "incidence_denominator"),
       time_interval = attr(onset_output, "time_interval")
-    ))
+    )
+    class(no_results) <- "tsd_disease_threshold"
+    return(no_results)
   }
 
   # Select one consecutive significant sequence per season
   if (pick_significant_sequence == "earliest") {
     per_season_sequence <- cand_seq |>
-      dplyr::group_by(season) |>
-      dplyr::arrange(start_window_time) |>
+      dplyr::group_by(.data$season) |>
+      dplyr::arrange(.data$start_window_time) |>
       dplyr::slice_head(n = 1) |>
       dplyr::ungroup()
   } else {
     per_season_sequence <- cand_seq |>
       dplyr::group_by(.data$season) |>
       dplyr::mutate(end_to_peak_gap_abs = abs(.data$end_to_peak_gap)) |>
-      dplyr::arrange(desc(.data$significant_observations_window), .data$end_to_peak_gap_abs) |>
+      dplyr::arrange(dplyr::desc(.data$significant_observations_window), .data$end_to_peak_gap_abs) |>
       dplyr::slice_head(n = 1) |>
       dplyr::ungroup()
   }
@@ -137,22 +155,22 @@ disease_threshold <- function(
         start_average_observations_window = dplyr::if_else(
           .data$start_average_observations_window <= 0, 1,
           .data$start_average_observations_window
-          )
+        )
       )
   }
 
   # If there is only one season with observation that will be the threshold
   # If all observations are 1, the disease threshold will be 1
-  if (nrow(per_season_sequence) == 1 |
-      length(unique(per_season_sequence$start_average_observations_window)) == 1 |
-       all(unique(per_season_sequence$start_average_observations_window) == 1)) {
+  if (nrow(per_season_sequence) == 1 ||
+        length(unique(per_season_sequence$start_average_observations_window)) == 1 ||
+        all(unique(per_season_sequence$start_average_observations_window) == 1)) {
 
     disease_threshold <- unique(per_season_sequence$start_average_observations_window)
 
-    return(list(
+    same_result <- list(
       note = "Only one season is used to determine the threshold.",
       seasons = unique(per_season_sequence$season),
-      disease_threshold = if_else(dplyr::between(disease_threshold, 0, 1), 1, disease_threshold),
+      disease_threshold = dplyr::if_else(dplyr::between(disease_threshold, 0, 1), 1, disease_threshold),
       settings = list(skip_current_season = skip_current_season,
                       min_significant_time = min_significant_time,
                       use_prev_seasons_num = use_prev_seasons_num,
@@ -161,7 +179,10 @@ disease_threshold <- function(
                       percentiles = percentiles),
       incidence_denominator = attr(onset_output, "incidence_denominator"),
       time_interval = attr(onset_output, "time_interval")
-    ))
+    )
+
+    class(same_result) <- "tsd_disease_threshold"
+    return(same_result)
   }
 
   # Add weights and remove current season to get predictions for this season
@@ -170,7 +191,7 @@ disease_threshold <- function(
                     as.numeric()) |>
     dplyr::mutate(weight = season_importance_decay^(max(.data$year) - .data$year)) |>
     dplyr::select(-"year") |>
-    dplyr::rename(observation = start_average_observations_window)
+    dplyr::rename(observation = .data$start_average_observations_window)
 
   # Run percentiles_fit function
   percentiles_fit <- weighted_significant_sequences |>
@@ -179,7 +200,7 @@ disease_threshold <- function(
 
   fit_results <- list(
     seasons = unique(weighted_significant_sequences$season),
-    disease_threshold = if_else(dplyr::between(percentiles_fit$values[1], 0, 1), 1, percentiles_fit$values[1]),
+    disease_threshold = dplyr::if_else(dplyr::between(percentiles_fit$values[1], 0, 1), 1, percentiles_fit$values[1]),
     optim = percentiles_fit,
     settings = list(skip_current_season = skip_current_season,
                     min_significant_time = min_significant_time,
@@ -190,5 +211,8 @@ disease_threshold <- function(
     incidence_denominator = attr(onset_output, "incidence_denominator"),
     time_interval = attr(onset_output, "time_interval")
   )
+
+  class(fit_results) <- "tsd_disease_threshold"
+
   return(fit_results)
 }
