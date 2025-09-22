@@ -23,7 +23,6 @@
 #'   season_start = 21,
 #'   season_end = 20,
 #'   level = 0.95,
-#'   family = "poisson",
 #'   only_current_season = TRUE
 #' )
 #' # Print the summary
@@ -31,33 +30,49 @@
 summary.tsd_onset <- function(object, ...) {
   checkmate::assert_class(object, "tsd_onset")
 
+  # Use incidence if in onset_output else use cases
+  use_incidence <- FALSE
+  if (!is.na(attr(object, "incidence_denominator"))) {
+    use_incidence <- TRUE
+  }
+
   # Extract the last observation
   last_observation <- dplyr::last(object)
 
   # Extract the reference time
   reference_time <- last_observation$reference_time
 
-  # Extract the time_interval
+  # Extract attributes
   time_interval <- attr(object, "time_interval")
+  incidence_denominator <- attr(object, "incidence_denominator")
 
   # Extract the season
   last_season <- last_observation$season
 
-  # Latest sum of cases
-  latest_sum_of_cases <- last_observation |>
-    dplyr::pull(.data$sum_of_cases)
+  # Latest observation
+  if (use_incidence) {
+    latest_observation <- as.numeric(
+      last_observation |>
+        dplyr::pull(.data$incidence)
+    )
+  } else {
+    latest_observation <- as.numeric(
+      last_observation |>
+        dplyr::pull(.data$cases)
+    )
+  }
 
-  # Latest cases
-  latest_cases <- last_observation |>
-    dplyr::pull(.data$observation)
+  # Latest average of observations in window
+  latest_average_observations_window <- last_observation |>
+    dplyr::pull(.data$average_observations_window)
 
-  # Latest sum of cases warning
-  latest_sum_of_cases_warning <- object |>
-    dplyr::filter(.data$sum_of_cases_warning == TRUE) |>
+  # Latest average of observations warning
+  latest_average_observations_warning <- object |>
+    dplyr::filter(.data$average_observations_warning == TRUE) |>
     dplyr::summarise(
-      latest_sum_of_cases_warning = dplyr::last(reference_time)
+      latest_average_observations_warning = dplyr::last(reference_time)
     ) |>
-    dplyr::pull(latest_sum_of_cases_warning)
+    dplyr::pull(latest_average_observations_warning)
 
   # Latest growth warning
   latest_growth_warning <- object |>
@@ -102,13 +117,21 @@ summary.tsd_onset <- function(object, ...) {
       seasonal_onset_ref_obs |>
         dplyr::pull(.data$reference_time)
     )
-    seasonal_onset_obs <- as.character(
-      seasonal_onset_ref_obs |>
-        dplyr::pull(.data$observation)
-    )
+    if (use_incidence) {
+      seasonal_onset_obs <- as.numeric(
+        seasonal_onset_ref_obs |>
+          dplyr::pull(.data$incidence) |>
+          as.numeric()
+      )
+    } else {
+      seasonal_onset_obs <- as.numeric(
+        seasonal_onset_ref_obs |>
+          dplyr::pull(.data$cases)
+      )
+    }
     seasonal_onset_sum_obs <- as.character(
       seasonal_onset_ref_obs |>
-        dplyr::pull(.data$sum_of_cases)
+        dplyr::pull(.data$average_observations_window)
     )
     seasonal_onset_gr <- seasonal_onset_ref_obs |>
       dplyr::pull(.data$growth_rate)
@@ -126,9 +149,9 @@ summary.tsd_onset <- function(object, ...) {
       "Summary of tsd_onset object without disease_threshold
 
       Model output:
-        Reference time point (last observation in series): %s
-        Observations at reference time point: %s
-        Sum of cases at reference time point: %d
+        Reference time point (last case in series): %s
+        Observations at reference time point: %d
+        Average observations (in k window) at reference time point: %d
         Total number of growth warnings in the series: %d
         Latest growth warning: %s
         Growth rate estimate at reference time point:
@@ -140,12 +163,13 @@ summary.tsd_onset <- function(object, ...) {
 
       Model settings:
         Called using distributional family: %s
-        Window size for growth rate estimation and calculation of sum of cases: %d
+        Window size: %d
         The time interval for the observations: %s
-        Disease specific threshold: %d",
+        Disease specific threshold: %d
+        Incidence denominator: %d",
       as.character(reference_time),
-      as.character(latest_cases),
-      as.integer(latest_sum_of_cases),
+      latest_observation,
+      as.numeric(latest_average_observations_window),
       sum_of_growth_warnings,
       as.character(latest_growth_warning),
       lower_confidence_interval * 100,
@@ -157,7 +181,8 @@ summary.tsd_onset <- function(object, ...) {
       family,
       k,
       time_interval,
-      disease_threshold
+      disease_threshold,
+      incidence_denominator
     )
   } else {
     # Generate the summary message
@@ -166,14 +191,14 @@ summary.tsd_onset <- function(object, ...) {
 
       Model output:
         Reference time point (first seasonal onset alarm in season): %s
-        Observations at reference time point: %s
-        Sum of observations at reference time point: %s
+        Observations at reference time point: %d
+        Average observations (in k window) at reference time point: %s
         Growth rate estimate at reference time point:
           Estimate   Lower (%.1f%%)   Upper (%.1f%%)
             %.3f     %.3f          %.3f
         Total number of growth warnings in the series: %d
         Latest growth warning: %s
-        Latest sum of cases warning: %s
+        Latest average observations warning: %s
         Latest seasonal onset alarm: %s
 
       The season for reference time point:
@@ -181,9 +206,10 @@ summary.tsd_onset <- function(object, ...) {
 
       Model settings:
         Called using distributional family: %s
-        Window size for growth rate estimation and calculation of sum of cases: %d
+        Window size: %d
         The time interval for the observations: %s
-        Disease specific threshold: %d",
+        Disease specific threshold: %d
+        Incidence denominator: %d",
       seasonal_onset_ref_time,
       seasonal_onset_obs,
       seasonal_onset_sum_obs,
@@ -194,13 +220,14 @@ summary.tsd_onset <- function(object, ...) {
       seasonal_onset_lower_gr,
       sum_of_growth_warnings,
       as.character(latest_growth_warning),
-      as.character(latest_sum_of_cases_warning),
+      as.character(latest_average_observations_warning),
       as.character(latest_seasonal_onset_alarm),
       last_season,
       family,
       k,
       time_interval,
-      disease_threshold
+      disease_threshold,
+      incidence_denominator
     )
   }
 
@@ -253,6 +280,7 @@ summary.tsd_burden_levels <- function(object, ...) {
 
     Model settings:
       Disease specific threshold: %d
+      Incidence denominator: %d
       Called using distributional family: %s",
     object$values["very low"],
     object$values["low"],
@@ -260,6 +288,7 @@ summary.tsd_burden_levels <- function(object, ...) {
     object$values["high"],
     object$season,
     object$disease_threshold,
+    object$incidence_denominator,
     object$optim$family
   )
 

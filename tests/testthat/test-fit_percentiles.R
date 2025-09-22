@@ -4,11 +4,11 @@ test_that("Test if checkmate checks work", {
   peak_input <- generate_seasonal_data(years = 5, noise_overdispersion = 5, trend_rate = 1.005) |>
     dplyr::mutate(season = epi_calendar(time)) |>
     dplyr::group_by(season) |>
-    dplyr::slice_max(n = 6, order_by = observation, with_ties = FALSE) |>
+    dplyr::slice_max(n = 6, order_by = cases, with_ties = FALSE) |>
     dplyr::ungroup() |>
     dplyr::mutate(season_count = rev(dplyr::dense_rank(season)) - 1,
                   weight = 0.8^season_count) |>
-    dplyr::select(observation, weight)
+    dplyr::select(cases, weight)
 
   fit_percentiles(weighted_observations = peak_input, conf_levels = c(0.1, 0.2, 0.4, 0.8, 0.9))
 
@@ -44,18 +44,18 @@ test_that("Test that changing weights work", {
   generate_data <- generate_seasonal_data(years = 5, noise_overdispersion = 5, trend_rate = 1.005) |>
     dplyr::mutate(season = epi_calendar(time)) |>
     dplyr::group_by(season) |>
-    dplyr::slice_max(n = 6, order_by = observation, with_ties = FALSE) |>
+    dplyr::slice_max(n = 6, order_by = cases, with_ties = FALSE) |>
     dplyr::ungroup()
 
   peak_input <- generate_data |>
     dplyr::mutate(season_count = rev(dplyr::dense_rank(season)) - 1,
                   weight = 0.8^season_count) |>
-    dplyr::select(observation, weight)
+    dplyr::select(cases, weight)
 
   peak_input_2 <- generate_data |>
     dplyr::mutate(season_count = rev(dplyr::dense_rank(season)) - 1,
                   weight = 0.5^season_count) |>
-    dplyr::select(observation, weight)
+    dplyr::select(cases, weight)
 
   small_diff <- fit_percentiles(peak_input)
   big_diff <- fit_percentiles(peak_input_2)

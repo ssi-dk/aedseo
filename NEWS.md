@@ -2,6 +2,24 @@
 
 ## Deprecations
 
+## Features
+
+* Added new arguments `incidence` and `incidence_denominator` to `to_time_series()` that allows the user to get output as incidence (#84).
+
+* Added new argument `population` to `to_time_series()` and `fit_growth_rate()` that allows the user to add the background population connected to each observation (#83).
+
+* Added new argument `use_offset` to `seasonal_onset()` that allows the user to add the background population to adjust the growth rate estimations (#83).
+
+## Improvements
+
+* Observations are now divided into `cases` and `incidence`, which is implemented into all functions in the package. Cases are used as default, but if the user additionally inputs `population` the output will be incidence (#84).
+
+## Minor changes
+
+# aedseo 0.3.0
+
+## Deprecations
+
 * `aedseo()` is now deprecated. Please use `seasonal_onset()` instead. A warning is shown when using `aedseo()` (#41).
 
 * `tsd()` is now deprecated. Please use `to_time_series()` instead. A warning is shown when using `tsd()` (#41).
@@ -14,11 +32,15 @@
 
 * Added `combined_seasonal_output()` as the main function to run both `seasonal_onset()` and `seasonal_burden_levels()` to get a combined result for the newest season (#44).
 
+* Added `consecutive_growth_warnings()` function to help the user with a method to define the disease-specific threshold (#80).
+
 * Added a new argument `only_current_season` to `seasonal_onset()`, `seasonal_burden_levels()` and `combined_seasonal_output()` which gives the possibility to either get output from only the current season or for all available seasons (#45).
+
+* Added `historical_summary()` which uses a `tsd_onset` object to summarise historical estimations (#75).
 
 * `summary()` can now summarise `tsd_burden_level` objects (#60).
 
-* `plot()` and `autoplot()` can now plot `tsd_combined_seasonal_output` objects (#57).
+* `plot()` and `autoplot()` can now plot `tsd_combined_seasonal_output` and `tsd_consecutive_growth_warning` objects (#57, #80).
 
 * Added `generate_seasonal_data()` to generate synthetic data for testing and documentation purposes (#56).
 

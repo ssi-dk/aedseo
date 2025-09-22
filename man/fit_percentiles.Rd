@@ -14,14 +14,15 @@ fit_percentiles(
 )
 }
 \arguments{
-\item{weighted_observations}{A tibble containing two columns of length n; \code{observation}, which contains the data
-points, and \code{weight}, which is the importance assigned to the observation. Higher weights indicate that an
+\item{weighted_observations}{A tibble containing two columns of length n; \code{observation}, which contains either cases
+or incidences, and \code{weight}, which is the importance assigned to the observation. Higher weights indicate that an
 observation has more influence on the model outcome, while lower weights reduce its impact.}
 
 \item{conf_levels}{A numeric vector specifying the confidence levels for parameter estimates. The values have
 to be unique and in ascending order, that is the lowest level is first and highest level is last.}
 
-\item{family}{A character string specifying the family for modeling}
+\item{family}{A character string specifying the family for modeling. Choose between 'poisson', or 'quasipoisson'.
+Must be one of: character, family-generator, or family object.}
 
 \item{optim_method}{A character string specifying the method to be used in the optimisation. Lookup \code{?optim::stats}
 for details about methods.
@@ -42,11 +43,11 @@ A list containing:
 \itemize{
 \item For 'weibull': Shape parameter (k).
 \item For 'lnorm': Mean of the log-transformed observations.
-\item For 'exp': Rate parameter (λ).
+\item For 'exp': Rate parameter (rate).
 }
 \item 'par_2':
 \itemize{
-\item For 'weibull': Scale parameter (λ).
+\item For 'weibull': Scale parameter (scale).
 \item For 'lnorm': Standard deviation of the log-transformed observations.
 \item For 'exp': Not applicable (set to NA).
 }
@@ -63,8 +64,8 @@ objective function value from the optimisation. Smaller value equals better opti
 }
 }
 \description{
-This function estimates the percentiles of weighted time series observations. The output contains the percentiles
-from the fitted distribution.
+This function estimates the percentiles of weighted time series cases or incidences.
+The output contains the percentiles from the fitted distribution.
 }
 \examples{
 # Create three seasons with random observations

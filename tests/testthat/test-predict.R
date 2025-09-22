@@ -5,7 +5,7 @@ test_that("Returns the desired length", {
   tsd_data <- generate_seasonal_data(
     years = 1,
     start_date = as.Date("2023-01-01"),
-    time_interval = "day"
+    time_interval = "days"
   )
 
   # Employ the seasonal_onset function
@@ -16,10 +16,10 @@ test_that("Returns the desired length", {
     family = "poisson"
   )
 
-  # Predict observations for the next 7 time steps
+  # Predict cases for the next 7 time steps
   prediction <- predict(object = tsd_results, n_step = 7)
 
-  # Return the number of prediction + the initial observation
+  # Return the number of prediction + the initial case
   expect_length(prediction$estimate, 8)
 })
 
@@ -30,7 +30,7 @@ test_that("Can correctly make an 'tsd_predict' class object", {
   tsd_data <- generate_seasonal_data(
     years = 1,
     start_date = as.Date("2023-01-01"),
-    time_interval = "day"
+    time_interval = "days"
   )
 
   # Employ the seasonal_onset function
@@ -41,10 +41,10 @@ test_that("Can correctly make an 'tsd_predict' class object", {
     family = "poisson"
   )
 
-  # Predict observations for the next 7 time steps
+  # Predict cases for the next 7 time steps
   prediction <- predict(object = tsd_results, n_step = 7)
 
-  # Return the number of prediction + the initial observation
+  # Return the number of prediction + the initial case
   expect_s3_class(object = prediction, class = "tsd_predict")
 })
 
@@ -55,7 +55,7 @@ test_that("Can correctly use weekly time_interval classification", {
   tsd_data <- generate_seasonal_data(
     years = 1,
     start_date = as.Date("2023-01-01"),
-    time_interval = "week"
+    time_interval = "weeks"
   )
 
   # Employ the seasonal_onset function
@@ -82,7 +82,7 @@ test_that("Can correctly use daily time_interval classification", {
   tsd_data <- generate_seasonal_data(
     years = 1,
     start_date = as.Date("2023-01-01"),
-    time_interval = "day"
+    time_interval = "days"
   )
 
   # Employ the seasonal_onset function
@@ -109,7 +109,7 @@ test_that("Can correctly use monthly time_interval classification", {
   tsd_data <- generate_seasonal_data(
     years = 1,
     start_date = as.Date("2023-01-01"),
-    time_interval = "month"
+    time_interval = "months"
   )
 
   # Employ the seasonal_onset function

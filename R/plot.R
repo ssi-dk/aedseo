@@ -3,9 +3,9 @@
 #' @description
 #'
 #' This function generates a complete 'ggplot' object suitable for visualizing time series data in
-#' `tsd`, `tsd_onset` or `tsd_onset_and_burden` objects.
+#' `tsd`, `tsd_onset`, `tsd_onset_and_burden` or `tsd_growth_warning` objects.
 #'
-#' @param x An `tsd`, `tsd_onset` or `tsd_onset_and_burden` object
+#' @param x An `tsd`, `tsd_onset`, `tsd_onset_and_burden` or `tsd_growth_warning` object
 #' @param ... Additional arguments passed to `autoplot()`.
 #'
 #' @return A 'ggplot' object for visualizing output from desired method.
@@ -44,6 +44,16 @@
 #' plot(tsd_onset_burden_obj,
 #'      y_lower_bound = ifelse(disease_threshold < 10, 1, 5))
 #'
+#' # Create a `tsd_growth_warning` object
+#' tsd_onset_seasons <- seasonal_onset(
+#'   tsd = tsd_obj,
+#'   season_start = 21,
+#'   family = "quasipoisson",
+#'   only_current_season = FALSE
+#' )
+#' tsd_gr_w <- consecutive_growth_warnings(tsd_onset_seasons)
+#' plot(tsd_gr_w)
+#'
 #' @importFrom graphics plot
 #' @rdname plot
 #' @method plot tsd
@@ -63,5 +73,12 @@ plot.tsd_onset <- function(x, ...) {
 #' @method plot tsd_onset_and_burden
 #' @export
 plot.tsd_onset_and_burden <- function(x, ...) {
+  suppressWarnings(print(autoplot(x, ...)))
+}
+
+#' @rdname plot
+#' @method plot tsd_growth_warning
+#' @export
+plot.tsd_growth_warning <- function(x, ...) {
   suppressWarnings(print(autoplot(x, ...)))
 }

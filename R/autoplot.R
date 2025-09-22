@@ -8,7 +8,7 @@ autoplot <- function(object, ...) {
 #'
 #' @description
 #' Generates a complete 'ggplot' object suitable for visualizing time series data in a
-#' `tsd`, `tsd_onset` or `tsd_onset_and_burden` object.
+#' `tsd`, `tsd_onset`, `tsd_onset_and_burden` or `tsd_growth_warning` object.
 #'
 #' `autoplot(tsd)`
 #' - Generates points for each observation and connects them with a line.
@@ -29,7 +29,6 @@ autoplot <- function(object, ...) {
 #' @param obs_size `r rd_obs_size`
 #' @param time_interval_step `r rd_time_interval_step`
 #' @param text_family `r rd_text_family`
-#' @param y_label `r rd_y_label`
 #' @param ... Additional arguments (not used).
 #'
 #' @return A 'ggplot' object for visualizing the `tsd` data.
@@ -51,17 +50,24 @@ autoplot.tsd <- function(
   obs_size = 2,
   text_family = "sans",
   time_interval_step = "5 weeks",
-  y_label = "Weekly observations",
   ...
 ) {
   start_date <- min(object$time)
   end_date <- max(object$time)
 
+  # Use incidence if in onset_output else use cases
+  obs_name <- "cases"
+  y_label <- "Cases"
+  if (!is.na(attr(object, "incidence_denominator"))) {
+    obs_name <- "incidence"
+    y_label <- "Incidence"
+  }
+
   object |>
     ggplot2::ggplot(
       mapping = ggplot2::aes(
         x = .data$time,
-        y = .data$observation
+        y = .data[[obs_name]]
       )
     ) +
     ggplot2::geom_point() +
@@ -95,7 +101,6 @@ autoplot.tsd <- function(
 #' @param text_family `r rd_text_family`
 #' @param legend_position `r rd_legend_position`
 #' @param time_interval_step `r rd_time_interval_step`
-#' @param y_label `r rd_y_label`
 #' @param ... Additional arguments (not used).
 #'
 #' @return A 'ggplot' object for visualizing the `tsd_onset` data.
@@ -125,12 +130,18 @@ autoplot.tsd_onset <- function(
   text_family = "sans",
   legend_position = "bottom",
   time_interval_step = "5 weeks",
-  y_label = "Weekly observations",
   ...
 ) {
-
   start_date <- min(object$reference_time)
   end_date <- max(object$reference_time)
+
+  # Use incidence if in onset_output else use cases
+  obs_name <- "cases"
+  y_label <- "Cases"
+  if (!is.na(attr(object, "incidence_denominator"))) {
+    obs_name <- "incidence"
+    y_label <- "Incidence"
+  }
 
   # Set growth_warning to FALSE if NA
   object <- object |>
@@ -145,7 +156,7 @@ autoplot.tsd_onset <- function(
     ggplot2::ggplot(
       mapping = ggplot2::aes(
         x = .data$reference_time,
-        y = .data$observation
+        y = .data[[obs_name]]
       )
     ) +
     ggplot2::geom_point(
@@ -243,7 +254,6 @@ autoplot.tsd_onset <- function(
 #' @param disease_color `r rd_disease_color`
 #' @param season_start,season_end `r rd_season_start_end()`
 #' @param time_interval_step `r rd_time_interval_step`
-#' @param y_label `r rd_y_label`
 #' @param fill_alpha A numeric vector specifying the transparency levels for the fill colors of burden levels.
 #' Must match the number of levels.
 #' @param text_burden_size A numeric specifying the size of the text labels.
@@ -283,7 +293,6 @@ autoplot.tsd_onset_and_burden <- function(
   season_start = 21,
   season_end = season_start - 1,
   time_interval_step = "3 weeks",
-  y_label = "Weekly observations",
   text_burden_size = 10 / 2.8,
   fill_alpha = c(0.45, 0.6, 0.75, 0.89, 1),
   text_family = "sans",
@@ -296,7 +305,6 @@ autoplot.tsd_onset_and_burden <- function(
   legend_position = "right",
   ...
 ) {
-
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_class(object, "tsd_onset_and_burden", add = coll)
@@ -317,6 +325,14 @@ autoplot.tsd_onset_and_burden <- function(
   # Extract onset data
   virus_df <- object$onset_output |>
     dplyr::filter(.data$season == max(.data$season))
+
+  # Use incidence if in onset_output else use cases
+  obs_name <- "cases"
+  y_label <- "Cases"
+  if (!is.na(attr(object$burden_output, "incidence_denominator"))) {
+    obs_name <- "incidence"
+    y_label <- "Incidence"
+  }
 
   # Current week
   cur_week <- max(virus_df$reference_time)
@@ -355,7 +371,7 @@ autoplot.tsd_onset_and_burden <- function(
   # Plot
   virus_df |>
     ggplot2::ggplot(ggplot2::aes(x = .data$reference_time,
-                                 y = pmax(.data$observation, y_lower_bound))) +
+                                 y = pmax(.data[[obs_name]], y_lower_bound))) +
     theme_custom +
     ggplot2::geom_rect(
       data = levels_df,
@@ -383,7 +399,7 @@ autoplot.tsd_onset_and_burden <- function(
     ) +
     ggplot2::scale_fill_identity() +
     ggplot2::geom_line(
-      ggplot2::aes(group = 1, linetype = "Observations"),
+      ggplot2::aes(group = 1, linetype = y_label),
       color = line_color
     ) +
     ggplot2::geom_vline(
@@ -400,9 +416,7 @@ autoplot.tsd_onset_and_burden <- function(
     ) +
     ggplot2::scale_linetype_manual(
       name = "",
-      values = c(
-        "Observations" = line_type
-      )
+      values = stats::setNames(line_type, y_label)
     ) +
     ggplot2::scale_color_manual(
       name = "",
@@ -424,5 +438,100 @@ autoplot.tsd_onset_and_burden <- function(
       start_date = min(virus_df$reference_time),
       end_date = date_last_week_in_season,
       time_interval_step = time_interval_step
+    )
+}
+#' Autoplot a `tsd_growth_warning` object
+#'
+#' @param object A `tsd_growth_warning` object
+#' @param k An integer specifying the window size used to create the `tsd_onset` object.
+#' @param skip_current_season A logical. Do you want to skip your current season?
+#' @param line_width `r rd_line_width`
+#' @param text_family `r rd_text_family`
+#' @param legend_position `r rd_legend_position`
+#' @param breaks_y_axis A numeric specifying how many breaks to show on the y-axis.
+#' @param ... Additional arguments (not used).
+#'
+#' @return A 'ggplot' object for visualizing the `tsd_growth_warning` data.
+#'
+#' @aliases autoplot
+#'
+#' @examples
+#' # Create an `tsd_onset` object
+#' tsd_onset <- seasonal_onset(
+#'   tsd = time_series,
+#'   k = 5,
+#'   family = "quasipoisson",
+#'   season_start = 21,
+#'   only_current_season = FALSE
+#' )
+#'
+#' tsd_growth_warning <- consecutive_growth_warnings(tsd_onset)
+#'
+#' autoplot(tsd_growth_warning)
+#'
+#' @rdname autoplot
+#' @method autoplot tsd_growth_warning
+#' @export
+autoplot.tsd_growth_warning <- function(
+  object,
+  k = 5,
+  skip_current_season = TRUE,
+  line_width = 1,
+  text_family = "sans",
+  legend_position = "bottom",
+  breaks_y_axis = 8,
+  ...
+) {
+  # Use incidence if in onset_output else use cases
+  obs_name <- "cases"
+  if (!is.na(attr(object, "incidence_denominator"))) {
+    obs_name <- "incidence"
+  }
+  time_interval <- attr(object, "time_interval")
+
+  if (skip_current_season) {
+    object <- object |>
+      dplyr::filter(.data$season != max(object$season))
+  }
+
+  object$season <- factor(
+    object$season,
+    levels = sort(unique(object$season), decreasing = FALSE, method = "auto")
+  )
+
+  object |>
+    dplyr::filter(!is.na(.data$significant_counter)) |>
+    ggplot2::ggplot(mapping = ggplot2::aes(x = .data$average_observations_window)) +
+    ggplot2::geom_line(
+      mapping = ggplot2::aes(
+        y = .data$significant_counter,
+        group = .data$groupID,
+        color = .data$season
+      ),
+      linewidth = line_width
+    ) +
+    ggplot2::scale_color_discrete(
+      name = "season",
+      breaks = unique(object$season),
+      labels = unique(object$season)
+    ) +
+    ggplot2::scale_x_log10(
+      breaks = scales::log_breaks(base = 10, n = 10),
+      labels = scales::label_comma()
+    ) +
+    ggplot2::scale_y_continuous(
+      breaks = scales::breaks_extended(breaks_y_axis)
+    ) +
+    ggplot2::labs(
+      y = paste("Number of subsequent significant", time_interval),
+      x = paste("Rolling", k, time_interval, "average of", obs_name)
+    ) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      axis.text = ggplot2::element_text(size = 9, color = "black", family = text_family),
+      axis.title.x = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      axis.title.y = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      legend.text = ggplot2::element_text(size = 11, color = "black", family = text_family),
+      legend.background = ggplot2::element_blank()
     )
 }

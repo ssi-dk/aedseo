@@ -19,7 +19,7 @@ library(aedseo)
 ```
 
 To provide a concise overview of how the `seasonal_burden_levels()` algorithm operates, we utilize the same example data presented
-in the `vignette("aedseo")`. The plot below illustrates the two methods available for estiming burden levels in the
+in the `vignette("aedseo")`. The plot below illustrates the two methods available for estimating burden levels in the
 `combined_seasonal_output()` function:
 
 - **`intensity_levels`**: Intended for within-season classification of observations.
@@ -34,23 +34,21 @@ withr::local_seed(222)
 tsd_data_clean <- generate_seasonal_data(
   years = 3,
   start_date = as.Date("2021-10-18"),
-  amplitude = 2000,
-  mean = 2000,
-  phase = 0,
-  noise_overdispersion = 0,
-  time_interval = "week"
+  noise_overdispersion = 1,
+  relative_epidemic_concentration = 3,
+  time_interval = "weeks"
 )
 
 # Run models
 intensity_levels <- seasonal_burden_levels(
   tsd = tsd_data_clean,
-  disease_threshold = 140,
+  disease_threshold = 10,
   method = "intensity_levels",
   conf_levels = 0.95
 )
 peak_levels <- seasonal_burden_levels(
   tsd = tsd_data_clean,
-  disease_threshold = 140,
+  disease_threshold = 10,
   method = "peak_levels",
   conf_levels = c(0.4, 0.9, 0.975),
   n_peak = 8
@@ -89,7 +87,7 @@ round_to_nearest <- function(x) {
 y_tics <- sapply(y_tics_levels, round_to_nearest)
 
 # Round max value
-rounded_max_threshold <- (round(max(burden_levels_df$Threshold) / 1000) * 1000) + 1000
+rounded_max_threshold <- (round(max(burden_levels_df$Threshold) / 100) * 100) + 100
 y_tics <- c(y_tics[-5], rounded_max_threshold)
 
 # Create the plot
@@ -141,10 +139,11 @@ burden_levels_df |>
 
 ## Methodology
 
-The methodology used to define the burden levels of seasonal epidemics is based on observations from previous seasons.
+The methodology used to define the burden levels of seasonal epidemics is based on observations (cases or incidence) from previous seasons.
 Historical data from all available seasons is used to establish the levels for the current season.
 This is done by:
 
+- Using either cases or incidence as observations (default is `cases`, but if `incidence` is in the `tsd` object it will be used instead).
 - Using `n` highest (peak) observations from each season.
 - Selecting only observations if they surpass the disease-specific threshold.
 - Weighting the observations such that recent observations have a greater influence than older observations.
@@ -226,7 +225,8 @@ tsd_data_noise <- generate_seasonal_data(
   mean = 600,
   phase = 0,
   noise_overdispersion = 10,
-  time_interval = "week"
+  relative_epidemic_concentration = 3,
+  time_interval = "weeks"
 )
 
 tsd_data_noise_and_pos_trend <- generate_seasonal_data(
@@ -237,7 +237,8 @@ tsd_data_noise_and_pos_trend <- generate_seasonal_data(
   phase = 0,
   noise_overdispersion = 10,
   trend_rate = 1.002,
-  time_interval = "week"
+  relative_epidemic_concentration = 3,
+  time_interval = "weeks"
 )
 
 tsd_data_noise_and_neg_trend <- generate_seasonal_data(
@@ -246,9 +247,10 @@ tsd_data_noise_and_neg_trend <- generate_seasonal_data(
   amplitude = 600,
   mean = 600,
   phase = 0,
-  noise_overdispersion = 8,
-  trend_rate = 0.995,
-  time_interval = "week"
+  noise_overdispersion = 10,
+  trend_rate = 0.99,
+  relative_epidemic_concentration = 3,
+  time_interval = "weeks"
 )
 
 # Remove days after week 20 in last season to get 5 seasons data
@@ -271,7 +273,7 @@ end_date <- max(tsd_data_all$time)
 tsd_data_all |>
   ggplot2::ggplot(ggplot2::aes(
     x = time,
-    y = observation,
+    y = cases,
     color = Data,
     group = Data
   )) +
@@ -381,7 +383,7 @@ mem_thresholds <- previous_seasons |>
       dplyr::mutate(season = aedseo::epi_calendar(time),
                     week = lubridate::isoweek(time)) |>
       dplyr::select(-time) |>
-      tidyr::pivot_wider(names_from = season, values_from = observation) |>
+      tidyr::pivot_wider(names_from = season, values_from = cases) |>
       dplyr::select(-week)
     # Run mem
     mem_result <- mem::memmodel(mem_data)
@@ -453,7 +455,7 @@ levels_all <- dplyr::bind_rows(burden_levels_df, mem_levels_df) |>
 all_observations <- tsd_data_all |>
   dplyr::filter(time <= "2025-04-01") |>
   dplyr::filter(time >= "2024-05-20") |>
-  dplyr::filter(!is.na(observation), observation > 3)
+  dplyr::filter(!is.na(cases), cases > 3)
 
 # Calculate y_tics
 y_tics_log10 <- pretty(c(log10(levels_all$Threshold)))
@@ -468,8 +470,8 @@ y_tics <- sapply(y_tics_levels, round_to_nearest)
 
 # Create a combined plot
 all_observations |>
-  ggplot2::ggplot(ggplot2::aes(x = time, y = observation)) +
-  ggplot2::geom_point(ggplot2::aes(color = "observations")) +
+  ggplot2::ggplot(ggplot2::aes(x = time, y = cases)) +
+  ggplot2::geom_point(ggplot2::aes(color = "cases")) +
   ggplot2::geom_hline(
     data = levels_all,
     ggplot2::aes(yintercept = Threshold, linetype = Level, color = Level),
@@ -488,7 +490,7 @@ all_observations |>
   ggplot2::scale_color_manual(
     name = "",
     values = c(
-      "observations" = "black",
+      "cases" = "black",
       "very low" = "#44ce1b",
       "low" = "#bbdb44",
       "medium" = "#f2a134",
@@ -536,9 +538,9 @@ The highest observations for the *2024/2025* season for each data set are:
 
 | Data                      | Observation |
 |---------------------------|-------------|
-| Noise                     |    1471     |
-| Noise and positive trend  |    2065     |
-| Noise and negative trend  |     535     |
+| Noise                     |    1466     |
+| Noise and positive trend  |    1967     |
+| Noise and negative trend  |     171     |
 
 In relation to these highest observations and upon further examination, we observe the following:
 
@@ -555,14 +557,14 @@ increasing trend between seasons.
 
 Data with Noise and Negative Trend:
 
-- As observations exponentially decrease between seasons (with the highest observation this season being 781),
+- As observations exponentially decrease between seasons (with the highest observation this season being 171),
 we expect the breakpoints to be the lowest of these examples. This expectation is met across all three methods.
 However, the weighting of seasons in `intensity_levels` and `peak_levels` leads to older seasons having less
 impact on the breakpoints, as we progress forward in time. On the other hand, `mem` includes all high observations
 from the previous 10 seasons without diminishing the importance of older seasons, which results in sustained
 very high breakpoints.
 
-- Notably, in the `mem` method, the epidemic threshold is positioned above the `medium` burden level.
+- Notably, in the `mem` method, the epidemic threshold is positioned slightly above the `medium` burden level.
 This means that the epidemic period begins only when observations reach the height of the seasonal peaks
 observed in previous seasons.
 
