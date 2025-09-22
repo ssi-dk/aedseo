@@ -30,7 +30,7 @@ rd_season_start_end <- function(usage = NULL) {
         ifelse(usage == "onset", paste("If set to `NULL`, it means no stratification by season.")))
 }
 rd_seasonal_onset_return <- paste(
-  "\nA `seasonal_onset` object containing:\n",
+  "\nA `tsd_onset` object containing:\n",
   "- 'reference_time': The time point for which the growth rate is estimated.\n",
   "- 'cases': The cases at reference time point.\n",
   "- 'population': The population at reference time point.\n",
@@ -43,13 +43,13 @@ rd_seasonal_onset_return <- paste(
   "- 'average_observation_window': The average of cases or incidence within the time window.\n",
   "- 'average_observation_warning': Logical. Does the average observations exceed the disease threshold?\n",
   "- 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?\n",
-  "- 'skipped_window': Logical. Was the window skipped due to missing?\n",
+  "- 'skipped_window': Logical. Was the window skipped due to missing observations?\n",
   "- 'converged': Logical. Was the IWLS judged to have converged?\n",
   "- 'seasonal_onset': Logical. The first detected seasonal onset in the season.\n",
   "- Attributes: `time_interval` and `incidence_denominator`."
 )
 rd_seasonal_burden_levels_return <- paste(
-  "\nA list containing:\n",
+  "\nA `tsd_burden_levels` object containing:\n",
   "- 'season': The season that burden levels are calculated for.\n",
   "- 'high_conf_level': (only for intensity_level method) The conf_level chosen for the high level.\n",
   "- 'conf_levels': (only for peak_level method) The conf_levels chosen to fit the 'low', 'medium', 'high' levels.\n",

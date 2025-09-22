@@ -3,7 +3,7 @@
 #' @description
 #'
 #' This function performs automated and early detection of seasonal epidemic onsets on a `tsd` object.
-#' It estimates growth rates and calculates the average sum of cases for consecutive time intervals (`k`).
+#' It estimates growth rates and calculates the average sum of cases in consecutive time intervals (`k`).
 #' If the time series data includes `population` it will be used as offset to adjust the growth rate in the glm,
 #' additionally the output will include incidence, population and average sum of incidence.
 #'

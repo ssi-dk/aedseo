@@ -4,8 +4,8 @@
 #'
 #' This function performs automated and early detection of seasonal epidemic onsets and estimates the burden
 #' levels from time series dataset stratified by season. The seasonal onset estimates growth rates for consecutive
-#' time intervals and calculates the sum of cases. The burden levels use the previous seasons to estimate the levels
-#' of the current season.
+#' time intervals and calculates the average sum of cases/incidence in consecutive time intervals (`k`).
+#' The burden levels use the previous seasons to estimate the levels of the current season.
 #' Output will be in incidence if `population` and `incidence` are assigned in input.
 #'
 #' @inheritParams seasonal_burden_levels
@@ -13,19 +13,27 @@
 #' @param disease_threshold `r rd_disease_threshold(usage = "combined")`
 #' @param family `r rd_family(usage = "combined")`
 #' @param family_quant A character string specifying the family for modeling burden levels.
-#' @param multiple_waves A logical. Should the output contain multiple seasonal onsets?
+#' @param multiple_waves A logical. Should the output contain multiple waves?
 #' @param burden_level_decrease A character specifying the burden breakpoint the observations should decrease under
-#' before a new increase in observations can call a new seasonal onset if seasonal onset criteria are met.
+#' before a new increase in observations can call a new wave onset if seasonal onset criteria are met.
 #' Choose between; "very low", "low", "medium", or "high".
 #' @param steps_with_decrease An integer specifying in how many time steps (days, weeks, months) the decrease
 #' should be observed (if there is a sudden decrease followed by an increase it could e.g. be due to testing).
-#' If multiple_waves are assigned steps_with_decrease defaults to 1.
+#' If multiple_waves are assigned steps_with_decrease defaults to 2.
 #' @param ... Arguments passed to `seasonal_burden_levels()`, `fit_percentiles()` and `seasonal_onset()` functions.
 #'
 #' @return An object containing two lists: onset_output and burden_output:
 #'
 #' onset_output:
 #' `r rd_seasonal_onset_return`
+#'
+#' If multiple waves is selected the `tsd_onset` object will also contain:
+#' - 'wave_number': The wave number in the time series data.
+#' - 'wave_starts': Logical. Did a new wave start?
+#' - 'wave_ends': Logical. Did the wave end?
+#' - 'decrease_counter': How many consecutive time intervals have decreased below the selected burden breakpoint.
+#' - 'decrease_level': A character specifying the selected burden breakpoint to fall below for ending the wave.
+#' - 'decrease_value': A numeric specifying the selected burden breakpoint to fall below for ending the wave.
 #'
 #' burden_output:
 #' `r rd_seasonal_burden_levels_return`
@@ -107,8 +115,8 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
     coll$push("burden_level_decrease must be assigned if multiple_waves is TRUE")
   }
   if (multiple_waves && is.null(steps_with_decrease)) {
-    warning("steps_with_decrease is by default set to 1")
-    steps_with_decrease <- 1
+    warning("steps_with_decrease is by default set to 2")
+    steps_with_decrease <- 2L
   }
   checkmate::reportAssertions(coll)
 
@@ -185,8 +193,6 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
       }
       onset_data <- onset_data |>
         dplyr::select(-"observation")
-
-      return(onset_data)
     }
 
     # Add new columns for wave_number, wave_starts and decrease_counter
