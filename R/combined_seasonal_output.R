@@ -225,10 +225,7 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
           tidyr::unnest_longer(
             col = values,
             indices_to = "decrease_level",
-            values_to = "value"
-          ) |>
-          dplyr::mutate(
-            decrease_value = as.numeric(value)
+            values_to = "decrease_value"
           ) |>
           dplyr::filter(.data$decrease_level == burden_level_decrease)
       })
