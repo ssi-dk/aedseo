@@ -66,6 +66,12 @@ estimate_disease_threshold <- function(
   if (all(onset_output$season == "not_defined")) {
     coll$push("The tsd_onset object is not stratified by season")
   }
+  checkmate::assert_logical(skip_current_season, add = coll)
+  checkmate::assert_integerish(min_significant_time, lower = 1, add = coll)
+  checkmate::assert_integerish(use_prev_seasons_num, lower = 1, add = coll)
+  checkmate::assert_numeric(season_importance_decay, lower = 0, upper = 1, len = 1, add = coll)
+  checkmate::assert_numeric(percentiles, lower = 0, upper = 1,
+                            unique = TRUE, sorted = TRUE, add = coll)
   checkmate::reportAssertions(coll)
 
   # Throw an error if any of the inputs are not supported
@@ -86,7 +92,7 @@ estimate_disease_threshold <- function(
     dplyr::group_by(.data$season) |>
     dplyr::slice_max(order_by = .data$cases, n = 1, with_ties = FALSE, na_rm = TRUE) |>
     dplyr::ungroup() |>
-    dplyr::select(.data$season, peak_time = .data$reference_time) |>
+    dplyr::select("season", peak_time = "reference_time") |>
     dplyr::slice_tail(n = use_prev_seasons_num)
 
   # Select candidate sequences
