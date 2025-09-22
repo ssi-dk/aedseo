@@ -163,7 +163,7 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
 
       # Initialise
       in_wave <- FALSE
-      wave_count <- 0L
+      wave_count <- 0
 
       for (i in seq_len(nrow(onset_data))) {
         # Not currently in a wave, look for a wave start signal:
@@ -180,7 +180,7 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
         }
         # Check if the current observation is decreasing compared to the previous row
         # and falls below the decrease_below threshold.
-        prev_obs <- if (i > 1L) onset_data$observation[i - 1] else NA_real_
+        prev_obs <- if (i > 1) onset_data$observation[i - 1] else NA_real_
         if (!is.na(prev_obs) && onset_data$observation[i] < prev_obs &&
               onset_data$observation[i] < onset_data$decrease_value[i]) {
           onset_data$decrease_counter[i] <- onset_data$decrease_counter[i - 1] + 1
@@ -201,10 +201,22 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
         wave_number = NA_real_,
         wave_starts = FALSE,
         wave_ends = FALSE,
-        decrease_counter = 0L
+        decrease_counter = 0
       )
 
-    if (isFALSE(only_current_season)) {
+    if (only_current_season) {
+      decrease_below <- burden_output$values[[burden_level_decrease]]
+      onset_and_decrease_level <- onset_output |>
+        dplyr::mutate(
+          decrease_level = burden_level_decrease,
+          decrease_value = decrease_below
+        )
+
+      onset_output <- wave_fun(
+        onset_data = onset_and_decrease_level,
+        steps_with_decrease = steps_with_decrease
+      )
+    } else {
       burden_levels <- purrr::map_dfr(burden_output, ~ {
         tibble::tibble(
           season = .x$season,
@@ -222,18 +234,6 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
       })
       onset_and_decrease_level <- onset_output |>
         dplyr::right_join(burden_levels, by = "season")
-
-      onset_output <- wave_fun(
-        onset_data = onset_and_decrease_level,
-        steps_with_decrease = steps_with_decrease
-      )
-    } else {
-      decrease_below <- burden_output$values[[burden_level_decrease]]
-      onset_and_decrease_level <- onset_output |>
-        dplyr::mutate(
-          decrease_level = burden_level_decrease,
-          decrease_value = decrease_below
-        )
 
       onset_output <- wave_fun(
         onset_data = onset_and_decrease_level,
