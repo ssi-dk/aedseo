@@ -175,7 +175,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
     average_observations_warning <- average_observations_window > disease_threshold
 
     # Give a seasonal_onset_alarm if both criteria are met
-    seasonal_onset_alarm <- growth_warning & sum_of_cases_warning
+    seasonal_onset_alarm <- growth_warning & average_observations_warning
 
     # Collect the results
     res <- dplyr::bind_rows(

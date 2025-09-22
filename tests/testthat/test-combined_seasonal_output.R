@@ -123,3 +123,24 @@ test_that("Test that family argument works as expected", {
   ))
 
 })
+
+test_that("Test that multiple waves feature works as expected", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  tsd_data <- generate_seasonal_data(
+    years = 3,
+    start_date = as.Date("2021-01-04"),
+    noise_overdispersion = 100,
+    phase = 4
+  )
+
+  expect_no_error(combined_seasonal_output(
+    tsd_data,
+    disease_threshold = 2,
+    only_current_season = TRUE,
+    multiple_waves = TRUE,
+    burden_level_decrease = "medium",
+    steps_with_decrease = 1
+  ))
+
+})

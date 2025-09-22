@@ -130,7 +130,7 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
            season_start = season_start, season_end = season_end, only_current_season = only_current_season),
       onset_args)
   )   # nolint: object_usage_linter.
-  
+
   burden_output <- do.call(
     seasonal_burden_levels,
     c(list(tsd = tsd, season_start = season_start, season_end = season_end,
@@ -139,56 +139,100 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
   )
 
   # Add multiple waves if assigned in input
-  if (multiple_waves && isTRUE(only_current_season)) {
-    decrease_below <- burden_output$values[[burden_level_decrease]]
+  if (multiple_waves) {
+
+    # Iterate over onset_output
+    wave_fun <- function(onset_data, steps_with_decrease) {
+
+      # Define observation based on input data
+      if (!is.na(all(onset_data$incidence))) {
+        onset_data <- onset_data |>
+          dplyr::mutate(observation = .data$incidence)
+      } else {
+        onset_data <- onset_data |>
+          dplyr::mutate(observation = .data$cases)
+      }
+
+      # Initialise
+      in_wave <- FALSE
+      wave_count <- 0L
+
+      for (i in seq_len(nrow(onset_data))) {
+        # Not currently in a wave, look for a wave start signal:
+        if (!in_wave) {
+          if (isTRUE(onset_data$seasonal_onset_alarm[i])) {
+            onset_data$wave_number[i] <- wave_count + 1 # Assign which wave
+            onset_data$wave_starts[i] <- TRUE  # Mark the beginning of a wave
+            in_wave <- TRUE
+            wave_count <- wave_count + 1
+          }
+        } else {
+          onset_data$wave_number[i] <- wave_count
+          onset_data$wave_starts[i] <- FALSE
+        }
+        # Check if the current observation is decreasing compared to the previous row
+        # and falls below the decrease_below threshold.
+        prev_obs <- if (i > 1L) onset_data$observation[i - 1] else NA_real_
+        if (!is.na(prev_obs) && onset_data$observation[i] < prev_obs &&
+              onset_data$observation[i] < onset_data$decrease_value[i]) {
+          onset_data$decrease_counter[i] <- onset_data$decrease_counter[i - 1] + 1
+        }
+        # If the number of consecutive decreasing steps reaches `steps_with_decrease`, end the current wave.
+        if (in_wave && onset_data$decrease_counter[i] >= steps_with_decrease) {
+          onset_data$wave_ends[i] <- TRUE
+          in_wave <- FALSE
+        }
+      }
+      onset_data <- onset_data |>
+        dplyr::select(-"observation")
+
+      return(onset_data)
+    }
 
     # Add new columns for wave_number, wave_starts and decrease_counter
     onset_output <- onset_output |>
       dplyr::mutate(
-        wave_number = NA_integer_,
+        wave_number = NA_real_,
         wave_starts = FALSE,
-        decrease_counter = NA_integer_
+        wave_ends = FALSE,
+        decrease_counter = 0L
       )
 
-    in_wave <- FALSE      # Are we currently in a wave?
-    wave_counter <- 0     # Wave counter
-    decrease_counter <- 0 # Counter for consecutive steps where decrease is observed
+    if (isFALSE(only_current_season)) {
+      burden_levels <- purrr::map_dfr(burden_output, ~ {
+        tibble::tibble(
+          season = .x$season,
+          values = .x$values
+        ) |>
+          tidyr::unnest_longer(
+            col = values,
+            indices_to = "decrease_level",
+            values_to = "value"
+          ) |>
+          dplyr::mutate(
+            decrease_value = as.numeric(value)
+          ) |>
+          dplyr::filter(.data$decrease_level == burden_level_decrease)
+      })
+      onset_and_decrease_level <- onset_output |>
+        dplyr::right_join(burden_levels, by = "season")
 
-    # Iterate over onset_output
-    for (i in seq_len(nrow(onset_output))) {
-      if (!in_wave) {
-        # Not currently in a wave, look for a wave start signal:
-        if (isTRUE(onset_output$seasonal_onset_alarm[i])) {
-          wave_counter <- wave_counter + 1
-          in_wave <- TRUE
-          onset_output$wave_number[i] <- wave_counter
-          onset_output$wave_starts[i] <- TRUE  # Mark the beginning of a wave
-          decrease_counter <- 0  # Reset the decrease counter at wave start
-          onset_output$decrease_counter[i] <- decrease_counter
-        }
-      } else {
-        # If already in a wave, assign the current wave number to this row
-        onset_output$wave_number[i] <- wave_counter
+      onset_output <- wave_fun(
+        onset_data = onset_and_decrease_level,
+        steps_with_decrease = steps_with_decrease
+      )
+    } else {
+      decrease_below <- burden_output$values[[burden_level_decrease]]
+      onset_and_decrease_level <- onset_output |>
+        dplyr::mutate(
+          decrease_level = burden_level_decrease,
+          decrease_value = decrease_below
+        )
 
-        # Check if the current observation is decreasing compared to the previous row
-        # and falls below the decrease_below threshold.
-        if (onset_output$observation[i] < onset_output$observation[i - 1] &&
-              onset_output$observation[i] < decrease_below) {
-          decrease_counter <- decrease_counter + 1
-          onset_output$decrease_counter[i] <- decrease_counter
-        } else {
-          # Reset the counter if decrease does not persist
-          decrease_counter <- 0
-          onset_output$decrease_counter[i] <- decrease_counter
-        }
-
-        # If the number of consecutive decreasing steps reaches the specified threshold end the current wave.
-        if (decrease_counter == steps_with_decrease) {
-          in_wave <- FALSE
-          onset_output$decrease_counter[i] <- decrease_counter
-          decrease_counter <- 0  # Reset counter for next wave detection
-        }
-      }
+      onset_output <- wave_fun(
+        onset_data = onset_and_decrease_level,
+        steps_with_decrease = steps_with_decrease
+      )
     }
   }
 
