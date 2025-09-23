@@ -5,23 +5,38 @@
 \title{Estimate the disease specific threshold}
 \usage{
 estimate_disease_threshold(
-  onset_output,
+  tsd,
+  season_start = 21,
+  season_end = season_start - 1,
   skip_current_season = TRUE,
   min_significant_time = 5,
+  max_gap_time = 1,
+  merge_ratio = 2/3,
   use_prev_seasons_num = 3,
   pick_significant_sequence = c("longest", "earliest"),
   season_importance_decay = 0.8,
-  percentiles = c(0.25, 0.5, 0.75),
+  conf_levels = c(0.25, 0.5, 0.75),
   ...
 )
 }
 \arguments{
-\item{onset_output}{A \code{tsd_onset} object returned from \code{seasonal_onset()}.}
+\item{tsd}{A \code{tsd} object containing time series data}
+
+\item{season_start, season_end}{Integers giving the start and end weeks of the seasons to
+stratify the observations by.}
 
 \item{skip_current_season}{A logical. Do you want to skip your current season?}
 
 \item{min_significant_time}{An integer specifying how many time steps that have to be significant to the sequence
 to be considered in estimation.}
+
+\item{max_gap_time}{A numeric value specifying how many time steps there is allowed to be non-significant between two
+significant sequences for maybe considering them as the same sequence.
+Sometimes e.g. vacations or less testing can lead to false decreases.}
+
+\item{merge_ratio}{A numeric value between 0 and 1, that merges the preceding significant sequence onto the next
+significant sequence when separated by at most \code{max_gap_time} non-significant interval and when
+length(previous sequence) >= merge_ratio * length(next sequence).}
 
 \item{use_prev_seasons_num}{An integer specifying how many previous seasons you want to include in estimation.}
 
@@ -36,11 +51,12 @@ seasons. It is used as \code{season_importance_decay}^(number of seasons back), 
 season will be \code{season_importance_decay}^0 = 1. This parameter allows for a decreasing weight assigned to prior
 seasons, such that the influence of older seasons diminishes exponentially.}
 
-\item{percentiles}{A numeric vector specifying the confidence levels for parameter estimates. The values have
+\item{conf_levels}{A numeric vector specifying the confidence levels for parameter estimates. The values have
 to be unique and in ascending order, the first percentile is the disease specific threshold.
 Specify one or three confidence levels e.g.: \code{c(0.25)} \code{c(0.25, 0.5, 0.75)}.}
 
-\item{...}{Arguments passed to the \code{fit_percentiles()} function.}
+\item{...}{Arguments passed to the \code{seasonal_onset()} or \code{fit_percentiles()} function.
+\code{only_current_season = FALSE} and \code{disease_threshold = NA_real_} cannot be changed in \code{seasonal_onset()}.}
 }
 \value{
 An object of class \code{tsd_disease_threshold}, containing;
@@ -49,30 +65,17 @@ An object of class \code{tsd_disease_threshold}, containing;
 \description{
 This function estimates the disease specific threshold, based on previous seasons.
 If the disease threshold is estimated between ]0:1] it will be set to 1.
-Uses data from a \code{tsd_onset} object.
-
-\code{seasonal_onset()} has to be run with arguments;
-\itemize{
-\item season_start
-\item season_end
-\item only_current_season = FALSE
-}
+Uses data from a \code{tsd} object.
 }
 \examples{
 # Generate seasonal data
 tsd_data <- generate_seasonal_data(
- years = 1,
- start_date = as.Date("2021-01-01")
-)
-
-# Genereate onset data with seasons
-onset_data <- seasonal_onset(
- tsd = tsd_data,
- season_start = 21,
- only_current_season = FALSE
+ years = 3,
+ start_date = as.Date("2021-01-01"),
+ noise_overdispersion = 3
 )
 
 # Estimate disease threshold
-estimate_disease_threshold(onset_data)
+estimate_disease_threshold(tsd_data)
 
 }
