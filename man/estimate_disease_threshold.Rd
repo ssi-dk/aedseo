@@ -9,9 +9,8 @@ estimate_disease_threshold(
   season_start = 21,
   season_end = season_start - 1,
   skip_current_season = TRUE,
-  min_significant_time = 5,
+  min_significant_time = 3,
   max_gap_time = 1,
-  merge_ratio = 2/3,
   use_prev_seasons_num = 3,
   pick_significant_sequence = c("longest", "earliest"),
   season_importance_decay = 0.8,
@@ -33,10 +32,6 @@ to be considered in estimation.}
 \item{max_gap_time}{A numeric value specifying how many time steps there is allowed to be non-significant between two
 significant sequences for maybe considering them as the same sequence.
 Sometimes e.g. vacations or less testing can lead to false decreases.}
-
-\item{merge_ratio}{A numeric value between 0 and 1, that merges the preceding significant sequence onto the next
-significant sequence when separated by at most \code{max_gap_time} non-significant interval and when
-length(previous sequence) >= merge_ratio * length(next sequence).}
 
 \item{use_prev_seasons_num}{An integer specifying how many previous seasons you want to include in estimation.}
 

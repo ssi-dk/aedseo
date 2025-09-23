@@ -81,7 +81,9 @@ test_that("Test that selection and merging of sequences works as expected", {
   tsd_data <- generate_seasonal_data(
     years = 5,
     start_date = as.Date("2021-01-01"),
-    noise_overdispersion = 3
+    noise_overdispersion = 5,
+    relative_epidemic_concentration = 3,
+    phase = 2
   )
 
   onset <- seasonal_onset(tsd_data, only_current_season = FALSE, season_start = 21)
@@ -116,19 +118,10 @@ test_that("Test that selection and merging of sequences works as expected", {
 
   dt_change_gap <- estimate_disease_threshold(
     tsd_data,
-    max_gap_time = 5,
-    use_prev_seasons_num = 5
-  )
-
-  dt_change_ratio <- estimate_disease_threshold(
-    tsd_data,
-    max_gap_time = 5,
-    merge_ratio = 1 / 3,
+    max_gap_time = 2,
     use_prev_seasons_num = 5
   )
 
   expect_false(dt_default_gap$disease_threshold == dt_change_gap$disease_threshold)
-  expect_false(dt_default_gap$disease_threshold == dt_change_ratio$disease_threshold)
   expect_gt(dt_default_gap$disease_threshold, dt_change_gap$disease_threshold)
-  expect_gt(dt_change_gap$disease_threshold, dt_change_ratio$disease_threshold)
 })

@@ -14,9 +14,6 @@
 #' @param max_gap_time A numeric value specifying how many time steps there is allowed to be non-significant between two
 #' significant sequences for maybe considering them as the same sequence.
 #' Sometimes e.g. vacations or less testing can lead to false decreases.
-#' @param merge_ratio A numeric value between 0 and 1, that merges the preceding significant sequence onto the next
-#' significant sequence when separated by at most `max_gap_time` non-significant interval and when
-#' length(previous sequence) >= merge_ratio * length(next sequence).
 #' @param use_prev_seasons_num An integer specifying how many previous seasons you want to include in estimation.
 #' @param pick_significant_sequence A character string specifying which significant sequence to pick from each season.
 #'  - `longest`: The longest sequence of size `min_significant_time` closest to the peak.
@@ -52,9 +49,8 @@ estimate_disease_threshold <- function(
   season_start = 21,
   season_end = season_start - 1,
   skip_current_season = TRUE,
-  min_significant_time = 5,
+  min_significant_time = 3,
   max_gap_time = 1,
-  merge_ratio = 2 / 3,
   use_prev_seasons_num = 3,
   pick_significant_sequence = c("longest", "earliest"),
   season_importance_decay = 0.8,
@@ -142,7 +138,7 @@ estimate_disease_threshold <- function(
         )
       ),
       do_merge = dplyr::if_else(
-        .data$significant_observations_window >= .data$next_window * merge_ratio & .data$gap_time <= max_gap_time,
+        .data$significant_observations_window >= min_significant_time & .data$gap_time <= max_gap_time,
         TRUE, FALSE
       ),
       do_merge = tidyr::replace_na(.data$do_merge, FALSE),
