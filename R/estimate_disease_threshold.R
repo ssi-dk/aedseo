@@ -1,10 +1,9 @@
-#' Estimate the disease specific threshold
+#' Estimate the disease specific threshold of your time series data
 #'
 #' @description
 #'
 #' This function estimates the disease specific threshold, based on previous seasons.
 #' If the disease threshold is estimated between ]0:1] it will be set to 1.
-#' Uses data from a `tsd` object.
 #'
 #' @param tsd `r rd_tsd`
 #' @param season_start,season_end `r rd_season_start_end()`
@@ -124,8 +123,8 @@ estimate_disease_threshold <- function(
     ) |>
     dplyr::filter(.data$significant_observations_window > 0)
 
-  # Merge sequences that fulfill input arguments and select candidate sequences
-  cand_seq <- all_sign_seq |>
+  # Merge sequences
+  merged_seq <- all_sign_seq |>
     dplyr::group_by(.data$season) |>
     dplyr::mutate(
       next_window = dplyr::lead(.data$significant_observations_window, default = NULL),
@@ -152,11 +151,21 @@ estimate_disease_threshold <- function(
       end_window_time = dplyr::last(.data$end_window_time),
       start_average_observations_window = dplyr::first(.data$start_average_observations_window)
     ) |>
-    dplyr::ungroup() |>
+    dplyr::ungroup()
+
+  # Remove sequences that do not start before the peak and select candidate sequences
+  cand_seq <- merged_seq |>
     dplyr::filter(.data$significant_observations_window >= min_significant_time) |>
     dplyr::right_join(peaks, by = "season") |>
     dplyr::mutate(peak_time = dplyr::first(.data$peak_time), .by = "season") |>
     dplyr::mutate(
+      start_to_peak_gap = as.numeric(
+        difftime(
+          .data$peak_time,
+          .data$start_window_time,
+          units = attr(onset_output, "time_interval")
+        )
+      ),
       end_to_peak_gap = as.numeric(
         difftime(
           .data$peak_time,
@@ -165,6 +174,7 @@ estimate_disease_threshold <- function(
         )
       )
     ) |>
+    dplyr::filter(.data$start_to_peak_gap >= 0) |>
     dplyr::filter(!is.na(.data$significant_observations_window))
 
   # If no seasons have significant weeks

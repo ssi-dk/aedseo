@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimate_disease_threshold.R
 \name{estimate_disease_threshold}
 \alias{estimate_disease_threshold}
-\title{Estimate the disease specific threshold}
+\title{Estimate the disease specific threshold of your time series data}
 \usage{
 estimate_disease_threshold(
   tsd,
@@ -60,7 +60,6 @@ An object of class \code{tsd_disease_threshold}, containing;
 \description{
 This function estimates the disease specific threshold, based on previous seasons.
 If the disease threshold is estimated between ]0:1] it will be set to 1.
-Uses data from a \code{tsd} object.
 }
 \examples{
 # Generate seasonal data
