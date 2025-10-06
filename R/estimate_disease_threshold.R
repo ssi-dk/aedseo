@@ -98,6 +98,28 @@ estimate_disease_threshold <- function(
       dplyr::filter(.data$season != max(onset_output$season))
   }
 
+  # If no seasons have onset output
+  if (nrow(onset_output) == 0) {
+    no_tsd_onset <- tsd |> dplyr::mutate(season = epi_calendar(.data$time, start = season_start, end = season_end))
+    no_results <- list(
+      note = "No seasons met the `seasonal_onset()` criteria.",
+      seasons = unique(no_tsd_onset$season),
+      disease_threshold = NA_real_,
+      optim = NA,
+      settings = list(skip_current_season = skip_current_season,
+                      min_significant_time = min_significant_time,
+                      use_prev_seasons_num = use_prev_seasons_num,
+                      pick_significant_sequence = pick_significant_sequence,
+                      season_importance_decay = season_importance_decay,
+                      percentiles = conf_levels),
+      incidence_denominator = attr(onset_output, "incidence_denominator"),
+      time_interval = attr(onset_output, "time_interval"),
+      onset_output = onset_output
+    )
+    class(no_results) <- "tsd_disease_threshold"
+    return(no_results)
+  }
+
   # Count consecutive significant observations
   sign_warnings <- consecutive_growth_warnings(onset_output)
 
@@ -177,10 +199,10 @@ estimate_disease_threshold <- function(
     dplyr::filter(.data$start_to_peak_gap >= 0) |>
     dplyr::filter(!is.na(.data$significant_observations_window))
 
-  # If no seasons have significant weeks
+  # If no seasons have significant weeks in sequences
   if (nrow(cand_seq) == 0) {
     no_results <- list(
-      note = "No seasons met the criteria.",
+      note = "No seasons met the `estimate_disease_threshold()` criteria.",
       seasons = unique(peaks$season),
       disease_threshold = NA_real_,
       optim = NA,
@@ -191,7 +213,8 @@ estimate_disease_threshold <- function(
                       season_importance_decay = season_importance_decay,
                       percentiles = conf_levels),
       incidence_denominator = attr(onset_output, "incidence_denominator"),
-      time_interval = attr(onset_output, "time_interval")
+      time_interval = attr(onset_output, "time_interval"),
+      onset_output = onset_output
     )
     class(no_results) <- "tsd_disease_threshold"
     return(no_results)
@@ -244,7 +267,8 @@ estimate_disease_threshold <- function(
                       season_importance_decay = season_importance_decay,
                       percentiles = conf_levels),
       incidence_denominator = attr(onset_output, "incidence_denominator"),
-      time_interval = attr(onset_output, "time_interval")
+      time_interval = attr(onset_output, "time_interval"),
+      onset_output = onset_output
     )
 
     class(same_result) <- "tsd_disease_threshold"
@@ -281,7 +305,8 @@ estimate_disease_threshold <- function(
                     season_importance_decay = season_importance_decay,
                     percentiles = conf_levels),
     incidence_denominator = attr(onset_output, "incidence_denominator"),
-    time_interval = attr(onset_output, "time_interval")
+    time_interval = attr(onset_output, "time_interval"),
+    onset_output = onset_output
   )
 
   class(fit_results) <- "tsd_disease_threshold"
