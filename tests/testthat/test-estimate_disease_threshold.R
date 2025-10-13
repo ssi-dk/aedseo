@@ -33,7 +33,7 @@ test_that("Test output of correct note for no seasons meeting input criteria", {
 
   expect_equal(
     disease_threshold$note,
-    "No seasons met the criteria."
+    "No seasons met the `estimate_disease_threshold()` criteria."
   )
 })
 
