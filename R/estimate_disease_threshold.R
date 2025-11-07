@@ -99,7 +99,7 @@ estimate_disease_threshold <- function(
   }
 
   # If no seasons have onset output
-  if (nrow(onset_output) == 0) {
+  if (all(is.na(onset_output$average_observations_window))) {
     no_tsd_onset <- tsd |> dplyr::mutate(season = epi_calendar(.data$time, start = season_start, end = season_end))
     no_results <- list(
       note = "No seasons met the `seasonal_onset()` criteria.",

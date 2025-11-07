@@ -125,3 +125,23 @@ test_that("Test that selection and merging of sequences works as expected", {
   expect_false(dt_default_gap$disease_threshold == dt_change_gap$disease_threshold)
   expect_gt(dt_default_gap$disease_threshold, dt_change_gap$disease_threshold)
 })
+
+test_that("Test that function returns NA when tsd is too short for the window size", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Generate seasonal data
+  tsd_data <- to_time_series(
+    cases = c(100, 200, 300),
+    time = seq.Date(from = as.Date("2022-11-02"), by = 1, length.out = 3)
+  )
+
+  disease_threshold <- estimate_disease_threshold(
+    tsd = tsd_data,
+    k = 4
+  )
+
+  expect_equal(
+    disease_threshold$note,
+    "No seasons met the `seasonal_onset()` criteria."
+  )
+})
