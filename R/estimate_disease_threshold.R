@@ -294,7 +294,7 @@ estimate_disease_threshold <- function(
   )
 
   fit_results <- list(
-    note = "Input settings were successfully used in the estimation.",
+    note = "Sufficient information to estimate percentiles.",
     seasons = unique(weighted_significant_sequences$season),
     disease_threshold = dplyr::if_else(dplyr::between(percentiles_fit$values[1], 0, 1), 1, percentiles_fit$values[1]),
     optim = percentiles_fit,
