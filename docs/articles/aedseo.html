@@ -167,13 +167,27 @@ rolling window of size <span class="math inline">\(k = 5\)</span> is
 used to create subsets of the cases for model fitting, and the
 <code>quasipoisson</code> family is used to account for
 overdispersion.</p>
-<p>The disease-specific threshold will be estimated with the four
-available previous seasons. The <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> function
-can be used for this purpose, without providing the disease-specific
-threshold. Then the <code><a href="../reference/consecutive_growth_warnings.html">consecutive_growth_warnings()</a></code> function
-can be used to create groups with subsequent significant weeks. The data
-can then be analysed, else you can use plot/autoplot to visualise the
-sequences of significant weeks for each season.</p>
+<p>The <code><a href="../reference/estimate_disease_threshold.html">estimate_disease_threshold()</a></code> function can be used to
+automatically estimate the disease-specific threshold. As default it
+uses;</p>
+<ul>
+<li>Three time steps that have to be significant for the sequence to be
+considered in the estimation.</li>
+<li>A max gap time of one time step that is allowed to be
+non-significant between two significant sequences.</li>
+<li>Three historical seasons.</li>
+<li>The longest sequence closest to the peak.</li>
+<li>A decay factor of 0.8 such that the influence of older seasons
+diminishes exponentially.</li>
+</ul>
+<p>The disease-specific threshold can also be estimated analytically. In
+this example it is done with the four available previous seasons. The
+<code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> function can be used for this purpose,
+without providing the disease-specific threshold. Then the
+<code><a href="../reference/consecutive_growth_warnings.html">consecutive_growth_warnings()</a></code> function can be used to
+create groups with subsequent significant weeks. The data can then be
+analysed, else you can use plot/autoplot to visualise the sequences of
+significant weeks for each season.</p>
 <p>The <code>average_observation_window</code> variable represents the
 average of cases over a five-week window, which is used to define the
 disease-specific threshold.</p>

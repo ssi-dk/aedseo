@@ -16,7 +16,7 @@ significant observation starts and ends. The first number is how many subsequent
 }
 \description{
 This function calculates the number of consecutive significant ("growth_warning") observations,
-grouping them accordingly. The result is stored in an S3 object of class \code{tsd_threshold}.
+grouping them accordingly. The result is stored in an S3 object of class \code{tsd_growth_warning}.
 
 Uses data from a \code{tsd_onset} object (output from \code{seasonal_onset()}).
 
