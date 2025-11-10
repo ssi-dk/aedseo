@@ -95,7 +95,7 @@ to_time_series <- function(                                     # nolint: cycloc
   # Calculate cases from input
   if (is.null(cases) && !is.null(population) && !is.null(incidence) && !is.na(incidence_denominator)) {
     tbl <- tbl |>
-      dplyr::mutate(cases = (.data$incidence * .data$population) / incidence_denominator)
+      dplyr::mutate(cases = round((.data$incidence * .data$population) / incidence_denominator))
   }
 
   # Create the time series data object

@@ -79,7 +79,17 @@ Significant weeks are defined as those with a case count that has a significant 
 To capture short-term changes and fluctuations in the cases, a rolling window of size $k = 5$ is used to create subsets of the cases for model fitting,
 and the `quasipoisson` family is used to account for overdispersion.
 
-The disease-specific threshold will be estimated with the four available previous seasons.
+The `estimate_disease_threshold()` function can be used to automatically estimate the disease-specific threshold.
+As default it uses;
+
+- Three time steps that have to be significant for the sequence to be considered in the estimation.
+- A max gap time of one time step that is allowed to be non-significant between two significant sequences.
+- Three historical seasons.
+- The longest sequence closest to the peak.
+- A decay factor of 0.8 such that the influence of older seasons diminishes exponentially.
+
+The disease-specific threshold can also be estimated analytically.
+In this example it is done with the four available previous seasons.
 The `seasonal_onset()` function can be used for this purpose, without providing the disease-specific threshold.
 Then the `consecutive_growth_warnings()` function can be used to create groups with subsequent significant weeks.
 The data can then be analysed, else you can use plot/autoplot to visualise the sequences of significant weeks for each season.

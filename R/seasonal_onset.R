@@ -67,7 +67,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
   checkmate::assert_numeric(level, lower = 0, upper = 1, add = coll)
   checkmate::assert_numeric(na_fraction_allowed, lower = 0, upper = 1,
                             add = coll)
-  checkmate::assert_integerish(k, add = coll)
+  checkmate::assert_integerish(k, lower = 1, len = 1, add = coll)
   checkmate::assert_numeric(disease_threshold, add = coll)
   checkmate::assert_integerish(season_start, lower = 1, upper = 53,
                                null.ok = TRUE, add = coll)
@@ -140,6 +140,43 @@ seasonal_onset <- function(                                     # nolint: cycloc
   # Allocate space for growth rate estimates
   res <- tibble::tibble()
   skipped_window <- base::rep(FALSE, base::nrow(tsd))
+
+  # Return NA if the tsd is too short for the window size
+  if (n < k) {
+    res <- tibble::tibble(
+      reference_time = tsd$time,
+      cases = tsd$cases,
+      season = tsd$season,
+      population = if ("population" %in% names(tsd)) tsd$population else NA_real_,
+      incidence = if ("incidence"  %in% names(tsd)) tsd$incidence  else NA_real_,
+      growth_rate = NA_real_,
+      lower_growth_rate = NA_real_,
+      upper_growth_rate = NA_real_,
+      growth_warning = FALSE,
+      average_observations_window = NA_real_,
+      average_observations_warning = FALSE,
+      seasonal_onset_alarm = FALSE,
+      skipped_window = TRUE,
+      converged = FALSE
+    )
+
+    # Turn the results into an `seasonal_onset` class
+    ans <- tibble::new_tibble(
+      x = res,
+      class = "tsd_onset",
+      k = k,
+      level = level,
+      disease_threshold = disease_threshold,
+      family = family,
+      incidence_denominator = attr(tsd, "incidence_denominator")
+    )
+
+    # Keep attributes from the `tsd` class
+    attr(ans, "time_interval") <- attr(tsd, "time_interval")
+    attr(ans, "incidence_denominator") <- attr(tsd, "incidence_denominator")
+
+    return(ans)
+  }
 
   for (i in k:n) {
     # Index observations for this iteration

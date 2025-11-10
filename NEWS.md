@@ -12,6 +12,8 @@
 
 * Added new feature to estimate multiple waves in `combined_seasonal_output` (#77).
 
+* Added `estimate_disease_threshold()` for users to easier estimate the disease specific threshold (#85).
+
 ## Improvements
 
 * Observations are now divided into `cases` and `incidence`, which is implemented into all functions in the package. Cases are used as default, but if the user additionally inputs `population` the output will be incidence (#84).
