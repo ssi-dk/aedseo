@@ -39,12 +39,13 @@ stratify the observations by.}
 
 \item{multiple_waves}{A logical. Should the output contain multiple waves?}
 
-\item{burden_level_decrease}{A character specifying the burden breakpoint the observations should decrease under
-before a new increase in observations can call a new wave onset if seasonal onset criteria are met.
+\item{burden_level_decrease}{A character string specifying the burden breakpoint the observations should decrease
+under before a new increase in observations can call a new wave onset if seasonal onset criteria are met.
 Choose between; "very low", "low", "medium", or "high".}
 
 \item{steps_with_decrease}{An integer specifying in how many time steps (days, weeks, months) the decrease
-should be observed (if there is a sudden decrease followed by an increase it could e.g. be due to testing).
+should be observed under the \code{burden_level_decrease} (if there is a sudden decrease followed by an
+increase it could e.g. be due to testing).
 If multiple_waves are assigned steps_with_decrease defaults to 2.}
 
 \item{...}{Arguments passed to \code{seasonal_burden_levels()}, \code{fit_percentiles()} and \code{seasonal_onset()} functions.}

@@ -37,6 +37,7 @@ Observations will be incidence if population and incidence are available in the 
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/burden_levels.html">Seasonal Burden Levels</a>
     <a class="dropdown-item" href="../articles/generate_seasonal_wave.html">Simulate Seasonal Epidemic Waves</a>
+    <a class="dropdown-item" href="../articles/multiple_waves.html">Multiple waves</a>
     <a class="dropdown-item" href="../articles/seasonal_onset.html">Seasonal Epidemic Onset</a>
   </div>
 </li>
@@ -152,7 +153,7 @@ level calculations. The <code>n_peak</code> observations have to surpass the <co
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A list containing:</p><ul><li><p>'season': The season that burden levels are calculated for.</p></li>
+<p>A <code>tsd_burden_levels</code> object containing:</p><ul><li><p>'season': The season that burden levels are calculated for.</p></li>
 <li><p>'high_conf_level': (only for intensity_level method) The conf_level chosen for the high level.</p></li>
 <li><p>'conf_levels': (only for peak_level method) The conf_levels chosen to fit the 'low', 'medium', 'high' levels.</p></li>
 <li><p>'values': A named vector with values for 'very low', 'low', 'medium', 'high' levels.</p></li>
