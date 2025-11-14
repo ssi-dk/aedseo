@@ -34,8 +34,7 @@ before starting the search for a new wave onset.
 
 ## Applying the multiple waves algorithm
 As an example we first generate cases in a `tsd` object, with the `generate_seasonal_data()` function. Then we rescale time from monthly to weekly observations to get multiple waves.
-```{r, echo = FALSE, dpi=300}
-# Construct an 'tsd' object with time series data by imputing multiple waves per season
+```{r, dpi=300}
 set.seed(222)
 tsd_data_monthly <- generate_seasonal_data(
   years = 14,
@@ -58,11 +57,15 @@ plot(tsd_data)
 ```
 
 ### Estimate disease-specific threshold
+Then we estimate the disease-specific threshold.
 ```{r}
 disease_threshold <- estimate_disease_threshold(tsd_data)
 ```
 
 ### Estimate multiple waves
+Multiple waves are estimated such that after a wave onset, observations have to
+decrease below the `low` intensity level for two time steps to end the wave.
+A new wave can then start if observations fulfill the seasonal onset criteria.
 ```{r}
 multiple_waves <- combined_seasonal_output(
   tsd_data,
@@ -77,3 +80,4 @@ multiple_waves <- combined_seasonal_output(
 ```{r, echo = FALSE, dpi=300}
 plot(multiple_waves)
 ```
+From the plot we can observe that season 2023/2024 has five waves.
