@@ -20,20 +20,20 @@ library(aedseo)
 
 ## Methodology
 
-This method uses the seasonal onset and burden level methodology to estimate multiple waves for diseases that do not follow a one peak seasonal pattern.
-The burden levels are used to define when the first wave has ended by crossing the desired intensity breakpoint whereas a new wave can start.
-The seasonal onset method is used to determine each time there is a wave onset, the same way as for the single seasonal onset.
+This method uses the seasonal onset and burden level methodology to estimate multiple waves for diseases that do not follow a one peak per season pattern.
+The burden levels are used to define when the first wave has ended by droping below the desired intensity breakpoint whereafter a new wave can start.
+The seasonal onset method is used to determine each wave onset - in the same way as for the single seasonal onset.
 
-The `combined_seasonal_output()` function implements this functionallity buy defining following variables:
+The `combined_seasonal_output()` function implements this functionallity by defining the following variables:
 
 - $\text{multiple_waves}$: A logical. Should the output contain multiple waves?
-- $\text{burden_level_decrease}$: A character string specifying the burden breakpoint the observations should decrease under before a new increase in observations
+- $\text{burden_level_decrease}$: A character string specifying the burden breakpoint the observations should decrease below before a new increase in observations
 can call a new wave onset if seasonal onset criteria are met. Choose between; "very low", "low", "medium", or "high".
-- $\text{steps_with_decrease}$: An integer specifying in how many time steps (days, weeks, months) the decrease should be observed under the `burden_level_decrease`
+- $\text{steps_with_decrease}$: An integer specifying how many time steps (days, weeks, months) the decrease should be observed under the `burden_level_decrease`
 before starting the search for a new wave onset.
 
 ## Applying the multiple waves algorithm
-First we generate cases in a `tsd` object, with the `generate_seasonal_data()` function.
+As an example we first generate cases in a `tsd` object, with the `generate_seasonal_data()` function. Then we rescale time from monthly to weekly observations to get multiple waves.
 ```{r, echo = FALSE, dpi=300}
 # Construct an 'tsd' object with time series data by imputing multiple waves per season
 set.seed(222)
