@@ -12,6 +12,9 @@ combined_seasonal_output(
   season_start = 21,
   season_end = season_start - 1,
   only_current_season = TRUE,
+  multiple_waves = FALSE,
+  burden_level_decrease = NULL,
+  steps_with_decrease = NULL,
   ...
 )
 }
@@ -34,6 +37,17 @@ stratify the observations by.}
 
 \item{only_current_season}{Should the output only include results for the current season?}
 
+\item{multiple_waves}{A logical. Should the output contain multiple waves?}
+
+\item{burden_level_decrease}{A character string specifying the burden breakpoint the observations should decrease
+under before a new increase in observations can call a new wave onset if seasonal onset criteria are met.
+Choose between; "very low", "low", "medium", or "high".}
+
+\item{steps_with_decrease}{An integer specifying in how many time steps (days, weeks, months) the decrease
+should be observed under the \code{burden_level_decrease} (if there is a sudden decrease followed by an
+increase it could e.g. be due to testing).
+If multiple_waves are assigned steps_with_decrease defaults to 2.}
+
 \item{...}{Arguments passed to \code{seasonal_burden_levels()}, \code{fit_percentiles()} and \code{seasonal_onset()} functions.}
 }
 \value{
@@ -41,7 +55,7 @@ An object containing two lists: onset_output and burden_output:
 
 onset_output:
 
-A \code{seasonal_onset} object containing:
+A \code{tsd_onset} object containing:
 \itemize{
 \item 'reference_time': The time point for which the growth rate is estimated.
 \item 'cases': The cases at reference time point.
@@ -55,15 +69,25 @@ A \code{seasonal_onset} object containing:
 \item 'average_observation_window': The average of cases or incidence within the time window.
 \item 'average_observation_warning': Logical. Does the average observations exceed the disease threshold?
 \item 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?
-\item 'skipped_window': Logical. Was the window skipped due to missing?
+\item 'skipped_window': Logical. Was the window skipped due to missing observations?
 \item 'converged': Logical. Was the IWLS judged to have converged?
 \item 'seasonal_onset': Logical. The first detected seasonal onset in the season.
 \item Attributes: \code{time_interval} and \code{incidence_denominator}.
 }
 
+If multiple waves is selected the \code{tsd_onset} object will also contain:
+\itemize{
+\item 'wave_number': The wave number in the time series data.
+\item 'wave_starts': Logical. Did a new wave start?
+\item 'wave_ends': Logical. Did the wave end?
+\item 'decrease_counter': How many consecutive time intervals have decreased below the selected burden breakpoint.
+\item 'decrease_level': A character specifying the selected burden breakpoint to fall below for ending the wave.
+\item 'decrease_value': A numeric specifying the selected burden breakpoint to fall below for ending the wave.
+}
+
 burden_output:
 
-A list containing:
+A \code{tsd_burden_levels} object containing:
 \itemize{
 \item 'season': The season that burden levels are calculated for.
 \item 'high_conf_level': (only for intensity_level method) The conf_level chosen for the high level.
@@ -104,8 +128,8 @@ objective function value from the optimisation. Smaller value equals better opti
 \description{
 This function performs automated and early detection of seasonal epidemic onsets and estimates the burden
 levels from time series dataset stratified by season. The seasonal onset estimates growth rates for consecutive
-time intervals and calculates the sum of cases. The burden levels use the previous seasons to estimate the levels
-of the current season.
+time intervals and calculates the average sum of cases/incidence in consecutive time intervals (\code{k}).
+The burden levels use the previous seasons to estimate the levels of the current season.
 Output will be in incidence if \code{population} and \code{incidence} are assigned in input.
 }
 \examples{

@@ -10,6 +10,8 @@
 
 * Added new argument `use_offset` to `seasonal_onset()` that allows the user to add the background population to adjust the growth rate estimations (#83).
 
+* Added new feature to estimate multiple waves in `combined_seasonal_output` (#77).
+
 * Added `estimate_disease_threshold()` for users to easier estimate the disease specific threshold (#85).
 
 ## Improvements

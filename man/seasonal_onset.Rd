@@ -31,7 +31,7 @@ onset alarm can be triggered.}
 \item{family}{A character string specifying the family for modeling. Choose between 'poisson', or 'quasipoisson'.
 Must be one of: character, family-generator, or family object.}
 
-\item{na_fraction_allowed}{Numeric value between 0 and 1 specifying the fraction of observables in the window
+\item{na_fraction_allowed}{Numeric value between 0 and 1 specifying the fraction of observations in the window
 of size k that are allowed to be NA or zero, i.e. without cases, in onset calculations.}
 
 \item{season_start, season_end}{Integers giving the start and end weeks of the seasons to
@@ -40,7 +40,7 @@ stratify the observations by. If set to \code{NULL}, it means no stratification 
 \item{only_current_season}{Should the output only include results for the current season?}
 }
 \value{
-A \code{seasonal_onset} object containing:
+A \code{tsd_onset} object containing:
 \itemize{
 \item 'reference_time': The time point for which the growth rate is estimated.
 \item 'cases': The cases at reference time point.
@@ -54,7 +54,7 @@ A \code{seasonal_onset} object containing:
 \item 'average_observation_window': The average of cases or incidence within the time window.
 \item 'average_observation_warning': Logical. Does the average observations exceed the disease threshold?
 \item 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?
-\item 'skipped_window': Logical. Was the window skipped due to missing?
+\item 'skipped_window': Logical. Was the window skipped due to missing observations?
 \item 'converged': Logical. Was the IWLS judged to have converged?
 \item 'seasonal_onset': Logical. The first detected seasonal onset in the season.
 \item Attributes: \code{time_interval} and \code{incidence_denominator}.
@@ -62,7 +62,7 @@ A \code{seasonal_onset} object containing:
 }
 \description{
 This function performs automated and early detection of seasonal epidemic onsets on a \code{tsd} object.
-It estimates growth rates and calculates the average sum of cases for consecutive time intervals (\code{k}).
+It estimates growth rates and calculates the average sum of cases in consecutive time intervals (\code{k}).
 If the time series data includes \code{population} it will be used as offset to adjust the growth rate in the glm,
 additionally the output will include incidence, population and average sum of incidence.
 }

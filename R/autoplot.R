@@ -334,6 +334,13 @@ autoplot.tsd_onset_and_burden <- function(
     y_label <- "Incidence"
   }
 
+  # Add multiple wave onset if present in data frame
+  if ("wave_number" %in% names(virus_df)) {
+    virus_df <- virus_df |>
+      dplyr::select(-"seasonal_onset") |>
+      dplyr::rename(seasonal_onset = "wave_starts")
+  }
+
   # Current week
   cur_week <- max(virus_df$reference_time)
 

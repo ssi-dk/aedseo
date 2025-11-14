@@ -123,3 +123,92 @@ test_that("Test that family argument works as expected", {
   ))
 
 })
+
+test_that("Test that multiple waves feature works for only current season", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  tsd_data <- generate_seasonal_data(
+    years = 3,
+    start_date = as.Date("2021-01-04"),
+    noise_overdispersion = 100,
+    phase = 4
+  )
+
+  # Settings
+  steps_with_decrease <- 2
+  level <- "medium"
+
+  mult_waves <- combined_seasonal_output(
+    tsd_data,
+    disease_threshold = 2,
+    only_current_season = TRUE,
+    multiple_waves = TRUE,
+    burden_level_decrease = level,
+    steps_with_decrease = steps_with_decrease
+  )
+
+  end_wave <- mult_waves$onset_output |>
+    dplyr::filter(wave_ends == TRUE)
+
+  expect_equal(end_wave$decrease_counter, steps_with_decrease)
+
+  expect_equal(
+    as.numeric(mult_waves$burden_output$values[level]),
+    end_wave$decrease_value
+  )
+})
+
+test_that("Test that multiple waves feature works for all seasons in tsd", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  tsd_data <- generate_seasonal_data(
+    years = 5,
+    start_date = as.Date("2021-01-04"),
+    noise_overdispersion = 100,
+    phase = 4
+  )
+
+  # Settings
+  steps_with_decrease <- 2
+  level <- "medium"
+
+  mult_waves <- combined_seasonal_output(
+    tsd_data,
+    disease_threshold = 5,
+    only_current_season = FALSE,
+    multiple_waves = TRUE,
+    burden_level_decrease = level,
+    steps_with_decrease = steps_with_decrease
+  )
+
+  end_wave <- mult_waves$onset_output |>
+    dplyr::filter(wave_ends == TRUE)
+
+  expect_equal(unique(end_wave$decrease_counter), steps_with_decrease)
+
+  burden_levels <- purrr::map_dfr(mult_waves$burden_output, ~ {
+    tibble::tibble(
+      season = .x$season,
+      values = .x$values
+    ) |>
+      tidyr::unnest_longer(
+        col = values,
+        indices_to = "decrease_level",
+        values_to = "decrease_value"
+      )
+  }) |>
+    dplyr::filter(decrease_level == level)
+
+  compare_burden_values <- end_wave |>
+    dplyr::left_join(burden_levels, by = "season")
+
+  expect_equal(
+    compare_burden_values$decrease_value.x,
+    compare_burden_values$decrease_value.y
+  )
+
+  expect_equal(
+    compare_burden_values$decrease_level.x,
+    compare_burden_values$decrease_level.y
+  )
+})

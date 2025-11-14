@@ -3,7 +3,7 @@
 #' @description
 #'
 #' This function performs automated and early detection of seasonal epidemic onsets on a `tsd` object.
-#' It estimates growth rates and calculates the average sum of cases for consecutive time intervals (`k`).
+#' It estimates growth rates and calculates the average sum of cases in consecutive time intervals (`k`).
 #' If the time series data includes `population` it will be used as offset to adjust the growth rate in the glm,
 #' additionally the output will include incidence, population and average sum of incidence.
 #'
@@ -12,7 +12,7 @@
 #' @param level The confidence level for onset parameter estimates, a numeric value between 0 and 1.
 #' @param disease_threshold `r rd_disease_threshold(usage = "onset")`
 #' @param family `r rd_family()`
-#' @param na_fraction_allowed Numeric value between 0 and 1 specifying the fraction of observables in the window
+#' @param na_fraction_allowed Numeric value between 0 and 1 specifying the fraction of observations in the window
 #' of size k that are allowed to be NA or zero, i.e. without cases, in onset calculations.
 #' @param season_start,season_end `r rd_season_start_end(usage = "onset")`
 #' @param only_current_season `r rd_only_current_season`
@@ -40,18 +40,20 @@
 #'   only_current_season = FALSE
 #' )
 seasonal_onset <- function(                                     # nolint: cyclocomp_linter.
-    tsd,
-    k = 5,
-    level = 0.95,
-    disease_threshold = NA_real_,
-    family = c(
-      "quasipoisson",
-      "poisson"
-    ),
-    na_fraction_allowed = 0.4,
-    season_start = NULL,
-    season_end = season_start - 1,
-    only_current_season = NULL) {
+  tsd,
+  k = 5,
+  level = 0.95,
+  disease_threshold = NA_real_,
+  family = c(
+    "quasipoisson",
+    "poisson"
+    # TODO: #10 Include negative.binomial regressions. @telkamp7
+  ),
+  na_fraction_allowed = 0.4,
+  season_start = NULL,
+  season_end = season_start - 1,
+  only_current_season = NULL
+) {
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(tsd, add = coll)
@@ -209,7 +211,7 @@ seasonal_onset <- function(                                     # nolint: cycloc
     # Evaluate if average_incidence_window exceeds disease_threshold
     average_observations_warning <- average_observations_window > disease_threshold
 
-    # Give an seasonal_onset_alarm if both criteria are met
+    # Give a seasonal_onset_alarm if both criteria are met
     seasonal_onset_alarm <- growth_warning & average_observations_warning
 
     # Collect the results

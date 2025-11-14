@@ -61,7 +61,7 @@ level calculations. The \code{n_peak} observations have to surpass the \code{dis
 \item{...}{Arguments passed to the \code{fit_percentiles()} function.}
 }
 \value{
-A list containing:
+A \code{tsd_burden_levels} object containing:
 \itemize{
 \item 'season': The season that burden levels are calculated for.
 \item 'high_conf_level': (only for intensity_level method) The conf_level chosen for the high level.
