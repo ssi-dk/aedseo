@@ -68,7 +68,7 @@ additionally the output will include incidence, population and average sum of in
 }
 \examples{
 # Create a tibble object from sample data
-tsd_data <- tsd(
+tsd_data <- to_time_series(
   cases = c(100, 120, 150, 180, 220, 270),
   time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 6)
 )
