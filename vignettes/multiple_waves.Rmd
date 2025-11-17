@@ -21,10 +21,10 @@ library(aedseo)
 ## Methodology
 
 This method uses the seasonal onset and burden level methodology to estimate multiple waves for diseases that do not follow a one peak per season pattern.
-The burden levels are used to define when the first wave has ended by droping below the desired intensity breakpoint whereafter a new wave can start.
+The burden levels are used to define when the first wave has ended by dropping below the desired intensity breakpoint, whereafter a new wave can start.
 The seasonal onset method is used to determine each wave onset - in the same way as for the single seasonal onset.
 
-The `combined_seasonal_output()` function implements this functionallity by defining the following variables:
+The `combined_seasonal_output()` function implements this functionality by defining the following variables:
 
 - $\text{multiple_waves}$: A logical. Should the output contain multiple waves?
 - $\text{burden_level_decrease}$: A character string specifying the burden breakpoint the observations should decrease below before a new increase in observations
