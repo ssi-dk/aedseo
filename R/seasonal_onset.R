@@ -23,7 +23,7 @@
 #'
 #' @examples
 #' # Create a tibble object from sample data
-#' tsd_data <- tsd(
+#' tsd_data <- to_time_series(
 #'   cases = c(100, 120, 150, 180, 220, 270),
 #'   time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 6)
 #' )
@@ -263,17 +263,4 @@ seasonal_onset <- function(                                     # nolint: cycloc
   attr(ans, "incidence_denominator") <- attr(tsd, "incidence_denominator")
 
   return(ans)
-}
-
-#' Deprecated aedseo function
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#' This function has been renamed to better reflect its purpose.
-#' Please use `seasonal_onset()` instead.
-#' @param ... Arguments passed to `seasonal_onset()`
-#' @keywords internal
-#' @export
-aedseo <- function(...) {
-  lifecycle::deprecate_warn("0.1.2", "aedseo()", "seasonal_onset()")
-  seasonal_onset(...)
 }

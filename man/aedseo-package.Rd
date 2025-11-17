@@ -2,6 +2,7 @@
 % Please edit documentation in R/aedseo-package.R
 \docType{package}
 \name{aedseo-package}
+\alias{aedseo}
 \alias{aedseo-package}
 \title{aedseo: Automated and Early Detection of Seasonal Epidemic Onset and Burden Levels}
 \description{

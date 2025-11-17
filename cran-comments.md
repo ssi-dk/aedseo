@@ -1,7 +1,3 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
-
-## Patch
-
-* Added Sofia Myrup Otero (SMOT@ssi.dk) as author of the `aedseo` R package.
+0 errors v | 0 warnings v | 0 notes v

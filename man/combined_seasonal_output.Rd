@@ -158,7 +158,7 @@ weekly_dates <- seq.Date(from = start_date,
                          to = end_date,
                          by = "week")
 
-tsd_data <- tsd(
+tsd_data <- to_time_series(
   cases = c(season_1, season_2),
   time = as.Date(weekly_dates)
 )
