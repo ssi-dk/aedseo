@@ -108,16 +108,3 @@ to_time_series <- function(                                     # nolint: cycloc
 
   return(tsd)
 }
-
-#' Deprecated tsd function
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#' This function has been renamed to better reflect its purpose.
-#' Please use `to_time_series()` instead.
-#' @param ... Arguments passed to `to_time_series()`
-#' @keywords internal
-#' @export
-tsd <- function(...) {
-  lifecycle::deprecate_warn("0.1.2", "tsd()", "to_time_series()")
-  to_time_series(...)
-}

@@ -264,16 +264,3 @@ seasonal_onset <- function(                                     # nolint: cycloc
 
   return(ans)
 }
-
-#' Deprecated aedseo function
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#' This function has been renamed to better reflect its purpose.
-#' Please use `seasonal_onset()` instead.
-#' @param ... Arguments passed to `seasonal_onset()`
-#' @keywords internal
-#' @export
-aedseo <- function(...) {
-  lifecycle::deprecate_warn("0.1.2", "aedseo()", "seasonal_onset()")
-  seasonal_onset(...)
-}
