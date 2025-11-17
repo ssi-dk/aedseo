@@ -1,0 +1,43 @@
+# NA
+
+## Description
+
+Please include a summary of the change and which issue is fixed. Please
+also include relevant motivation and context. List any dependencies that
+are required for this change.
+
+Fixes \# (issue)
+
+## Type of Change
+
+Please delete options that are not relevant.
+
+Minor fix (a small change such as a typo, formatting correction, or
+other non-functional improvement)
+
+Bug fix (non-breaking change which fixes an issue)
+
+New feature (non-breaking change which adds functionality)
+
+Breaking change (fix or feature that would cause existing functionality
+to not work as expected)
+
+This change requires a documentation update
+
+## Test
+
+Please add tests if adding a new feature or breaking change.
+
+Test has been added
+
+Test is not necessary
+
+### Checklist
+
+The PR passes all local unit tests
+
+I have documented any new features introduced
+
+If the PR adds a new feature, please add an entry in `NEWS.md`
+
+A reviewer is assigned to this PR

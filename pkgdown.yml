@@ -1,12 +1,13 @@
 pandoc: 3.1.11
-pkgdown: 2.1.1
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   aedseo: aedseo.html
   burden_levels: burden_levels.html
   generate_seasonal_wave: generate_seasonal_wave.html
+  multiple_waves: multiple_waves.html
   seasonal_onset: seasonal_onset.html
-last_built: 2025-04-10T12:42Z
+last_built: 2025-11-17T13:21Z
 urls:
   reference: https://ssi-dk.github.io/aedseo/reference
   article: https://ssi-dk.github.io/aedseo/articles

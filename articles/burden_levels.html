@@ -6,12 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Seasonal Burden Levels • aedseo</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -26,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">aedseo</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +41,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/burden_levels.html">Seasonal Burden Levels</a></li>
     <li><a class="dropdown-item" href="../articles/generate_seasonal_wave.html">Simulate Seasonal Epidemic Waves</a></li>
+    <li><a class="dropdown-item" href="../articles/multiple_waves.html">Multiple waves</a></li>
     <li><a class="dropdown-item" href="../articles/seasonal_onset.html">Seasonal Epidemic Onset</a></li>
   </ul>
 </li>
@@ -67,7 +67,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Seasonal Burden Levels</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ssi-dk/aedseo/blob/master/vignettes/burden_levels.Rmd" class="external-link"><code>vignettes/burden_levels.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ssi-dk/aedseo/blob/v1.0.0/vignettes/burden_levels.Rmd" class="external-link"><code>vignettes/burden_levels.Rmd</code></a></small>
       <div class="d-none name"><code>burden_levels.Rmd</code></div>
     </div>
 
@@ -91,15 +91,18 @@ the height of peaks between seasons.</li>
 <p>The disease-specific threshold is the <code>very low</code>
 breakpoint for both methods. Breakpoints are named as the upper bounds
 for the burden levels, and are visualised on following plot.</p>
-<p><img src="burden_levels_files/figure-html/unnamed-chunk-2-1.png" width="2187.5"></p>
+<p><img src="burden_levels_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" width="2187.5"></p>
 <div class="section level2">
 <h2 id="methodology">Methodology<a class="anchor" aria-label="anchor" href="#methodology"></a>
 </h2>
 <p>The methodology used to define the burden levels of seasonal
-epidemics is based on observations from previous seasons. Historical
-data from all available seasons is used to establish the levels for the
-current season. This is done by:</p>
+epidemics is based on observations (cases or incidence) from previous
+seasons. Historical data from all available seasons is used to establish
+the levels for the current season. This is done by:</p>
 <ul>
+<li>Using either cases or incidence as observations (default is
+<code>cases</code>, but if <code>incidence</code> is in the
+<code>tsd</code> object it will be used instead).</li>
 <li>Using <code>n</code> highest (peak) observations from each
 season.</li>
 <li>Selecting only observations if they surpass the disease-specific
@@ -231,7 +234,7 @@ disease-specific threshold is determined for all data combinations with
 use of the method described in <code><a href="../articles/aedseo.html">vignette("aedseo")</a></code>. The
 disease-specific threshold should be revised before a new season starts,
 especially if the data has a trend.
-<img src="burden_levels_files/figure-html/unnamed-chunk-3-1.png" width="3000"></p>
+<img src="burden_levels_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="3000"></p>
 <div class="section level3">
 <h3 id="use-the-intensity_levels-method">Use the intensity_levels method<a class="anchor" aria-label="anchor" href="#use-the-intensity_levels-method"></a>
 </h3>
@@ -261,6 +264,7 @@ for the current season.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Model settings:</span></span>
 <span><span class="co">#&gt;       Disease specific threshold: 10</span></span>
+<span><span class="co">#&gt;       Incidence denominator: NA</span></span>
 <span><span class="co">#&gt;       Called using distributional family: lnorm</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -292,6 +296,7 @@ to align with mem, we use <code>n_peak = 8</code></p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Model settings:</span></span>
 <span><span class="co">#&gt;       Disease specific threshold: 10</span></span>
+<span><span class="co">#&gt;       Incidence denominator: NA</span></span>
 <span><span class="co">#&gt;       Called using distributional family: lnorm</span></span></code></pre></div>
 </div>
 </div>
@@ -315,7 +320,7 @@ arguments.</p>
 <span>      <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>season <span class="op">=</span> <span class="fu">aedseo</span><span class="fu">::</span><span class="fu"><a href="../reference/epi_calendar.html">epi_calendar</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span>,</span>
 <span>                    week <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/week.html" class="external-link">isoweek</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>      <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">time</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">season</span>, values_from <span class="op">=</span> <span class="va">observation</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">season</span>, values_from <span class="op">=</span> <span class="va">cases</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>      <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">week</span><span class="op">)</span></span>
 <span>    <span class="co"># Run mem</span></span>
 <span>    <span class="va">mem_result</span> <span class="op">&lt;-</span> <span class="fu">mem</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mem/man/memmodel.html" class="external-link">memmodel</a></span><span class="op">(</span><span class="va">mem_data</span><span class="op">)</span></span>
@@ -330,7 +335,7 @@ arguments.</p>
 <div class="section level3">
 <h3 id="aedseo-and-mem-levels">aedseo and mem levels<a class="anchor" aria-label="anchor" href="#aedseo-and-mem-levels"></a>
 </h3>
-<p><img src="burden_levels_files/figure-html/unnamed-chunk-9-1.png" width="3000"></p>
+<p><img src="burden_levels_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="3000"></p>
 <p>In the plots:</p>
 <ul>
 <li>Observations below 3 are filtered out to improve visualization.</li>
@@ -414,7 +419,7 @@ monitoring of observations in the current season.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

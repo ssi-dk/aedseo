@@ -1,0 +1,145 @@
+# aedseo
+
+## Description
+
+The Automated and Early Detection of Seasonal Epidemic Onset and Burden
+Levels (`aedseo`) package provides a powerful tool for automating the
+early detection of seasonal epidemic onsets in time series data. It
+offers the ability to estimate growth rates for consecutive time
+intervals. With use of the average observations within those intervals
+and an estimated disease-specific threshold it also offers the
+possibility to estimate seasonal onset of epidemics. Additionally it
+offers the ability to estimate burden levels for seasons based on
+historical data. It is aimed towards epidemiologists, public health
+professionals, and researchers seeking to identify and respond to
+seasonal epidemics in a timely fashion.
+
+## Installation
+
+``` r
+# Install aedseo from CRAN
+install.packages("aedseo")
+```
+
+### Development version
+
+You can install the development version of `aedseo` from
+[GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("ssi-dk/aedseo")
+```
+
+## Getting started
+
+To quickly get started with `aedseo`, follow these steps:
+
+1.  Install the package using the code provided above.
+2.  Load the package with
+    [`library(aedseo)`](https://github.com/ssi-dk/aedseo).
+3.  Create a time series data object (`tsd`) from your data using the
+    [`to_time_series()`](https://ssi-dk.github.io/aedseo/reference/to_time_series.md)
+    function or
+    [`generate_seasonal_data()`](https://ssi-dk.github.io/aedseo/reference/generate_seasonal_data.md)
+    functions.
+4.  Apply the
+    [`combined_seasonal_output()`](https://ssi-dk.github.io/aedseo/reference/combined_seasonal_output.md)
+    function to get a comprehensive seasonal analysis with seasonal
+    onset and burden levels.
+
+## Vignette
+
+For a more detailed introduction to the workflow of this package, see
+the `Get Started` vignette or run;
+[`vignette("aedseo")`](https://ssi-dk.github.io/aedseo/articles/aedseo.md).
+
+## Contributing
+
+We welcome contributions to the `aedseo` package. Feel free to open
+issues, submit pull requests, or provide feedback to help us improve.
+
+# Package index
+
+## All functions
+
+- [`autoplot()`](https://ssi-dk.github.io/aedseo/reference/autoplot.md)
+  :
+
+  Autoplot a `tsd` object
+
+- [`combined_seasonal_output()`](https://ssi-dk.github.io/aedseo/reference/combined_seasonal_output.md)
+  : Compute seasonal onset and burden levels from seasonal time series
+  observations.
+
+- [`consecutive_growth_warnings()`](https://ssi-dk.github.io/aedseo/reference/consecutive_growth_warnings.md)
+  : Create a tsd_growth_warning object to count consecutive significant
+  observations
+
+- [`epi_calendar()`](https://ssi-dk.github.io/aedseo/reference/epi_calendar.md)
+  : Determine Epidemiological Season
+
+- [`estimate_disease_threshold()`](https://ssi-dk.github.io/aedseo/reference/estimate_disease_threshold.md)
+  : Estimate the disease specific threshold of your time series data
+
+- [`fit_growth_rate()`](https://ssi-dk.github.io/aedseo/reference/fit_growth_rate.md)
+  : Fit a growth rate model to time series cases.
+
+- [`fit_percentiles()`](https://ssi-dk.github.io/aedseo/reference/fit_percentiles.md)
+  : Fits weighted observations to distribution and returns percentiles
+
+- [`generate_seasonal_data()`](https://ssi-dk.github.io/aedseo/reference/generate_seasonal_data.md)
+  :
+
+  Generate Simulated Data of Seasonal Waves as a `tsd` object
+
+- [`historical_summary()`](https://ssi-dk.github.io/aedseo/reference/historical_summary.md)
+  : Summarises estimates like seasonal peak and onset from all available
+  seasons
+
+- [`plot(`*`<tsd>`*`)`](https://ssi-dk.github.io/aedseo/reference/plot.md)
+  [`plot(`*`<tsd_onset>`*`)`](https://ssi-dk.github.io/aedseo/reference/plot.md)
+  [`plot(`*`<tsd_onset_and_burden>`*`)`](https://ssi-dk.github.io/aedseo/reference/plot.md)
+  [`plot(`*`<tsd_growth_warning>`*`)`](https://ssi-dk.github.io/aedseo/reference/plot.md)
+  : Create a complete 'ggplot' appropriate to a particular data type
+
+- [`predict(`*`<tsd_onset>`*`)`](https://ssi-dk.github.io/aedseo/reference/predict.tsd_onset.md)
+  : Predict Cases for Future Time Steps
+
+- [`seasonal_burden_levels()`](https://ssi-dk.github.io/aedseo/reference/seasonal_burden_levels.md)
+  : Compute burden levels from seasonal time series observations of
+  current season.
+
+- [`seasonal_onset()`](https://ssi-dk.github.io/aedseo/reference/seasonal_onset.md)
+  : Automated and Early Detection of Seasonal Epidemic Onset
+
+- [`summary(`*`<tsd_burden_levels>`*`)`](https://ssi-dk.github.io/aedseo/reference/summary.tsd_burden_levels.md)
+  :
+
+  Summary method for `tsd_burden_levels` objects
+
+- [`summary(`*`<tsd_onset>`*`)`](https://ssi-dk.github.io/aedseo/reference/summary.tsd_onset.md)
+  :
+
+  Summary method for `tsd_onset` objects
+
+- [`to_time_series()`](https://ssi-dk.github.io/aedseo/reference/to_time_series.md)
+  :
+
+  Create a tibble-like `tsd` (time-series data) object from time series
+  data and corresponding dates.
+
+# Articles
+
+### All vignettes
+
+- [Automated Detection of Seasonal Epidemic Onset and Burden Levels in
+  R](https://ssi-dk.github.io/aedseo/articles/aedseo.md):
+- [Seasonal Burden
+  Levels](https://ssi-dk.github.io/aedseo/articles/burden_levels.md):
+- [Simulate Seasonal Epidemic
+  Waves](https://ssi-dk.github.io/aedseo/articles/generate_seasonal_wave.md):
+- [Multiple
+  waves](https://ssi-dk.github.io/aedseo/articles/multiple_waves.md):
+- [Seasonal Epidemic
+  Onset](https://ssi-dk.github.io/aedseo/articles/seasonal_onset.md):
