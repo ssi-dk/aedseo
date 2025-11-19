@@ -19,15 +19,16 @@ test_that("Test output of correct note for no seasons meeting input criteria", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
   # Generate seasonal data
-  tsd_data <- generate_seasonal_data(
-    years = 1,
-    start_date = as.Date("2021-01-01")
+  dates <- seq(
+    from = as.Date("2021-01-01"),
+    by   = "week",
+    length.out = 30
   )
 
-  tsd_data <- tsd_data |>
-    dplyr::mutate(
-      cases = 100
-    )
+  tsd_data <- to_time_series(
+    cases = rep(100, length(dates)),
+    time  = dates
+  )
 
   disease_threshold <- estimate_disease_threshold(tsd_data)
 
