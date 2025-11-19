@@ -1,0 +1,37 @@
+on:
+  push
+
+jobs:
+  docker:
+    name: CRAN ATLAS ubuntu
+    runs-on: ubuntu-latest
+    container:
+      image: rhub/atlas:latest
+
+    steps:
+      - name: Dump github context
+        run: echo "$GITHUB_CONTEXT"
+        shell: bash
+        env:
+         GITHUB_CONTEXT: ${{ toJson(github) }}
+
+      - name: Checkout repo
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Session info
+        run: |
+          sessionInfo()
+        shell: Rscript {0}
+
+      - name: Install R dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::devtools
+
+      - name: Test
+        run: |
+          devtools::test()
+        shell: Rscript {0}
