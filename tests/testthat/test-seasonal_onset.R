@@ -241,3 +241,28 @@ test_that("family works the same via name, generator or object", {
     family = stats::binomial,
   ))
 })
+
+test_that("Test that seasonal onset correctly creates NA for significant growth in output", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  # Generate seasonal data
+  tsd_data <- generate_seasonal_data(
+    years = 1,
+    start_date = as.Date("2021-01-01")
+  )
+
+  tsd_data <- tsd_data |>
+    dplyr::mutate(
+      cases = 100
+    )
+
+  onset_data <- seasonal_onset(
+    tsd = tsd_data,
+    season_start = 21,
+    season_end = 20,
+    only_current_season = FALSE,
+    disease_threshold = NA_real_
+  )
+
+  expect_true(all(is.na(onset_data$upper_growth_rate)))
+})
