@@ -272,6 +272,7 @@ autoplot.tsd_onset <- function(
 #' @aliases autoplot
 #'
 #' @examples
+#' \donttest{
 #' # Define `disease_threshold`
 #' disease_threshold <- 150
 #'
@@ -281,7 +282,7 @@ autoplot.tsd_onset <- function(
 #'   disease_threshold = disease_threshold
 #' )
 #' autoplot(tsd_onset_burden)
-#'
+#' }
 #' @rdname autoplot
 #' @method autoplot tsd_onset_and_burden
 #' @export

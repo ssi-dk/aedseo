@@ -165,6 +165,7 @@ time_series_with_onset <- seasonal_onset(
 )
 autoplot(time_series_with_onset)
 
+\donttest{ # The examples take > 5s - this is removed
 # Define `disease_threshold`
 disease_threshold <- 150
 
@@ -174,7 +175,7 @@ tsd_onset_burden <- combined_seasonal_output(
   disease_threshold = disease_threshold
 )
 autoplot(tsd_onset_burden)
-
+}
 # Create an `tsd_onset` object
 tsd_onset <- seasonal_onset(
   tsd = time_series,
