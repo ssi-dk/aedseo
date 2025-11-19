@@ -1,8 +1,10 @@
 on:
   push
 
+name: Run tests on Fedora with ATLAS BLAS/LAPACK
+
 jobs:
-  docker:
+  cran-atlas:
     name: CRAN ATLAS ubuntu
     runs-on: ubuntu-latest
     container:
