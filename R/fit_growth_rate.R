@@ -88,13 +88,26 @@ fit_growth_rate <- function(
       object = growth_fit,
       parm = "growth_rate",
       level = level
-    )
+    )$result
   )
+
+  # Ensuring that confint is also returned when `safe_confint` returns an error
+  if (length(growth_confint) < 2) {
+    growth_confint <- c(NA_real_, NA_real_)
+  } else if (fam_obj$family == "quasipoisson") {
+    # Returning NA as confidence interval if fit converted to extreme underdispersion
+    dispersion <- sum(
+      (growth_fit$weights * growth_fit$residuals^2)[growth_fit$weights > 0]
+    ) / growth_fit$df.residual
+    if (dispersion < growth_fit$control$epsilon) {
+      growth_confint <- c(NA_real_, NA_real_)
+    }
+  }
 
   # Collect the estimates
   ans <- c(
     stats::coef(object = growth_fit)["growth_rate"],
-    growth_confint$result
+    growth_confint
   )
 
   return(list(

@@ -1,5 +1,3 @@
-# aedseo (development version)
-
 # aedseo 1.0.0
 
 ## Deprecations

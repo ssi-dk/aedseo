@@ -18,7 +18,7 @@
 #' # set.seed(321)
 #' # Create and plot `tsd` object
 #' tsd_obj <- generate_seasonal_data(
-#'   years = 3,
+#'   years = 1,
 #'   phase = 1,
 #'   start_date = as.Date("2021-10-18")
 #' )
