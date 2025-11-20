@@ -1,3 +1,8 @@
+# aedseo 1.0.1
+
+## Fixes
+* `fit_growth_rate()` would incorrectly determine confidence intervals when using ATLAS BLAS/LAPACK (#89).
+
 # aedseo 1.0.0
 
 ## Deprecations
