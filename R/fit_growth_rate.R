@@ -95,9 +95,10 @@ fit_growth_rate <- function(
   if (length(growth_confint) < 2) {
     growth_confint <- c(NA_real_, NA_real_)
   } else if (fam_obj$family == "quasipoisson") {
-  # Returning NA as confidence interval if fit converted to extreme underdispersion
-    dispersion <- sum((growth_fit$weights * growth_fit$residuals^2)[growth_fit$weights >
-                0])/growth_fit$df.residual
+    # Returning NA as confidence interval if fit converted to extreme underdispersion
+    dispersion <- sum(
+      (growth_fit$weights * growth_fit$residuals^2)[growth_fit$weights > 0]
+    ) / growth_fit$df.residual
     if (dispersion < growth_fit$control$epsilon) {
       growth_confint <- c(NA_real_, NA_real_)
     }

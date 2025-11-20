@@ -264,14 +264,5 @@ test_that("Test that seasonal onset correctly creates NA for significant growth 
     disease_threshold = NA_real_
   )
 
-  # DEBUGGING
-  message("DEBUG: cases = ", paste(onset_data$cases, collapse = ", "))
-  message("DEBUG: average_observations_window = ", paste(onset_data$average_observations_window, collapse = ", "))
-  message("DEBUG: upper_growth_rate = ", paste(onset_data$upper_growth_rate, collapse = ", "))
-  message("DEBUG: growth_rate = ", paste(onset_data$growth_rate, collapse = ", "))
-  message("DEBUG: lower_growth_rate = ", paste(onset_data$lower_growth_rate, collapse = ", "))
-  message("DEBUG: growth_warning   = ", paste(onset_data$growth_warning, collapse = ", "))
-  message("DEBUG: converged   = ", paste(onset_data$converged, collapse = ", "))
-
   expect_true(all(is.na(onset_data$upper_growth_rate)))
 })

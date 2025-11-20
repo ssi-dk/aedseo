@@ -165,7 +165,7 @@ time_series_with_onset <- seasonal_onset(
 )
 autoplot(time_series_with_onset)
 
-\donttest{ # The examples take > 5s - this is removed
+\donttest{
 # Define `disease_threshold`
 disease_threshold <- 150
 
