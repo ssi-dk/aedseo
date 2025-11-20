@@ -1,3 +1,5 @@
+# aedseo 1.0.1
+
 # aedseo 1.0.0
 
 ## Deprecations
