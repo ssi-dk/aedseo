@@ -1,8 +1,8 @@
 Package: aedseo
 Title: Automated and Early Detection of Seasonal Epidemic Onset and Burden Levels
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: c(
-    person("Sofia Myrup", "Otero", , "smot@ssi.dk", role = c("aut"),
+    person("Sofia", "Myrup Otero", , "smot@ssi.dk", role = c("aut"),
             comment = c(ORCID = "0009-0006-4953-614X")),
     person("Kasper", "Schou Telkamp", ,"kasper.telkamp@gmail.com", role = c("aut"),
             comment = c(ORCID = "0009-0001-5126-0190")),
@@ -28,7 +28,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 URL: https://github.com/ssi-dk/aedseo, https://ssi-dk.github.io/aedseo/
 BugReports: https://github.com/ssi-dk/aedseo/issues
-Depends: 
+Depends:
     R (>= 4.2.0)
 Suggests:
     grid,
