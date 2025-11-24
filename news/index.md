@@ -1,6 +1,18 @@
 # Changelog
 
+## aedseo 1.0.1
+
+CRAN release: 2025-11-20
+
+### Fixes
+
+- [`fit_growth_rate()`](https://ssi-dk.github.io/aedseo/reference/fit_growth_rate.md)
+  would incorrectly determine confidence intervals when using ATLAS
+  BLAS/LAPACK ([\#89](https://github.com/ssi-dk/aedseo/issues/89)).
+
 ## aedseo 1.0.0
+
+CRAN release: 2025-11-17
 
 ### Deprecations
 
