@@ -182,6 +182,10 @@ estimate_disease_threshold(tsd_data)
 #> #   average_observations_warning <lgl>, seasonal_onset_alarm <lgl>,
 #> #   skipped_window <lgl>, converged <lgl>
 #> 
+#> attr(,"time_interval")
+#> [1] "weeks"
+#> attr(,"incidence_denominator")
+#> [1] NA
 #> attr(,"class")
-#> [1] "tsd_disease_threshold"
+#> [1] "tsd_disease_threshold" "list"                 
 ```

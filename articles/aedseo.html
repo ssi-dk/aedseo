@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">aedseo</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Automated Detection of Seasonal Epidemic Onset and Burden Levels in R</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ssi-dk/aedseo/blob/v1.0.1/vignettes/aedseo.Rmd" class="external-link"><code>vignettes/aedseo.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ssi-dk/aedseo/blob/v1.1.0/vignettes/aedseo.Rmd" class="external-link"><code>vignettes/aedseo.Rmd</code></a></small>
       <div class="d-none name"><code>aedseo.Rmd</code></div>
     </div>
 
@@ -116,7 +116,7 @@ representing the underlying mean trend over five years of weekly
 data.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">tsd_data</span><span class="op">)</span></span></code></pre></div>
-<p><img src="aedseo_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="2187.5"></p>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="2187.5"></p>
 </div>
 <div class="section level3">
 <h3 id="determining-season">Determining season<a class="anchor" aria-label="anchor" href="#determining-season"></a>
@@ -162,10 +162,15 @@ non-significant between two significant sequences.</li>
 <li>A decay factor of 0.8 such that the influence of older seasons
 diminishes exponentially.</li>
 </ul>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dth</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_disease_threshold.html">estimate_disease_threshold</a></span><span class="op">(</span><span class="va">tsd_data</span><span class="op">)</span></span>
+<span><span class="va">dth</span><span class="op">$</span><span class="va">disease_threshold</span></span>
+<span><span class="co">#&gt; [1] 28.90435</span></span></code></pre></div>
 <p>The disease-specific threshold can also be estimated analytically. In
-this example it is done with the four available previous seasons. The
-<code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> function can be used for this purpose,
-without providing the disease-specific threshold. Then the
+this example it is done with the four available previous seasons to show
+how the algorithm works in practice. The <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code>
+function can be used for this purpose, without providing the
+disease-specific threshold. Then the
 <code><a href="../reference/consecutive_growth_warnings.html">consecutive_growth_warnings()</a></code> function can be used to
 create groups with subsequent significant weeks. The data can then be
 analysed, else you can use plot/autoplot to visualise the sequences of
@@ -173,7 +178,7 @@ significant weeks for each season.</p>
 <p>The <code>average_observation_window</code> variable represents the
 average of cases over a five-week window, which is used to define the
 disease-specific threshold.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tsd_onset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/seasonal_onset.html">seasonal_onset</a></span><span class="op">(</span></span>
 <span>  tsd <span class="op">=</span> <span class="va">tsd_data</span>,</span>
 <span>  k <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -194,14 +199,14 @@ disease-specific threshold.</p>
 <span>  skip_current_season <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span></span>
-<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">25</span>, linetype <span class="op">=</span> <span class="st">"Threshold"</span><span class="op">)</span>,</span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">22</span>, linetype <span class="op">=</span> <span class="st">"Threshold"</span><span class="op">)</span>,</span>
 <span>    color <span class="op">=</span> <span class="st">"black"</span>, linewidth <span class="op">=</span> <span class="fl">0.6</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_linetype_manual</a></span><span class="op">(</span></span>
 <span>    name   <span class="op">=</span> <span class="st">""</span>,</span>
 <span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Threshold"</span> <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="aedseo_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="2187.5"></p>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="2187.5"></p>
 <p>From the plot above, we observe the length of periods (weeks) with
 subsequent significant growth rates (y-axis). The season with the
 longest consecutive period of growth is <em>2021/2022</em>, lasting 14
@@ -210,14 +215,14 @@ the <em>2024/2025</em> season, it’s important to prioritize the most
 recent seasons. The <em>2023/2024</em> season shows two periods of
 significant growth, with the first being the longest and coinciding
 closely in timing with the consecutive growth period observed in
-<em>2022/2023</em>. We select a disease-specific threshold of 25 to
+<em>2022/2023</em>. We select a disease-specific threshold of 22 to
 ensure early detection of the seasonal onset while minimizing false
 positives.</p>
 <p>In other words, a season onset is declared when the average case
-count over five weeks surpasses 25 and is accompanied by a significantly
+count over five weeks surpasses 22 and is accompanied by a significantly
 positive growth rate.</p>
 <p>Inspect the exact conditions around each detected season start</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">consecutive_gr_warn</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">significant_counter</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">season</span> <span class="op">!=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">consecutive_gr_warn</span><span class="op">$</span><span class="va">season</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -236,12 +241,16 @@ positive growth rate.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2023/2024 2023-W41              19.6</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2023/2024 2023-W48             128.</span></span></code></pre></div>
 <p>By inspecting the output from the above code, the disease-specific
-threshold is established at <code>25</code> cases.</p>
+threshold is established at <code>22</code> cases as we see that we have
+recent seasons with growth starting that is definitely below 28.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="applying-the-main-algorithm">Applying the main algorithm<a class="anchor" aria-label="anchor" href="#applying-the-main-algorithm"></a>
 </h2>
+<div class="section level3">
+<h3 id="seasonal-onset-and-burden-levels">Seasonal onset and burden levels<a class="anchor" aria-label="anchor" href="#seasonal-onset-and-burden-levels"></a>
+</h3>
 <p>The primary function of the <code>aedseo</code> package is the
 <code><a href="../reference/combined_seasonal_output.html">combined_seasonal_output()</a></code> which integrates the
 <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> and <code><a href="../reference/seasonal_burden_levels.html">seasonal_burden_levels()</a></code>
@@ -249,19 +258,50 @@ functions to deliver a comprehensive seasonal analysis. Detailed
 information about each function and their respective arguments can be
 found in the <code><a href="../articles/seasonal_onset.html">vignette("seasonal_onset")</a></code> and
 <code><a href="../articles/burden_levels.html">vignette("burden_levels")</a></code>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seasonal_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/combined_seasonal_output.html">combined_seasonal_output</a></span><span class="op">(</span></span>
 <span>  tsd <span class="op">=</span> <span class="va">tsd_data</span>,</span>
-<span>  disease_threshold <span class="op">=</span> <span class="fl">25</span>,</span>
+<span>  disease_threshold <span class="op">=</span> <span class="fl">22</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"intensity_levels"</span>,</span>
 <span>  family <span class="op">=</span> <span class="st">"quasipoisson"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The default function estimates onset and burden levels for the
 current season. If it is desired to see calculations for all previous
 seasons, the <code>only_current_season</code> argument should be set to
-<code>FALSE</code>. <em>Note: </em>Burden levels can not be estimated
-for the first season and needs at least two seasons of data as the
-estimations are based on data from previous seasons.\</p>
+<code>FALSE</code>.</p>
+<p><em>Note: </em>Burden levels can not be estimated for the first
+season and needs at least two seasons of data as the estimations are
+based on data from previous seasons.\</p>
+</div>
+<div class="section level3">
+<h3 id="seasonal-offset-and-multiple-waves">Seasonal offset and multiple waves<a class="anchor" aria-label="anchor" href="#seasonal-offset-and-multiple-waves"></a>
+</h3>
+<p>The <code><a href="../reference/combined_seasonal_output.html">combined_seasonal_output()</a></code> function adds a logical
+<code>seasonal_offset</code> column to the output. It combines the onset
+detection (<code>tsd_onset</code>) with the estimated burden breakpoints
+(<code>tsd_burden_levels</code>) to flag the first time point within a
+season where the season is considered to have ended (i.e., when activity
+has sufficiently declined after the seasonal onset).</p>
+<p>The <code>burden_level_decrease</code> argument specifies the burden
+breakpoint at which activity must be sufficiently low for an offset to
+be declared. The default is <code>"low"</code>, which is a conservative
+choice: once activity has dropped below the <code>"low"</code>
+breakpoint, a subsequent increase is more likely to reflect a new wave
+rather than continued activity from the same wave.</p>
+<p>The <code>steps_with_decrease</code> argument specifies how many
+consecutive time steps the observations must decrease while remaining
+below the selected burden level before <code>seasonal_offset</code> is
+set to <code>TRUE</code>. This is especially useful when the data are
+noisy, for example due to fluctuations in testing.</p>
+<p><em>Note:</em> If <code>multiple_waves = TRUE</code>, the output
+additionally includes wave-level variables (e.g.,
+<code>wave_start/_end</code> flags) to allow multiple waves within the
+same season to be identified. See
+<code><a href="../articles/multiple_waves.html">vignette("multiple_waves")</a></code> for details.</p>
+</div>
+<div class="section level3">
+<h3 id="summary-of-seasonal-onset-and-burden-levels">Summary of seasonal onset and burden levels<a class="anchor" aria-label="anchor" href="#summary-of-seasonal-onset-and-burden-levels"></a>
+</h3>
 <p>The <code>aedseo</code> package implements S3 methods including the
 <code><a href="../reference/plot.html">plot()</a></code>, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
 functions specifically designed for objects of the <code>aedseo</code>
@@ -270,20 +310,23 @@ package. <code><a href="https://rdrr.io/r/stats/predict.html" class="external-li
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> S3 method with <code>tsd_onset</code> and
 <code>tsd_burden_level</code> objects is shown here.</p>
 <p>Seasonal onset output can be extracted by:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">seasonal_output</span><span class="op">$</span><span class="va">onset_output</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Summary of tsd_onset object with disease_threshold</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;       Model output:</span></span>
-<span><span class="co">#&gt;         Reference time point (first seasonal onset alarm in season): 2024-11-03</span></span>
-<span><span class="co">#&gt;         Observations at reference time point: 131</span></span>
-<span><span class="co">#&gt;         Average observations (in k window) at reference time point: 65.8</span></span>
+<span><span class="co">#&gt;         Reference time point (first seasonal onset alarm in season): 2024-10-06</span></span>
+<span><span class="co">#&gt;         Observations at reference time point: 48</span></span>
+<span><span class="co">#&gt;         Average observations (in k window) at reference time point: 24.6</span></span>
 <span><span class="co">#&gt;         Growth rate estimate at reference time point:</span></span>
 <span><span class="co">#&gt;           Estimate   Lower (2.5%)   Upper (97.5%)</span></span>
-<span><span class="co">#&gt;             0.312     0.517          0.117</span></span>
+<span><span class="co">#&gt;             0.584     0.902          0.303</span></span>
+<span><span class="co">#&gt;         Reference-offset time point (first seasonal offset alarm in season): 2025-04-06</span></span>
+<span><span class="co">#&gt;       Observations at reference-offset time point: 24</span></span>
+<span><span class="co">#&gt;       Average observations (in k window) at reference-offset time point: 70.8 </span></span>
 <span><span class="co">#&gt;         Total number of growth warnings in the series: 11</span></span>
 <span><span class="co">#&gt;         Latest growth warning: 2024-12-22</span></span>
-<span><span class="co">#&gt;         Latest average observations warning: 2025-01-26</span></span>
+<span><span class="co">#&gt;         Latest average observations warning: 2025-04-27</span></span>
 <span><span class="co">#&gt;         Latest seasonal onset alarm: 2024-12-22</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;       The season for reference time point:</span></span>
@@ -293,26 +336,27 @@ package. <code><a href="https://rdrr.io/r/stats/predict.html" class="external-li
 <span><span class="co">#&gt;         Called using distributional family: quasipoisson</span></span>
 <span><span class="co">#&gt;         Window size: 5</span></span>
 <span><span class="co">#&gt;         The time interval for the observations: weeks</span></span>
-<span><span class="co">#&gt;         Disease specific threshold: 25</span></span>
+<span><span class="co">#&gt;         Disease specific threshold: 22</span></span>
 <span><span class="co">#&gt;         Incidence denominator: NA</span></span></code></pre></div>
 <p>Seasonal burden output can be extracted by:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">seasonal_output</span><span class="op">$</span><span class="va">burden_output</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Summary of tsd_burden_levels object</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Breakpoint estimates:</span></span>
-<span><span class="co">#&gt;       very low : 25.000000</span></span>
-<span><span class="co">#&gt;       low: 61.188227</span></span>
-<span><span class="co">#&gt;       medium: 149.759965</span></span>
+<span><span class="co">#&gt;       very low : 22.000000</span></span>
+<span><span class="co">#&gt;       low: 56.189649</span></span>
+<span><span class="co">#&gt;       medium: 143.512574</span></span>
 <span><span class="co">#&gt;       high: 366.541871</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     The season for the burden levels:</span></span>
 <span><span class="co">#&gt;       2024/2025</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Model settings:</span></span>
-<span><span class="co">#&gt;       Disease specific threshold: 25</span></span>
+<span><span class="co">#&gt;       Disease specific threshold: 22</span></span>
 <span><span class="co">#&gt;       Incidence denominator: NA</span></span>
 <span><span class="co">#&gt;       Called using distributional family: lnorm</span></span></code></pre></div>
+</div>
 <div class="section level3">
 <h3 id="plot-the-comprehensive-seasonal-analysis">Plot the comprehensive seasonal analysis<a class="anchor" aria-label="anchor" href="#plot-the-comprehensive-seasonal-analysis"></a>
 </h3>
@@ -320,9 +364,9 @@ package. <code><a href="https://rdrr.io/r/stats/predict.html" class="external-li
 <code>tsd_combined_seasonal_output</code> objects allows you to get a
 complete visualisation of the <code><a href="../reference/combined_seasonal_output.html">combined_seasonal_output()</a></code>
 analysis of the current season.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Adjust y_lower_bound dynamically to remove noisy small values</span></span>
-<span><span class="va">disease_threshold</span> <span class="op">&lt;-</span> <span class="fl">25</span></span>
+<span><span class="va">disease_threshold</span> <span class="op">&lt;-</span> <span class="fl">22</span></span>
 <span><span class="va">y_lower_bound</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">disease_threshold</span> <span class="op">&lt;</span> <span class="fl">10</span>, <span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span></span>
@@ -330,14 +374,19 @@ analysis of the current season.</p>
 <span>  y_lower_bound <span class="op">=</span> <span class="va">y_lower_bound</span>,</span>
 <span>  time_interval <span class="op">=</span> <span class="st">"3 weeks"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="aedseo_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="2187.5"></p>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="2187.5"></p>
 <p>Using the <code>intensity_levels</code> method to define burden
 levels, the seasonal onset is likely to fall within the <code>low</code>
 or <code>medium</code> category. This is because the
 <code>very low</code> breakpoint is the disease-specific threshold, and
 season onset is only identified if the five-week average of the
 observations exceed this threshold along with a significant positive
-growth rate.</p>
+growth rate. In this example the seasonal onset falls on week 40 where
+we can also see a steep increase before the onset. The seasonal offset
+is used as default with <code>burden_level_decrease = "low"</code> and
+<code>steps_with_decrease = 2</code> and falls on week 14 where it has
+passed the <code>"low"</code> breakpoint and falls within the
+<code>"low"</code> intensity level.</p>
 </div>
 <div class="section level3">
 <h3 id="investigate-historical-estimates">Investigate historical estimates<a class="anchor" aria-label="anchor" href="#investigate-historical-estimates"></a>
@@ -352,11 +401,11 @@ other factors.</p>
 <p>If the analysis indicates notable deviations from past patterns, it
 is advisable to revisit the method used to define the disease-specific
 threshold, as it might need some adjustment.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get `tsd_onset` object</span></span>
 <span><span class="va">tsd_onset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/seasonal_onset.html">seasonal_onset</a></span><span class="op">(</span></span>
 <span>  tsd <span class="op">=</span> <span class="va">tsd_data</span>,</span>
-<span>  disease_threshold <span class="op">=</span> <span class="fl">25</span>,</span>
+<span>  disease_threshold <span class="op">=</span> <span class="fl">22</span>,</span>
 <span>  family <span class="op">=</span> <span class="st">"quasipoisson"</span>,</span>
 <span>  season_start <span class="op">=</span> <span class="fl">21</span>,</span>
 <span>  season_end <span class="op">=</span> <span class="fl">20</span>,</span>
@@ -368,10 +417,10 @@ threshold, as it might need some adjustment.</p>
 <span><span class="co">#&gt;   season    onset_time peak_time  peak_intensity lower_growth_rate_onset</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2020/2021 2020-11-15 2021-01-10            275                 0.006<span style="text-decoration: underline;">81</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2021/2022 2021-10-24 2022-01-09            292                 0.155  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2021/2022 2021-10-17 2022-01-09            292                 0.272  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2022/2023 2022-10-23 2022-12-25            287                 0.412  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2023/2024 2023-10-22 2024-01-07            377                 0.501  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2024/2025 2024-11-03 2025-01-12            331                 0.117  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2024/2025 2024-10-06 2025-01-12            331                 0.303  </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: growth_rate_onset &lt;dbl&gt;, upper_growth_rate_onset &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   onset_week &lt;dbl&gt;, peak_week &lt;dbl&gt;, weeks_to_peak &lt;dbl&gt;</span></span></span></code></pre></div>
 </div>
@@ -382,16 +431,16 @@ threshold, as it might need some adjustment.</p>
 <p>In the <code>tsd</code> object from previous example we add that the
 population is 1.000.000 and increases with 1000 each week. The default
 incidence denominator (100.000) is used.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tsd_incidence</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/to_time_series.html">to_time_series</a></span><span class="op">(</span></span>
 <span>  cases <span class="op">=</span> <span class="va">tsd_data</span><span class="op">$</span><span class="va">cases</span>,</span>
 <span>  time <span class="op">=</span> <span class="va">tsd_data</span><span class="op">$</span><span class="va">time</span>,</span>
 <span>  population <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1000000</span>, by <span class="op">=</span> <span class="fl">1000</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">tsd_data</span><span class="op">$</span><span class="va">cases</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Determine the disease-specific threshold:
-<img src="aedseo_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" width="2187.5">
-Run the main algorithm:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<img src="aedseo_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="2187.5"></p>
+<p>Run the main algorithm:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seasonal_output_incidence</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/combined_seasonal_output.html">combined_seasonal_output</a></span><span class="op">(</span></span>
 <span>  tsd <span class="op">=</span> <span class="va">tsd_incidence</span>,</span>
 <span>  disease_threshold <span class="op">=</span> <span class="fl">2</span>,</span>
@@ -403,13 +452,13 @@ this is adjusted for in the growth rate estimations in
 <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> by adding it as offset to the model.</p>
 <p>Plot results for the current season with cases pr. 100.000
 (incidence):</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="va">seasonal_output_incidence</span>,</span>
 <span>  y_lower_bound <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  time_interval <span class="op">=</span> <span class="st">"3 weeks"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="aedseo_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" width="2187.5"></p>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="2187.5"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

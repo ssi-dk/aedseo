@@ -6,29 +6,29 @@ library(aedseo)
 
 ## Methodology
 
-This method uses the seasonal onset and burden level methodology to
-estimate multiple waves for diseases that do not follow a one peak per
-season pattern. The burden levels are used to define when the first wave
-has ended by dropping below the desired intensity breakpoint, whereafter
-a new wave can start. The seasonal onset method is used to determine
-each wave onset - in the same way as for the single seasonal onset.
+Some diseases may exhibit multiple epidemic waves within a season rather
+than a single peak. This method extends the seasonal onset and burden
+level framework to identify multiple waves.
+
+Burden levels are used to determine when a wave has ended: after a wave
+onset, activity must decrease below a chosen burden breakpoint for a
+specified number of consecutive time steps. Once a wave has ended, a new
+wave may start if the seasonal onset criteria are met again.
 
 The
 [`combined_seasonal_output()`](https://ssi-dk.github.io/aedseo/reference/combined_seasonal_output.md)
-function implements this functionality by defining the following
-variables:
+function implements this functionality via:
 
-- $\text{multiple\_waves}$: A logical. Should the output contain
-  multiple waves?
-- $\text{burden\_level\_decrease}$: A character string specifying the
-  burden breakpoint the observations should decrease below before a new
-  increase in observations can call a new wave onset if seasonal onset
-  criteria are met. Choose between; “very low”, “low”, “medium”, or
-  “high”.
-- $\text{steps\_with\_decrease}$: An integer specifying how many time
-  steps (days, weeks, months) the decrease should be observed under the
-  `burden_level_decrease` before starting the search for a new wave
-  onset.
+- $\text{multiple\_waves}$: Logical. Should multiple waves be estimated
+  within each season?
+- $\text{burden\_level\_decrease}$: Character. The burden breakpoint
+  that observations must fall below before a subsequent increase can be
+  interpreted as the start of a new wave (provided onset criteria are
+  met). Choose one of `"very low"`, `"low"`, `"medium"`, or `"high"`.
+- $\text{steps\_with\_decrease}$: Integer. The number of consecutive
+  time steps (days, weeks, months) with decreasing observations while
+  below `burden_level_decrease` required to declare a wave end and start
+  searching for the next wave onset.
 
 ## Applying the multiple waves algorithm
 
@@ -67,6 +67,8 @@ Then we estimate the disease-specific threshold.
 
 ``` r
 disease_threshold <- estimate_disease_threshold(tsd_data)
+disease_threshold$disease_threshold
+#> [1] 30.37079
 ```
 
 ### Estimate multiple waves
@@ -89,4 +91,5 @@ multiple_waves <- combined_seasonal_output(
 ### Plot the comprehensive seasonal analysis with multiple waves
 
 ![](multiple_waves_files/figure-html/unnamed-chunk-5-1.png) From the
-plot we can observe that season 2023/2024 has five waves.
+plot we can observe that season 2023/2024 has five starting waves and
+four ending waves.

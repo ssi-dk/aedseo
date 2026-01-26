@@ -1,5 +1,18 @@
 # Changelog
 
+## aedseo 1.1.0
+
+CRAN release: 2026-01-23
+
+### Features
+
+- [`combined_seasonal_output()`](https://ssi-dk.github.io/aedseo/reference/combined_seasonal_output.md)
+  now includes a `seasonal_offset` logical variables in the output that
+  estimates when the season has ended after the first `seasonal_onset`.
+  It can be controlled by the inputs: `burden_level_decrease` and
+  `steps_with_decrease`
+  ([\#93](https://github.com/ssi-dk/aedseo/issues/93)).
+
 ## aedseo 1.0.1
 
 CRAN release: 2025-11-20

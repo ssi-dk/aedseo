@@ -21,7 +21,7 @@ series data in a `tsd`, `tsd_onset`, `tsd_onset_and_burden` or
 
 - Generates a line connecting the observations in the current season,
   along with colored regions representing different burdens levels and a
-  vertical line indicating outbreak start. The y-axis is scaled with
+  vertical line indicating seasonal onset. The y-axis is scaled with
   [`ggplot2::scale_y_log10`](https://ggplot2.tidyverse.org/reference/scale_continuous.html)
   to give better visualisation of the burden levels.
 
@@ -59,7 +59,7 @@ autoplot(
   object,
   y_lower_bound = 5,
   factor_to_max = 2,
-  disease_color = "royalblue",
+  disease_color = "#009DD1",
   season_start = 21,
   season_end = season_start - 1,
   time_interval_step = "3 weeks",
@@ -68,8 +68,11 @@ autoplot(
   text_family = "sans",
   line_color = "black",
   line_type = "solid",
-  vline_color = "red",
-  vline_linetype = "dashed",
+  vline_color_onset = "#bf212f",
+  vline_linetype_onset = "dashed",
+  vline_color_offset = "#006f3c",
+  vline_linetype_offset = "dotted",
+  line_width = 1,
   y_scale_labels = scales::label_comma(big.mark = ".", decimal.mark = ","),
   theme_custom = ggplot2::theme_bw(),
   legend_position = "right",
@@ -167,13 +170,21 @@ autoplot(
 
   A character specifying the line type for observation line.
 
-- vline_color:
+- vline_color_onset:
 
-  A character specifying the color of the vertical outbreak start lines.
+  A character specifying the color of the vertical seasonal onset line.
 
-- vline_linetype:
+- vline_linetype_onset:
 
-  A character specifying the line type for outbreak start lines.
+  A character specifying the line type for the seasonal onset line.
+
+- vline_color_offset:
+
+  A character specifying the color of the vertical seasonal offset line.
+
+- vline_linetype_offset:
+
+  A character specifying the line type for the seasonal offset line.
 
 - y_scale_labels:
 

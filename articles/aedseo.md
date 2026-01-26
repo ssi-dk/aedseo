@@ -95,8 +95,15 @@ threshold. As default it uses;
 - A decay factor of 0.8 such that the influence of older seasons
   diminishes exponentially.
 
+``` r
+dth <- estimate_disease_threshold(tsd_data)
+dth$disease_threshold
+#> [1] 28.90435
+```
+
 The disease-specific threshold can also be estimated analytically. In
-this example it is done with the four available previous seasons. The
+this example it is done with the four available previous seasons to show
+how the algorithm works in practice. The
 [`seasonal_onset()`](https://ssi-dk.github.io/aedseo/reference/seasonal_onset.md)
 function can be used for this purpose, without providing the
 disease-specific threshold. Then the
@@ -130,7 +137,7 @@ autoplot(
   skip_current_season = TRUE
 ) +
   ggplot2::geom_vline(
-    ggplot2::aes(xintercept = 25, linetype = "Threshold"),
+    ggplot2::aes(xintercept = 22, linetype = "Threshold"),
     color = "black", linewidth = 0.6
   ) +
   ggplot2::scale_linetype_manual(
@@ -139,7 +146,7 @@ autoplot(
   )
 ```
 
-![](aedseo_files/figure-html/unnamed-chunk-4-1.png)
+![](aedseo_files/figure-html/unnamed-chunk-5-1.png)
 
 From the plot above, we observe the length of periods (weeks) with
 subsequent significant growth rates (y-axis). The season with the
@@ -149,11 +156,11 @@ However, since we are determining a threshold specifically for the
 seasons. The *2023/2024* season shows two periods of significant growth,
 with the first being the longest and coinciding closely in timing with
 the consecutive growth period observed in *2022/2023*. We select a
-disease-specific threshold of 25 to ensure early detection of the
+disease-specific threshold of 22 to ensure early detection of the
 seasonal onset while minimizing false positives.
 
 In other words, a season onset is declared when the average case count
-over five weeks surpasses 25 and is accompanied by a significantly
+over five weeks surpasses 22 and is accompanied by a significantly
 positive growth rate.
 
 Inspect the exact conditions around each detected season start
@@ -179,9 +186,12 @@ consecutive_gr_warn |>
 ```
 
 By inspecting the output from the above code, the disease-specific
-threshold is established at `25` cases.
+threshold is established at `22` cases as we see that we have recent
+seasons with growth starting that is definitely below 28.
 
 ## Applying the main algorithm
+
+### Seasonal onset and burden levels
 
 The primary function of the `aedseo` package is the
 [`combined_seasonal_output()`](https://ssi-dk.github.io/aedseo/reference/combined_seasonal_output.md)
@@ -199,7 +209,7 @@ and
 ``` r
 seasonal_output <- combined_seasonal_output(
   tsd = tsd_data,
-  disease_threshold = 25,
+  disease_threshold = 22,
   method = "intensity_levels",
   family = "quasipoisson"
 )
@@ -207,10 +217,42 @@ seasonal_output <- combined_seasonal_output(
 
 The default function estimates onset and burden levels for the current
 season. If it is desired to see calculations for all previous seasons,
-the `only_current_season` argument should be set to `FALSE`. *Note:*
-Burden levels can not be estimated for the first season and needs at
-least two seasons of data as the estimations are based on data from
-previous seasons.\\
+the `only_current_season` argument should be set to `FALSE`.
+
+*Note:* Burden levels can not be estimated for the first season and
+needs at least two seasons of data as the estimations are based on data
+from previous seasons.\\
+
+### Seasonal offset and multiple waves
+
+The
+[`combined_seasonal_output()`](https://ssi-dk.github.io/aedseo/reference/combined_seasonal_output.md)
+function adds a logical `seasonal_offset` column to the output. It
+combines the onset detection (`tsd_onset`) with the estimated burden
+breakpoints (`tsd_burden_levels`) to flag the first time point within a
+season where the season is considered to have ended (i.e., when activity
+has sufficiently declined after the seasonal onset).
+
+The `burden_level_decrease` argument specifies the burden breakpoint at
+which activity must be sufficiently low for an offset to be declared.
+The default is `"low"`, which is a conservative choice: once activity
+has dropped below the `"low"` breakpoint, a subsequent increase is more
+likely to reflect a new wave rather than continued activity from the
+same wave.
+
+The `steps_with_decrease` argument specifies how many consecutive time
+steps the observations must decrease while remaining below the selected
+burden level before `seasonal_offset` is set to `TRUE`. This is
+especially useful when the data are noisy, for example due to
+fluctuations in testing.
+
+*Note:* If `multiple_waves = TRUE`, the output additionally includes
+wave-level variables (e.g., `wave_start/_end` flags) to allow multiple
+waves within the same season to be identified. See
+[`vignette("multiple_waves")`](https://ssi-dk.github.io/aedseo/articles/multiple_waves.md)
+for details.
+
+### Summary of seasonal onset and burden levels
 
 The `aedseo` package implements S3 methods including the
 [`plot()`](https://ssi-dk.github.io/aedseo/reference/plot.md),
@@ -229,15 +271,18 @@ summary(seasonal_output$onset_output)
 #> Summary of tsd_onset object with disease_threshold
 #> 
 #>       Model output:
-#>         Reference time point (first seasonal onset alarm in season): 2024-11-03
-#>         Observations at reference time point: 131
-#>         Average observations (in k window) at reference time point: 65.8
+#>         Reference time point (first seasonal onset alarm in season): 2024-10-06
+#>         Observations at reference time point: 48
+#>         Average observations (in k window) at reference time point: 24.6
 #>         Growth rate estimate at reference time point:
 #>           Estimate   Lower (2.5%)   Upper (97.5%)
-#>             0.312     0.517          0.117
+#>             0.584     0.902          0.303
+#>         Reference-offset time point (first seasonal offset alarm in season): 2025-04-06
+#>       Observations at reference-offset time point: 24
+#>       Average observations (in k window) at reference-offset time point: 70.8 
 #>         Total number of growth warnings in the series: 11
 #>         Latest growth warning: 2024-12-22
-#>         Latest average observations warning: 2025-01-26
+#>         Latest average observations warning: 2025-04-27
 #>         Latest seasonal onset alarm: 2024-12-22
 #> 
 #>       The season for reference time point:
@@ -247,7 +292,7 @@ summary(seasonal_output$onset_output)
 #>         Called using distributional family: quasipoisson
 #>         Window size: 5
 #>         The time interval for the observations: weeks
-#>         Disease specific threshold: 25
+#>         Disease specific threshold: 22
 #>         Incidence denominator: NA
 ```
 
@@ -258,16 +303,16 @@ summary(seasonal_output$burden_output)
 #> Summary of tsd_burden_levels object
 #> 
 #>     Breakpoint estimates:
-#>       very low : 25.000000
-#>       low: 61.188227
-#>       medium: 149.759965
+#>       very low : 22.000000
+#>       low: 56.189649
+#>       medium: 143.512574
 #>       high: 366.541871
 #> 
 #>     The season for the burden levels:
 #>       2024/2025
 #> 
 #>     Model settings:
-#>       Disease specific threshold: 25
+#>       Disease specific threshold: 22
 #>       Incidence denominator: NA
 #>       Called using distributional family: lnorm
 ```
@@ -282,7 +327,7 @@ analysis of the current season.
 
 ``` r
 # Adjust y_lower_bound dynamically to remove noisy small values
-disease_threshold <- 25
+disease_threshold <- 22
 y_lower_bound <- ifelse(disease_threshold < 10, 1, 5)
 
 plot(
@@ -292,14 +337,18 @@ plot(
 )
 ```
 
-![](aedseo_files/figure-html/unnamed-chunk-9-1.png)
+![](aedseo_files/figure-html/unnamed-chunk-10-1.png)
 
 Using the `intensity_levels` method to define burden levels, the
 seasonal onset is likely to fall within the `low` or `medium` category.
 This is because the `very low` breakpoint is the disease-specific
 threshold, and season onset is only identified if the five-week average
 of the observations exceed this threshold along with a significant
-positive growth rate.
+positive growth rate. In this example the seasonal onset falls on week
+40 where we can also see a steep increase before the onset. The seasonal
+offset is used as default with `burden_level_decrease = "low"` and
+`steps_with_decrease = 2` and falls on week 14 where it has passed the
+`"low"` breakpoint and falls within the `"low"` intensity level.
 
 ### Investigate historical estimates
 
@@ -320,7 +369,7 @@ threshold, as it might need some adjustment.
 # Get `tsd_onset` object
 tsd_onset <- seasonal_onset(
   tsd = tsd_data,
-  disease_threshold = 25,
+  disease_threshold = 22,
   family = "quasipoisson",
   season_start = 21,
   season_end = 20,
@@ -332,10 +381,10 @@ historical_summary(tsd_onset)
 #>   season    onset_time peak_time  peak_intensity lower_growth_rate_onset
 #>   <chr>     <date>     <date>              <dbl>                   <dbl>
 #> 1 2020/2021 2020-11-15 2021-01-10            275                 0.00681
-#> 2 2021/2022 2021-10-24 2022-01-09            292                 0.155  
+#> 2 2021/2022 2021-10-17 2022-01-09            292                 0.272  
 #> 3 2022/2023 2022-10-23 2022-12-25            287                 0.412  
 #> 4 2023/2024 2023-10-22 2024-01-07            377                 0.501  
-#> 5 2024/2025 2024-11-03 2025-01-12            331                 0.117  
+#> 5 2024/2025 2024-10-06 2025-01-12            331                 0.303  
 #> # ℹ 5 more variables: growth_rate_onset <dbl>, upper_growth_rate_onset <dbl>,
 #> #   onset_week <dbl>, peak_week <dbl>, weeks_to_peak <dbl>
 ```
@@ -355,8 +404,9 @@ tsd_incidence <- to_time_series(
 ```
 
 Determine the disease-specific threshold:
-![](aedseo_files/figure-html/unnamed-chunk-12-1.png) Run the main
-algorithm:
+![](aedseo_files/figure-html/unnamed-chunk-13-1.png)
+
+Run the main algorithm:
 
 ``` r
 seasonal_output_incidence <- combined_seasonal_output(
@@ -382,4 +432,4 @@ plot(
 )
 ```
 
-![](aedseo_files/figure-html/unnamed-chunk-14-1.png)
+![](aedseo_files/figure-html/unnamed-chunk-15-1.png)

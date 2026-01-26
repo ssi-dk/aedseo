@@ -52,6 +52,7 @@ summary(tsd_onset)
 #>         Growth rate estimate at reference time point:
 #>           Estimate   Lower (2.5%)   Upper (97.5%)
 #>             0.107     0.114          0.101
+#>         
 #>         Total number of growth warnings in the series: 25
 #>         Latest growth warning: 2024-05-15
 #>         Latest average observations warning: 2023-11-15
@@ -74,6 +75,7 @@ summary(tsd_onset)
 #>         Growth rate estimate at reference time point:
 #>           Estimate   Lower (2.5%)   Upper (97.5%)
 #>             0.107     0.114          0.101
+#>         
 #>         Total number of growth warnings in the series: 25
 #>         Latest growth warning: 2024-05-15
 #>         Latest average observations warning: 2023-11-15

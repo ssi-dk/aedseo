@@ -137,7 +137,7 @@ seasonal_onset(
 )
 #> # A tibble: 4 × 15
 #>   reference_time cases season population incidence growth_rate lower_growth_rate
-#>   <date>         <dbl> <chr>  <lgl>      <lgl>           <dbl>             <dbl>
+#> * <date>         <dbl> <chr>  <lgl>      <lgl>           <dbl>             <dbl>
 #> 1 2023-01-15       150 2022/… NA         NA              0.204             0.178
 #> 2 2023-01-22       180 2022/… NA         NA              0.201             0.175
 #> 3 2023-01-29       220 2022/… NA         NA              0.192             0.180

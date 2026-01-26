@@ -179,6 +179,7 @@ summary(seasonal_onset_results)
 #>         Growth rate estimate at reference time point:
 #>           Estimate   Lower (2.5%)   Upper (97.5%)
 #>             0.391     0.596          0.199
+#>         
 #>         Total number of growth warnings in the series: 52
 #>         Latest growth warning: 2023-10-08
 #>         Latest average observations warning: 2023-10-08

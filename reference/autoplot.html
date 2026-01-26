@@ -14,7 +14,7 @@ The transparency of the points indicates whether a growth warning condition is m
 
 autoplot(tsd_onset_and_burden)
 Generates a line connecting the observations in the current season, along with colored regions
-representing different burdens levels and a vertical line indicating outbreak start.
+representing different burdens levels and a vertical line indicating seasonal onset.
 The y-axis is scaled with ggplot2::scale_y_log10 to give better visualisation of the burden levels.
 
 "><meta property="og:description" content="Generates a complete 'ggplot' object suitable for visualizing time series data in a
@@ -32,7 +32,7 @@ The transparency of the points indicates whether a growth warning condition is m
 
 autoplot(tsd_onset_and_burden)
 Generates a line connecting the observations in the current season, along with colored regions
-representing different burdens levels and a vertical line indicating outbreak start.
+representing different burdens levels and a vertical line indicating seasonal onset.
 The y-axis is scaled with ggplot2::scale_y_log10 to give better visualisation of the burden levels.
 
 "><meta property="og:image" content="https://ssi-dk.github.io/aedseo/logo.png"></head><body>
@@ -43,7 +43,7 @@ The y-axis is scaled with ggplot2::scale_y_log10 to give better visualisation of
 
     <a class="navbar-brand me-2" href="../index.html">aedseo</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,7 +72,7 @@ The y-axis is scaled with ggplot2::scale_y_log10 to give better visualisation of
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Autoplot a <code>tsd</code> object</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ssi-dk/aedseo/blob/v1.0.1/R/autoplot.R" class="external-link"><code>R/autoplot.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ssi-dk/aedseo/blob/v1.1.0/R/autoplot.R" class="external-link"><code>R/autoplot.R</code></a></small>
       <div class="d-none name"><code>autoplot.Rd</code></div>
     </div>
 
@@ -85,7 +85,7 @@ The transparency of the points reflects if seasonal onset has occurred.</p></li>
 <li><p>The second plot presents the growth rate for each observation along with confidence intervals.
 The transparency of the points indicates whether a growth warning condition is met.</p></li>
 </ul><p><code>autoplot(tsd_onset_and_burden)</code></p><ul><li><p>Generates a line connecting the observations in the current season, along with colored regions
-representing different burdens levels and a vertical line indicating outbreak start.
+representing different burdens levels and a vertical line indicating seasonal onset.
 The y-axis is scaled with <code><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">ggplot2::scale_y_log10</a></code> to give better visualisation of the burden levels.</p></li>
 </ul></div>
 
@@ -122,7 +122,7 @@ The y-axis is scaled with <code><a href="https://ggplot2.tidyverse.org/reference
 <span>  <span class="va">object</span>,</span>
 <span>  y_lower_bound <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  factor_to_max <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  disease_color <span class="op">=</span> <span class="st">"royalblue"</span>,</span>
+<span>  disease_color <span class="op">=</span> <span class="st">"#009DD1"</span>,</span>
 <span>  season_start <span class="op">=</span> <span class="fl">21</span>,</span>
 <span>  season_end <span class="op">=</span> <span class="va">season_start</span> <span class="op">-</span> <span class="fl">1</span>,</span>
 <span>  time_interval_step <span class="op">=</span> <span class="st">"3 weeks"</span>,</span>
@@ -131,8 +131,11 @@ The y-axis is scaled with <code><a href="https://ggplot2.tidyverse.org/reference
 <span>  text_family <span class="op">=</span> <span class="st">"sans"</span>,</span>
 <span>  line_color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  line_type <span class="op">=</span> <span class="st">"solid"</span>,</span>
-<span>  vline_color <span class="op">=</span> <span class="st">"red"</span>,</span>
-<span>  vline_linetype <span class="op">=</span> <span class="st">"dashed"</span>,</span>
+<span>  vline_color_onset <span class="op">=</span> <span class="st">"#bf212f"</span>,</span>
+<span>  vline_linetype_onset <span class="op">=</span> <span class="st">"dashed"</span>,</span>
+<span>  vline_color_offset <span class="op">=</span> <span class="st">"#006f3c"</span>,</span>
+<span>  vline_linetype_offset <span class="op">=</span> <span class="st">"dotted"</span>,</span>
+<span>  line_width <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  y_scale_labels <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="fu"><a href="https://scales.r-lib.org/reference/label_number.html" class="external-link">label_comma</a></span><span class="op">(</span>big.mark <span class="op">=</span> <span class="st">"."</span>, decimal.mark <span class="op">=</span> <span class="st">","</span><span class="op">)</span>,</span>
 <span>  theme_custom <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  legend_position <span class="op">=</span> <span class="st">"right"</span>,</span>
@@ -228,12 +231,20 @@ Must match the number of levels.</p></dd>
 <dd><p>A character specifying the line type for observation line.</p></dd>
 
 
-<dt id="arg-vline-color">vline_color<a class="anchor" aria-label="anchor" href="#arg-vline-color"></a></dt>
-<dd><p>A character specifying the color of the vertical outbreak start lines.</p></dd>
+<dt id="arg-vline-color-onset">vline_color_onset<a class="anchor" aria-label="anchor" href="#arg-vline-color-onset"></a></dt>
+<dd><p>A character specifying the color of the vertical seasonal onset line.</p></dd>
 
 
-<dt id="arg-vline-linetype">vline_linetype<a class="anchor" aria-label="anchor" href="#arg-vline-linetype"></a></dt>
-<dd><p>A character specifying the line type for outbreak start lines.</p></dd>
+<dt id="arg-vline-linetype-onset">vline_linetype_onset<a class="anchor" aria-label="anchor" href="#arg-vline-linetype-onset"></a></dt>
+<dd><p>A character specifying the line type for the seasonal onset line.</p></dd>
+
+
+<dt id="arg-vline-color-offset">vline_color_offset<a class="anchor" aria-label="anchor" href="#arg-vline-color-offset"></a></dt>
+<dd><p>A character specifying the color of the vertical seasonal offset line.</p></dd>
+
+
+<dt id="arg-vline-linetype-offset">vline_linetype_offset<a class="anchor" aria-label="anchor" href="#arg-vline-linetype-offset"></a></dt>
+<dd><p>A character specifying the line type for the seasonal offset line.</p></dd>
 
 
 <dt id="arg-y-scale-labels">y_scale_labels<a class="anchor" aria-label="anchor" href="#arg-y-scale-labels"></a></dt>

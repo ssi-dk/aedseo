@@ -227,10 +227,10 @@ seasonal_burden_levels(tsd_data, family = "lnorm")
 #> $incidence_denominator
 #> [1] NA
 #> 
-#> attr(,"class")
-#> [1] "tsd_burden_levels"
 #> attr(,"time_interval")
 #> [1] "weeks"
 #> attr(,"incidence_denominator")
 #> [1] NA
+#> attr(,"class")
+#> [1] "tsd_burden_levels" "list"             
 ```

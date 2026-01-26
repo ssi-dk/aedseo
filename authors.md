@@ -20,16 +20,16 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/ssi-dk/aedseo/blob/v1.0.1/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/ssi-dk/aedseo/blob/v1.1.0/DESCRIPTION)
 
-Myrup Otero S, Schou Telkamp K, Christiansen L (2025). *aedseo:
+Myrup Otero S, Schou Telkamp K, Christiansen L (2026). *aedseo:
 Automated and Early Detection of Seasonal Epidemic Onset and Burden
-Levels*. R package version 1.0.1, <https://github.com/ssi-dk/aedseo>.
+Levels*. R package version 1.1.0, <https://github.com/ssi-dk/aedseo>.
 
     @Manual{,
       title = {aedseo: Automated and Early Detection of Seasonal Epidemic Onset and Burden Levels},
       author = {Sofia {Myrup Otero} and Kasper {Schou Telkamp} and Lasse Engbo Christiansen},
-      year = {2025},
-      note = {R package version 1.0.1},
+      year = {2026},
+      note = {R package version 1.1.0},
       url = {https://github.com/ssi-dk/aedseo},
     }

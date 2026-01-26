@@ -21,8 +21,8 @@ combined_seasonal_output(
   season_end = season_start - 1,
   only_current_season = TRUE,
   multiple_waves = FALSE,
-  burden_level_decrease = NULL,
-  steps_with_decrease = NULL,
+  burden_level_decrease = c("low", "very low", "medium", "high"),
+  steps_with_decrease = 2,
   ...
 )
 ```
@@ -73,17 +73,16 @@ combined_seasonal_output(
 - burden_level_decrease:
 
   A character string specifying the burden breakpoint the observations
-  should decrease under before a new increase in observations can call a
-  new wave onset if seasonal onset criteria are met. Choose between;
-  "very low", "low", "medium", or "high".
+  should decrease under to reach `seasonal_offset` or before a new
+  increase in observations can call a new wave onset if `multiple_waves`
+  are TRUE. Choose between; "very low", "low", "medium", or "high".
 
 - steps_with_decrease:
 
   An integer specifying in how many time steps (days, weeks, months) the
   decrease should be observed under the `burden_level_decrease` (if
   there is a sudden decrease followed by an increase it could e.g. be
-  due to testing). If multiple_waves are assigned steps_with_decrease
-  defaults to 2.
+  due to testing).
 
 - ...:
 
@@ -96,7 +95,7 @@ combined_seasonal_output(
 
 ## Value
 
-An object containing two lists: onset_output and burden_output:
+An `tsd_onset_and_burden` object containing two lists:
 
 onset_output:
 
@@ -142,6 +141,12 @@ A `tsd_onset` object containing:
 
 - Attributes: `time_interval` and `incidence_denominator`.
 
+As extra the `tsd_onset` object will for each season contain a
+`seasonal_offset` variable:
+
+- 'seasonal_offset': Logical. The first detected seasonal offset in the
+  season.
+
 If multiple waves is selected the `tsd_onset` object will also contain:
 
 - 'wave_number': The wave number in the time series data.
@@ -153,11 +158,8 @@ If multiple waves is selected the `tsd_onset` object will also contain:
 - 'decrease_counter': How many consecutive time intervals have decreased
   below the selected burden breakpoint.
 
-- 'decrease_level': A character specifying the selected burden
-  breakpoint to fall below for ending the wave.
-
 - 'decrease_value': A numeric specifying the selected burden breakpoint
-  to fall below for ending the wave.
+  value to fall below for ending the wave.
 
 burden_output:
 
@@ -217,6 +219,9 @@ A `tsd_burden_levels` object containing:
 
 - Attributes: `time_interval` and `incidence_denominator`.
 
+\#' Attributes in the `tsd_onset_and_burden` object are:
+`burden_level_decrease`, `steps_with_decrease` and `multiple_waves`.
+
 ## Examples
 
 ``` r
@@ -254,9 +259,9 @@ tsd_data <- to_time_series(
 combined_data <- combined_seasonal_output(tsd_data)
 # Print seasonal onset results
 print(combined_data$onset_output)
-#> # A tibble: 52 × 15
+#> # A tibble: 52 × 17
 #>    reference_time cases season    population incidence growth_rate
-#>    <date>         <dbl> <chr>     <lgl>      <lgl>           <dbl>
+#>  * <date>         <dbl> <chr>     <lgl>      <lgl>           <dbl>
 #>  1 2023-05-28         6 2023/2024 NA         NA            -0.427 
 #>  2 2023-06-04        81 2023/2024 NA         NA            -0.156 
 #>  3 2023-06-11       121 2023/2024 NA         NA             0.0834
@@ -268,10 +273,11 @@ print(combined_data$onset_output)
 #>  9 2023-07-23       430 2023/2024 NA         NA             0.224 
 #> 10 2023-07-30       540 2023/2024 NA         NA             0.166 
 #> # ℹ 42 more rows
-#> # ℹ 9 more variables: lower_growth_rate <dbl>, upper_growth_rate <dbl>,
+#> # ℹ 11 more variables: lower_growth_rate <dbl>, upper_growth_rate <dbl>,
 #> #   growth_warning <lgl>, average_observations_window <dbl>,
 #> #   average_observations_warning <lgl>, seasonal_onset_alarm <lgl>,
-#> #   skipped_window <lgl>, converged <lgl>, seasonal_onset <lgl>
+#> #   skipped_window <lgl>, converged <lgl>, seasonal_onset <lgl>,
+#> #   decrease_value <dbl>, seasonal_offset <lgl>
 # Print burden level results
 print(combined_data$burden_output)
 #> $season
@@ -304,10 +310,10 @@ print(combined_data$burden_output)
 #> $incidence_denominator
 #> [1] NA
 #> 
-#> attr(,"class")
-#> [1] "tsd_burden_levels"
 #> attr(,"time_interval")
 #> [1] "weeks"
 #> attr(,"incidence_denominator")
 #> [1] NA
+#> attr(,"class")
+#> [1] "tsd_burden_levels" "list"             
 ```
