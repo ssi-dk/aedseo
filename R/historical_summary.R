@@ -53,7 +53,10 @@ historical_summary <- function(
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_class(onset_output, "tsd_onset", add = coll)
-  if (!"seasonal_onset" %in% names(onset_output)) {
+  if (
+    !"seasonal_onset" %in% names(onset_output) ||
+      is.na(attr(onset_output, "disease_threshold"))
+  ) {
     coll$push("Column 'seasonal_onset' not found in tsd_onset object.")
   }
   if ("seasonal_onset" %in% names(onset_output) && all(onset_output$season == "not_defined")) {
