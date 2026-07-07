@@ -12,6 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+has_mem <- requireNamespace("mem", quietly = TRUE)
 ```
 
 ```{r setup, warning=FALSE, message=FALSE}
@@ -368,7 +369,10 @@ peak_levels_n_neg_t <- seasonal_burden_levels(
 ## Compare intensity_levels, peak_levels and mem algorithms
 
 [mem](https://github.com/lozalojo/mem) is run with default arguments.
-```{r}
+
+`r if (!has_mem) "The mem comparison is skipped when the optional mem package is not installed."`
+
+```{r, eval=has_mem}
 # Remove current season such as previous seasons predict for newest season
 previous_seasons <- tsd_data_all |>
   dplyr::mutate(season = epi_calendar(time)) |>
@@ -398,7 +402,7 @@ mem_thresholds <- previous_seasons |>
 ```
 
 ### aedseo  and mem levels
-```{r, echo = FALSE, fig.width=10, fig.height=8, dpi=300}
+```{r, echo = FALSE, eval=has_mem, fig.width=10, fig.height=8, dpi=300}
 #### Create data frame
 burden_levels_df <- tibble::tibble(
   Level = names(
