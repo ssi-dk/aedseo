@@ -85,7 +85,11 @@ fit_growth_rate <- function(
   }
   checkmate::reportAssertions(coll) # Assert that we have an object before going further
   checkmate::assert_names(names(fam_obj), must.include = c("family", "link"), add = coll)
-  checkmate::assert_choice(fam_obj$family, choices = c("poisson", "quasipoisson", "binomial", "quasibinomial"), add = coll)
+  checkmate::assert_choice(
+    fam_obj$family,
+    choices = c("poisson", "quasipoisson", "binomial", "quasibinomial"),
+    add = coll
+  )
   if (fam_obj$family %in% c("binomial", "quasibinomial")) {
     if (is.null(population)) {
       coll$push("`trials` (or `population`) must be supplied for binomial and quasibinomial models")

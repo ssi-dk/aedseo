@@ -92,7 +92,8 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
   family_quant = c(
     "lnorm",
     "weibull",
-    "exp"
+    "exp",
+    "beta"
   ),
   season_start = 21,
   season_end = season_start - 1,
@@ -112,6 +113,12 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
   checkmate::assert_integerish(steps_with_decrease, lower = 1, add = coll)
   checkmate::reportAssertions(coll)
   burden_level_decrease <- rlang::arg_match(burden_level_decrease)
+  if (is.character(family)) {
+    family <- match.arg(family)
+  }
+  if (is.character(family_quant)) {
+    family_quant <- match.arg(family_quant)
+  }
 
   # Capture all extra arguments
   extra_args <- list(...)

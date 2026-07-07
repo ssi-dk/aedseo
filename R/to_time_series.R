@@ -19,7 +19,8 @@
 #' @param successes An integer vector containing binomial successes. Use with `trials` for binomial data.
 #' @param incidence A numeric vector containing the time series incidences.
 #' With the given incidence_denominator.
-#' @param proportion A numeric vector containing binomial proportions in `[0, 1]` or percentages in `(1, 100]`. Use with `trials` for proportional/binomial data.
+#' @param proportion A numeric vector containing binomial proportions in `[0, 1]` or percentages in `(1, 100]`.
+#' Use with `trials` for proportional/binomial data.
 #' @param population `r rd_population`
 #' @param trials An integer vector containing binomial trials. Use with `successes` or `proportion` for binomial data.
 #' @param incidence_denominator An integer >= 1, specifying the observations per incidence-denominator.

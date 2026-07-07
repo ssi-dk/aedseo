@@ -47,19 +47,19 @@
 #' estimate_disease_threshold(tsd_data)
 #'
 estimate_disease_threshold <- function(
-    tsd,
-    season_start = 21,
-    season_end = season_start - 1,
-    skip_current_season = TRUE,
-    min_significant_time = 3,
-    max_gap_time = 1,
-    use_prev_seasons_num = 3,
-    pick_significant_sequence = c("longest", "earliest"),
-    season_importance_decay = 0.8,
-    conf_levels = c(0.25, 0.5, 0.75),
-    family = NULL,
-    burden_family = NULL,
-    ...
+  tsd,
+  season_start = 21,
+  season_end = season_start - 1,
+  skip_current_season = TRUE,
+  min_significant_time = 3,
+  max_gap_time = 1,
+  use_prev_seasons_num = 3,
+  pick_significant_sequence = c("longest", "earliest"),
+  season_importance_decay = 0.8,
+  conf_levels = c(0.25, 0.5, 0.75),
+  family = NULL,
+  burden_family = NULL,
+  ...
 ) {
   is_binomial_tsd <- function(tsd) {
     "trials" %in% names(tsd) && any(c("successes", "proportion") %in% names(tsd))
@@ -180,11 +180,17 @@ estimate_disease_threshold <- function(
   # Count consecutive significant observations
   sign_warnings <- consecutive_growth_warnings(onset_output)
 
-  # Peak time per season
+  # Peak time per season. Prefer incidence when it is available, because it
+  # accounts for population/trial denominators; otherwise use raw cases.
+  peak_observation <- if ("incidence" %in% names(onset_output) && !all(is.na(onset_output$incidence))) {
+    "incidence"
+  } else {
+    "cases"
+  }
   peaks <- onset_output |>
     dplyr::arrange(.data$season) |>
     dplyr::group_by(.data$season) |>
-    dplyr::slice_max(order_by = .data$cases, n = 1, with_ties = FALSE, na_rm = TRUE) |>
+    dplyr::slice_max(order_by = .data[[peak_observation]], n = 1, with_ties = FALSE, na_rm = TRUE) |>
     dplyr::ungroup() |>
     dplyr::select("season", peak_time = "reference_time") |>
     dplyr::slice_tail(n = use_prev_seasons_num)
@@ -308,8 +314,8 @@ estimate_disease_threshold <- function(
   # If there is only one season with observation that will be the threshold
   # If all observations are 1, the disease threshold will be 1
   if (nrow(per_season_sequence) == 1 ||
-      length(unique(per_season_sequence$start_average_observations_window)) == 1 ||
-      all(unique(per_season_sequence$start_average_observations_window) == 1)) {
+        length(unique(per_season_sequence$start_average_observations_window)) == 1 ||
+        all(unique(per_season_sequence$start_average_observations_window) == 1)) {
 
     disease_threshold <- unique(per_season_sequence$start_average_observations_window)
 
