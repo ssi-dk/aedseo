@@ -87,6 +87,6 @@ data_input <- tibble::tibble(
 fit_percentiles(
   weighted_observations = data_input,
   conf_levels = c(0.50, 0.90, 0.95),
-  family= "weibull"
+  family = "weibull"
 )
 }

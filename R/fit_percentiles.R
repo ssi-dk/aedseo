@@ -6,8 +6,8 @@
 #' The output contains the percentiles from the fitted distribution.
 #'
 #' @param weighted_observations A tibble containing two columns of length n; `observation`, which contains cases,
-#' incidences, or proportions, and `weight`, which is the importance assigned to the observation. Higher weights indicate
-#' that an observation has more influence on the model outcome, while lower weights reduce its impact.
+#' incidences, or proportions, and `weight`, which is the importance assigned to the observation. Higher weights
+#' indicate that an observation has more influence on the model outcome, while lower weights reduce its impact.
 #' @param conf_levels A numeric vector specifying the confidence levels for parameter estimates. The values have
 #' to be unique and in ascending order, that is the lowest level is first and highest level is last.
 #' @param family `r rd_burden_level_family`
@@ -59,7 +59,7 @@
 #' fit_percentiles(
 #'   weighted_observations = data_input,
 #'   conf_levels = c(0.50, 0.90, 0.95),
-#'   family= "weibull"
+#'   family = "weibull"
 #' )
 fit_percentiles <- function(
   weighted_observations,

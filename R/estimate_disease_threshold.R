@@ -305,7 +305,8 @@ estimate_disease_threshold <- function(
     per_season_sequence <- per_season_sequence |>
       dplyr::mutate(
         start_average_observations_window = dplyr::if_else(
-          .data$start_average_observations_window <= 0, 1,
+          .data$start_average_observations_window <= 0,
+          1,
           .data$start_average_observations_window
         )
       )
@@ -355,13 +356,16 @@ estimate_disease_threshold <- function(
     if (is.null(k_window) || !is.numeric(k_window) || length(k_window) != 1) {
       k_window <- 5
     }
+    onset_population <- onset_output |>
+      dplyr::arrange(.data$reference_time) |>
+      dplyr::pull("population")
     onset_with_window <- onset_output |>
       dplyr::arrange(.data$reference_time) |>
       dplyr::mutate(
         idx = dplyr::row_number(),
         population_window = purrr::map_dbl(
           .data$idx,
-          ~ sum(.data$population[max(1, .x - k_window + 1):.x], na.rm = TRUE)
+          ~ sum(onset_population[max(1, .x - k_window + 1):.x], na.rm = TRUE)
         )
       )
     pop_weights <- onset_with_window |>
