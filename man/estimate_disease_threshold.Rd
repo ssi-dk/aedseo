@@ -56,8 +56,7 @@ Specify one or three confidence levels e.g.: \code{c(0.25)} \code{c(0.25, 0.5, 0
 modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'binomial'
 or 'quasibinomial' for binomial data supplied as \code{successes} and \code{trials}.  Passed to \code{seasonal_onset()} and then to \code{fit_growth_rate()}.}
 
-\item{burden_family}{A character string specifying the family for modeling burden levels.
-Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'beta' for proportional/binomial data. If \code{NULL}, defaults to 'beta' for proportional data and 'lnorm' otherwise. Proportional data must use 'beta'; non-proportional data cannot use 'beta'. Passed to \code{fit_percentiles()} as its \code{family} argument.}
+\item{burden_family}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'beta' for proportional/binomial data. If \code{NULL}, defaults to 'beta' for proportional data and 'lnorm' otherwise. Proportional data must use 'beta'; non-proportional data cannot use 'beta'. Passed to \code{fit_percentiles()} as its \code{family} argument.}
 
 \item{...}{Arguments passed to the \code{seasonal_onset()} or \code{fit_percentiles()} function.
 \code{only_current_season = FALSE} and \code{disease_threshold = NA_real_} cannot be changed in \code{seasonal_onset()}.}

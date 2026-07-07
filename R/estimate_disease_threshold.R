@@ -365,7 +365,9 @@ estimate_disease_threshold <- function(
         idx = dplyr::row_number(),
         population_window = purrr::map_dbl(
           .data$idx,
-          ~ sum(onset_population[max(1, .x - k_window + 1):.x], na.rm = TRUE)
+          function(idx) {
+            sum(onset_population[max(1, idx - k_window + 1):idx], na.rm = TRUE)
+          }
         )
       )
     pop_weights <- onset_with_window |>

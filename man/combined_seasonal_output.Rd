@@ -8,7 +8,7 @@ combined_seasonal_output(
   tsd,
   disease_threshold = 20,
   family = c("quasipoisson", "poisson"),
-  family_quant = c("lnorm", "weibull", "exp"),
+  family_quant = c("lnorm", "weibull", "exp", "beta"),
   season_start = 21,
   season_end = season_start - 1,
   only_current_season = TRUE,
@@ -31,8 +31,7 @@ disease threshold that has to be surpassed for the observation to be included in
 modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'binomial'
 or 'quasibinomial' for binomial data supplied as \code{successes} and \code{trials}.  This is passed to 'seasonal_onset()'.}
 
-\item{family_quant}{A character string specifying the family for modeling burden levels.
-Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'beta' for proportional/binomial data. If \code{NULL}, defaults to 'beta' for proportional data and 'lnorm' otherwise. Proportional data must use 'beta'; non-proportional data cannot use 'beta'.}
+\item{family_quant}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'beta' for proportional/binomial data. If \code{NULL}, defaults to 'beta' for proportional data and 'lnorm' otherwise. Proportional data must use 'beta'; non-proportional data cannot use 'beta'.}
 
 \item{season_start, season_end}{Integers giving the start and end weeks of the seasons to
 stratify the observations by.}
@@ -67,7 +66,7 @@ A \code{tsd_onset} object containing:
 \item 'lower_growth_rate': The lower bound of the growth rate's confidence interval.
 \item 'upper_growth_rate': The upper bound of the growth rate's confidence interval.
 \item 'growth_warning': Logical. Is the growth rate significantly higher than zero?
-\item 'average_observation_window': The average of cases/incidence, or pooled proportion for binomial data, within the time window.
+\item 'average_observation_window': The average of cases/incidence, or pooled proportion, within the time window.
 \item 'average_observation_warning': Logical. Does the average observations exceed the disease threshold?
 \item 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?
 \item 'skipped_window': Logical. Was the window skipped due to missing observations?

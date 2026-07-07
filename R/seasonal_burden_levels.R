@@ -74,7 +74,8 @@ seasonal_burden_levels <- function(
   tsd,
   family = c("lnorm",
              "weibull",
-             "exp"),
+             "exp",
+             "beta"),
   season_start = 21,
   season_end = season_start - 1,
   method = c("intensity_levels", "peak_levels"),
@@ -87,6 +88,7 @@ seasonal_burden_levels <- function(
 ) {
   # Check input arguments
   method <- rlang::arg_match(method)
+  family <- rlang::arg_match(family)
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(tsd, add = coll)
   checkmate::assert_class(tsd, "tsd", add = coll)

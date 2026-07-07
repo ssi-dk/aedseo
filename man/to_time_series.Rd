@@ -24,7 +24,8 @@ to_time_series(
 \item{incidence}{A numeric vector containing the time series incidences.
 With the given incidence_denominator.}
 
-\item{proportion}{A numeric vector containing binomial proportions in \verb{[0, 1]} or percentages in \verb{(1, 100]}. Use with \code{trials} for proportional/binomial data.}
+\item{proportion}{A numeric vector containing binomial proportions in \verb{[0, 1]} or percentages in \verb{(1, 100]}.
+Use with \code{trials} for proportional/binomial data.}
 
 \item{population}{An integer vector containing the time series background population. For binomial data, use \code{trials} instead.}
 
