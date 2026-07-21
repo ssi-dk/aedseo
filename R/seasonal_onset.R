@@ -5,7 +5,7 @@
 #' This function performs automated and early detection of seasonal epidemic onsets on a `tsd` object.
 #' It estimates growth rates and calculates the average observation in consecutive time intervals (`k`).
 #' For count/incidence data, Poisson/quasi-Poisson models use `population` as an offset when available.
-#' For binomial data created with `successes`/`trials` or `proportion`/`trials`, use `family = "binomial"`
+#' For binomial data created with `trials` and `successes` or `proportion`, use `family = "binomial"`
 #' or `family = "quasibinomial"`; `trials` is used as the denominator and the rolling window is reported
 #' as a pooled proportion.
 #'
@@ -62,24 +62,19 @@ seasonal_onset <- function(
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(tsd, add = coll)
   checkmate::assert_class(tsd, "tsd", add = coll)
-  # Support binomial/quasibinomial-oriented column names from to_time_series()
-  if (all(c("successes", "trials") %in% names(tsd))) {
-    tsd <- tsd |>
-      dplyr::mutate(
-        cases = .data$successes,
-        population = .data$trials,
-        incidence = if ("proportion" %in% names(tsd)) .data$proportion else .data$successes / .data$trials
-      )
-    # Keep binomial rolling windows on the proportion scale, including for
-    # manually constructed tsd objects whose denominator attribute is not 1.
-    attr(tsd, "incidence_denominator") <- 1
-  }
+
+  is_binomial_type <- attr(tsd) == "binomial"
   checkmate::assert_names(
     colnames(tsd),
-    must.include = c("time", "cases"),
+    must.include = c("time"),
     subset.of = c("time", "cases", "incidence", "population", "successes", "proportion", "trials"),
     add = coll
   )
+  if (is_binomial_type) {
+   checkmate::assert_names(colnames(tsd), must.include = c("trials"), add = coll)
+  } else {
+   checkmate::assert_names(colnames(tsd), must.include = c("cases"), add = coll)
+  }
   checkmate::assert_numeric(level, lower = 0, upper = 1, add = coll)
   checkmate::assert_numeric(na_fraction_allowed, lower = 0, upper = 1,
                             add = coll)
@@ -111,15 +106,10 @@ seasonal_onset <- function(
     tsd <- tsd |> dplyr::mutate(season = "not_defined")
   }
 
-  # Use incidence if in tsd else use cases
-  use_incidence <- FALSE
-  if ("population" %in% names(tsd) && "incidence" %in% names(tsd)) {
-    use_incidence <- TRUE
-  }
 
-  # Define observation as cases in `tsd`.
+  # Define observation as cases or successes in `tsd`.
   tsd <- tsd |>
-    dplyr::mutate(observation = .data$cases)
+    dplyr::mutate(observation = dplyr::if_else(is_binomial_type, .data$successes, .data$cases)
 
   # Extract only current season if assigned
   if (!is.null(season_start) && only_current_season == TRUE) {
@@ -194,6 +184,7 @@ seasonal_onset <- function(
     # Keep attributes from the `tsd` class
     attr(ans, "time_interval") <- attr(tsd, "time_interval")
     attr(ans, "incidence_denominator") <- attr(tsd, "incidence_denominator")
+    attr(ans, "data_type") <- attr(tsd, "data_type")
 
     return(ans)
   }
@@ -211,8 +202,8 @@ seasonal_onset <- function(
     } else {
       # Estimate growth rates
       growth_rates <- fit_growth_rate(
-        cases = obs_iter$observation,
-        population = if ("population" %in% names(tsd)) obs_iter$population else NULL,
+        observation = obs_iter$observation,
+        denominator = if (is_binomial_type) obs_iter$trials else if ("population" %in% names(tsd)) obs_iter$population else NULL,
         level = level,
         family = family
       )
@@ -221,16 +212,19 @@ seasonal_onset <- function(
     # See if the growth rate is significantly higher than zero
     growth_warning <- growth_rates$estimate[2] > 0
 
-    if (use_incidence) {
+    if ("population" %in% names(tsd) | is_binomial_type) {
       # Calculate pooled incidence/proportion in window (k), weighted by trials
       # and expressed on the original incidence denominator scale.
-      total_cases <- base::sum(obs_iter$cases, na.rm = TRUE)
-      total_population <- base::sum(obs_iter$population, na.rm = TRUE)
-      average_observations_window <- if (total_population > 0) {
-        (total_cases / total_population) * attr(tsd, "incidence_denominator")
+      total_cases <- base::sum(obs_iter$observation, na.rm = TRUE)
+      if (is_binomial_type) {
+        total_population <- base::sum(obs_iter$trials, na.rm = TRUE)
       } else {
+        total_population <- base::sum(obs_iter$population, na.rm = TRUE)
+     }
+      average_observations_window <- ifelse(total_population > 0,
+        (total_cases / total_population) * attr(tsd, "incidence_denominator"),
         NA_real_
-      }
+      )
     } else {
       # Calculate average cases in window (k)
       average_observations_window <- base::sum(obs_iter$cases, na.rm = TRUE) / k
@@ -238,11 +232,10 @@ seasonal_onset <- function(
     # Evaluate if average_incidence_window exceeds disease_threshold.
     # If no threshold is supplied, no threshold-based onset can be detected,
     # but keep the output schema consistent for downstream methods.
-    average_observations_warning <- if (is.na(disease_threshold)) {
-      FALSE
-    } else {
+    average_observations_warning <- ifelse(is.na(disease_threshold),
+      FALSE,
       average_observations_window > disease_threshold
-    }
+    )
 
     # Give a seasonal_onset_alarm if both criteria are met
     seasonal_onset_alarm <- growth_warning & average_observations_warning
