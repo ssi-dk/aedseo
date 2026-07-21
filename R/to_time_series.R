@@ -186,7 +186,7 @@ to_time_series <- function(                                     # nolint: cycloc
     x = tbl,
     class = "tsd",
     time_interval = time_interval,
-    incidence_denominator = incidence_denominator
+    incidence_denominator = incidence_denominator,
     data_type = ifelse(is_binomial_type, "binomial", "count")
   )
 }
