@@ -311,3 +311,37 @@ test_that("Convert to incidence work as expected", {
   expect_gt(no_inc$values["medium"], with_inc$values["medium"])
   expect_equal(round(((with_inc$values / 100) * 100000))["medium"], round(no_inc$values["medium"]))
 })
+
+test_that("Average observations in window are correctly calculated", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+
+  # Generate seasonal data
+  tsd_data <- generate_seasonal_data(
+    years = 1,
+    start_date = as.Date("2021-01-04"),
+    amplitude = 10000
+  )
+
+  tsd_data_inc <- tsd_data |>
+    dplyr::mutate(population = 100000,
+                  incidence = (cases / population) * 100)
+  attr(tsd_data_inc, "incidence_denominator") <- 100
+
+  onset_output_inc <- seasonal_onset(
+    tsd = tsd_data_inc
+  )
+
+  # Use k = 5
+  tsd_data_inc_avg_obs <- tsd_data_inc |>
+    dplyr::mutate(
+      inc_rolling_avg = pracma::movavg(incidence, n = 5)
+    ) |>
+    dplyr::slice_max(order_by = time, n = (nrow(tsd_data) - 4)) |>
+    dplyr::arrange(time) |>
+    dplyr::pull(inc_rolling_avg)
+
+  average_observations_window_output <- onset_output_inc$average_observations_window
+
+  purrr::walk2(average_observations_window_output, tsd_data_inc_avg_obs, ~ expect_equal(.x, .y))
+})
