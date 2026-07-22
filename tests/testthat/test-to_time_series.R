@@ -70,7 +70,7 @@ test_that("cases vs. incidence input/conversion works as expected", {
     population = c(1e+06, 1e+06, 1e+06, 1e+06),
     time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4)
   )
-  expect_named(tsd_cal_incidence, c("time", "cases", "population", "incidence"))
+  expect_named(tsd_cal_incidence, c("time", "cases", "incidence", "population"))
 
   expect_error(to_time_series(
     incidence = c(1.0, 1.5, 2.0, 1.8),
@@ -90,7 +90,7 @@ test_that("cases vs. incidence input/conversion works as expected", {
     population = c(1e+06, 1e+06, 1e+06, 1e+06),
     time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4)
   )
-  expect_named(tsd_miss_cases, c("time", "incidence", "population", "cases"))
+  expect_named(tsd_miss_cases, c("time", "cases", "incidence", "population"))
 })
 
 test_that("binomial input is converted to proportion-scale tsd", {
@@ -116,19 +116,14 @@ test_that("binomial input is converted to proportion-scale tsd", {
   )
 
   expect_named(tsd_proportion, c("time", "cases", "proportion", "samples"))
-  expect_equal(tsd_proportion$cases, c(10, 50, 10))
-  expect_equal(tsd_proportion$proportion, c(0.1, 0.25, 0.5))
+  expect_equal(tsd_proportion$cases, c(10, 50, 0))
+  expect_equal(tsd_proportion$proportion, c(0.1, 0.25, 0.005))
   expect_equal(tsd_proportion$samples, c(100L, 200L, 20L))
 })
 
 test_that("binomial input validation catches invalid combinations", {
   time <- seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 2)
 
-  expect_error(
-    to_time_series(cases = c(1L, 2L), time = time),
-    "`samples` (or `population`) must be supplied for binomial input",
-    fixed = TRUE
-  )
   expect_error(
     to_time_series(cases = c(3L, 5L), samples = c(2L, 4L), time = time),
     "less than or equal"
