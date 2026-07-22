@@ -5,24 +5,16 @@
 \title{Fit a growth rate model to time series observations.}
 \usage{
 fit_growth_rate(
-  cases = NULL,
-  successes = NULL,
-  population = NULL,
-  trials = NULL,
+  cases,
+  denominator = NULL,
   level = 0.95,
   family = c("quasipoisson", "poisson", "quasibinomial", "binomial")
 )
 }
 \arguments{
-\item{cases}{An integer vector containing the time series cases. For binomial data, use \code{successes} instead.}
+\item{cases}{An integer vector containing cases.}
 
-\item{successes}{An integer vector containing binomial successes. This is an alias for \code{cases} for
-binomial/quasibinomial models.}
-
-\item{population}{An integer vector containing the time series background population. For binomial data, use \code{trials} instead.}
-
-\item{trials}{An integer vector containing binomial trials. This is an alias for \code{population} for
-binomial/quasibinomial models.}
+\item{denominator}{An integer vector containing population or binomial sample size. This is mandatory for binomial models}
 
 \item{level}{The confidence level for parameter estimates, a numeric value between 0 and 1.}
 
@@ -42,8 +34,7 @@ confidence intervals.
 }
 \description{
 This function fits a growth rate model to time series observations and provides parameter estimates along with
-confidence intervals. For binomial data, supply successes and trials and use \code{family = "binomial"} or
-\code{family = "quasibinomial"}.
+confidence intervals. For binomial data use \code{family = "binomial"} or \code{family = "quasibinomial"}.
 }
 \examples{
 # Fit a growth rate model to a time series of counts
@@ -57,8 +48,8 @@ fit_growth_rate(
 
 # Fit a binomial growth rate model to successes out of trials
 fit_growth_rate(
-  successes = c(1, 2, 3, 4),
-  trials = c(10, 10, 10, 10),
+  cases = c(1, 2, 3, 4),
+  denominator = c(10, 10, 10, 10),
   family = "binomial"
 )
 }

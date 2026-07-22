@@ -70,10 +70,10 @@ seasonal_onset <- function(
     add = coll
   )
   if ("proportion" %in% attr(tsd, "outcome_type")) {
-   checkmate::assert_names(colnames(tsd), must.include = c("proportion", "samples"), add = coll)
+    checkmate::assert_names(colnames(tsd), must.include = c("proportion", "samples"), add = coll)
   }
   if ("incidence" %in% attr(tsd, "outcome_type")) {
-     checkmate::assert_names(colnames(tsd), must.include = c("incidence", "population"), add = coll)
+    checkmate::assert_names(colnames(tsd), must.include = c("incidence", "population"), add = coll)
   }
   checkmate::assert_numeric(level, lower = 0, upper = 1, add = coll)
   checkmate::assert_numeric(na_fraction_allowed, lower = 0, upper = 1,
@@ -101,8 +101,10 @@ seasonal_onset <- function(
     model_outcome <- "cases"
   }
 
-  if(is.null(model_outcome)) {
-    coll$push("Mismatch between variables in the input data and the desired family for the glm. Unable to decide model outcome.")
+  if (is.null(model_outcome)) {
+    coll$push(
+      "Mismatch between variables in the input data and the desired family for the glm. Unable to decide model outcome."
+    )
   }
 
   if (!is.null(season_start) && is.null(season_end)) {
@@ -224,9 +226,11 @@ seasonal_onset <- function(
         cases = obs_iter$observation,
         denominator = if (model_outcome == "proportion") {
           obs_iter$samples
-         } else if (model_outcome == "incidence") {
+        } else if (model_outcome == "incidence") {
           obs_iter$population
-          } else NULL,
+        } else {
+          NULL
+        },
         level = level,
         family = family
       )
@@ -246,7 +250,7 @@ seasonal_onset <- function(
         total_population <- base::sum(obs_iter$samples, na.rm = TRUE)
       } else {
         total_population <- base::sum(obs_iter$population, na.rm = TRUE)
-     }
+      }
       average_observations_window <- ifelse(total_population > 0,
         (total_cases / total_population) * incidence_denominator,
         NA_real_

@@ -6,30 +6,27 @@
 \usage{
 to_time_series(
   cases = NULL,
-  successes = NULL,
   incidence = NULL,
-  proportion = NULL,
   population = NULL,
-  trials = NULL,
+  proportion = NULL,
+  samples = NULL,
   incidence_denominator = if (is.null(population)) NA_real_ else 1e+05,
   time,
   time_interval = c("weeks", "days", "months")
 )
 }
 \arguments{
-\item{cases}{An integer vector containing the time series cases. For binomial data, use \code{successes} instead.}
-
-\item{successes}{An integer vector containing binomial successes. Use with \code{trials} for binomial data.}
+\item{cases}{An integer vector containing the time series cases.}
 
 \item{incidence}{A numeric vector containing the time series incidences.
 With the given incidence_denominator.}
 
-\item{proportion}{A numeric vector containing binomial proportions in \verb{[0, 1]} or percentages in \verb{(1, 100]}.
-Use with \code{trials} for proportional/binomial data.}
-
 \item{population}{An integer vector containing the time series background population. For binomial data, use \code{trials} instead.}
 
-\item{trials}{An integer vector containing binomial trials. Use with \code{successes} or \code{proportion} for binomial data.}
+\item{proportion}{A numeric vector containing binomial proportions in \verb{[0, 1]} (Will be rescaled to \verb{[0, 1]} if percentages in \verb{(1, 100]} are provided).
+Use with \code{trials} for proportional/binomial data.}
+
+\item{samples}{An integer vector containing number of samples tested. Use with \code{cases} or \code{proportion} for binomial data.}
 
 \item{incidence_denominator}{An integer >= 1, specifying the observations per incidence-denominator.}
 
@@ -44,16 +41,14 @@ A \code{tsd} object containing:
 \item 'cases': The number of cases at the time point.
 \item 'incidence': The incidence per \code{incidence_denominator} at the time point. (optional)
 \item 'population': The background population for the cases at the time point. (optional)
-\item 'successes': The number of successes at the time point for binomial input. (optional)
-\item 'proportion': The proportion of successes per trial at the time point for binomial input. (optional)
-\item 'trials': The number of binomial trials at the time point for binomial input. (optional)
+\item 'proportion': The proportion of cases in the tested samples at the time point for binomial input. (optional)
+\item 'samples': The number of samples tested at the time point for binomial input. (optional)
 }
 }
 \description{
 This function takes observations and the corresponding date vector (\code{time}) and converts them into a \code{tsd} object,
 which is a time series data structure that can be used for time series analysis. For count data, supply \code{cases}
-or \code{incidence}/\code{population}. For binomial data, supply \code{successes}/\code{trials} or \code{proportion}/\code{trials};
-downstream functions then keep observations on the proportion scale.
+or \code{incidence} with given \code{population}. For binomial data, supply \code{samples} and \code{cases} or \code{proportion}.
 
 Options:
 \itemize{
@@ -61,8 +56,8 @@ Options:
 \item \code{cases} can be calculated if also supplying \code{incidence}, \code{population} and \code{incidence_denominator}.
 \item If background population changes during the time series,
 it is used to adjust the growth rate in \code{seasonal_onset()}.
-\item \code{proportion} can be calculated if also supplying \code{successes} and \code{trials}.
-\item \code{successes} can be calculated if also supplying \code{proportion} and \code{trials}.
+\item \code{proportion} will be calculated if supplying \code{cases} and \code{samples}.
+\item \code{cases} will be calculated if supplying \code{proportion} and \code{samples}.
 }
 }
 \examples{
@@ -88,8 +83,8 @@ tsd_calculate_cases <- to_time_series(
 
 # Create a `tsd` object with binomial data
 tsd_binomial <- to_time_series(
-  successes = c(10, 12, 18, 25),
-  trials = c(100, 100, 120, 140),
+  cases = c(10, 12, 18, 25),
+  samples = c(100, 100, 120, 140),
   time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4)
 )
 

@@ -18,8 +18,10 @@
 #' @param incidence A numeric vector containing the time series incidences.
 #' With the given incidence_denominator.
 #' @param population `r rd_population`
-#' @param samples An integer vector containing number of samples tested. Use with `cases` or `proportion` for binomial data.
-#' @param proportion A numeric vector containing binomial proportions in `[0, 1]` (Will be rescaled to `[0, 1]` if percentages in `(1, 100]` are provided).
+#' @param samples An integer vector containing number of samples tested. Use with `cases` or
+#' `proportion` for binomial data.
+#' @param proportion A numeric vector containing binomial proportions in `[0, 1]` (Will be rescaled to `[0, 1]`
+#' if percentages in `(1, 100]` are provided).
 #' Use with `trials` for proportional/binomial data.
 #' @param incidence_denominator An integer >= 1, specifying the observations per incidence-denominator.
 #' @param time A date vector containing the corresponding dates.
@@ -84,10 +86,10 @@ to_time_series <- function(                                     # nolint: cycloc
 
   # Defining output types to be used for asserting and completing columns
   outcome_type <- NULL
-  if(!is.null(population) || !is.null(incidence)) {
+  if (!is.null(population) || !is.null(incidence)) {
     outcome_type <- c(outcome_type, "incidence")
   }
-  if(!is.null(samples) || !is.null(proportion)) {
+  if (!is.null(samples) || !is.null(proportion)) {
     outcome_type <- c(outcome_type, "proportion")
   }
   # Defaulting to cases
@@ -114,12 +116,14 @@ to_time_series <- function(                                     # nolint: cycloc
     }
 
     # Calculate cases if needed
-    if(is.null(cases) & !is.null(proportion))
+    if (is.null(cases) & !is.null(proportion)) {
       cases <- round(proportion * samples)
+    }
 
     # Calculate proportion if needed
-    if(is.null(proportion))
+    if (is.null(proportion)) {
       proportion <- cases / samples
+    }
 
     if (!is.null(cases) && !is.null(samples) && any(cases > samples, na.rm = TRUE)) {
       coll$push("`cases` must be less than or equal to `samples` when both are supplied (or can be calculated).")
@@ -141,13 +145,13 @@ to_time_series <- function(                                     # nolint: cycloc
     }
 
     # Calculate cases if possible
-    if(is.null(cases) & !is.null(population))
+    if (is.null(cases) & !is.null(population)) {
       cases <- round(incidence / incidence_denominator * population)
-
+    }
     # Calculate incidence if possible
-    if(is.null(incidence))
+    if (is.null(incidence)) {
       incidence <- cases / population * incidence_denominator
-
+    }
   }
   checkmate::assert_true(all(cases >= 0, na.rm = TRUE), add = coll)
   checkmate::assert_integerish(incidence_denominator, lower = 1, len = 1, null.ok = TRUE, add = coll)
@@ -164,8 +168,8 @@ to_time_series <- function(                                     # nolint: cycloc
     population = population,
     proportion = proportion,
     samples = samples
-    )) |>
-      tibble::as_tibble()
+  )) |>
+    tibble::as_tibble()
 
 
   # Create the time series data object
