@@ -65,8 +65,8 @@ A \code{tsd_onset} object containing:
 This function performs automated and early detection of seasonal epidemic onsets on a \code{tsd} object.
 It estimates growth rates and calculates the average observation in consecutive time intervals (\code{k}).
 For count/incidence data, Poisson/quasi-Poisson models use \code{population} as an offset when available.
-For binomial data created with \code{successes}/\code{trials} or \code{proportion}/\code{trials}, use \code{family = "binomial"}
-or \code{family = "quasibinomial"}; \code{trials} is used as the denominator and the rolling window is reported
+For binomial data created with \code{samples} and \code{cases} or \code{proportion}, use \code{family = "binomial"}
+or \code{family = "quasibinomial"}; \code{samples} is used as the denominator and the rolling window is reported
 as a pooled proportion.
 }
 \examples{

@@ -23,7 +23,7 @@ seasonal_burden_levels(
 
 \item{family}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'beta' for proportional/binomial data. If \code{NULL}, defaults to 'beta' for proportional data and 'lnorm' otherwise. Proportional data must use 'beta'; non-proportional data cannot use 'beta'.}
 
-\item{season_start, season_end}{Integers giving the start and end weeks of the seasons to
+\item{season_start, }{season_end Integers giving the start and end weeks of the seasons to
 stratify the observations by.}
 
 \item{method}{A character string specifying the model to be used in the level calculations.

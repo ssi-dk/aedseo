@@ -91,10 +91,10 @@ test_that("fit_percentiles defaults proportional observations to beta", {
     proportion = c(0.1, 0.2, 0.3, 0.4),
     samples = c(10, 10, 10, 10)
   ) |>
-  dplyr::mutate(
-    observation = proportion,
-    weight = c(1, 1, 1, 1)
-  )
+    dplyr::mutate(
+      observation = proportion,
+      weight = c(1, 1, 1, 1)
+    )
 
   fit <- fit_percentiles(weighted_observations, conf_levels = c(0.25, 0.5, 0.75))
   expect_equal(fit$family, "beta")

@@ -6,7 +6,8 @@
 #' confidence intervals. For binomial data use `family = "binomial"` or `family = "quasibinomial"`.
 #'
 #' @param cases An integer vector containing cases.
-#' @param denominator An integer vector containing population or binomial sample size. This is mandatory for binomial models
+#' @param denominator An integer vector containing population or binomial sample size.
+#' This is mandatory for binomial models
 #' @param level The confidence level for parameter estimates, a numeric value between 0 and 1.
 #' @param family `r rd_family()`
 #'
