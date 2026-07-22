@@ -203,7 +203,6 @@ seasonal_onset <- function(
 
     # Keep attributes from the `tsd` class
     attr(ans, "time_interval") <- attr(tsd, "time_interval")
-    attr(ans, "incidence_denominator") <- attr(tsd, "incidence_denominator")
 
     return(ans)
   }
@@ -309,7 +308,7 @@ seasonal_onset <- function(
     disease_threshold = disease_threshold,
     family = family,
     time_interval = attr(tsd, "time_interval"),
-    incidence_denominator = attr(tsd, "incidence_denominator"),
+    incidence_denominator = incidence_denominator,
     model_outcome = model_outcome
   )
 
