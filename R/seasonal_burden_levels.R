@@ -10,7 +10,7 @@
 #'
 #' @param tsd `r rd_tsd`
 #' @param family `r rd_burden_level_family`
-#' @param season_start,season_end `r rd_season_start_end()`
+#' @param season_start, season_end `r rd_season_start_end()`
 #' @param method A character string specifying the model to be used in the level calculations.
 #' Both model predict the levels of the current series of observations.
 #'  - `intensity_levels`: models the risk compared to what has been observed in previous seasons.
@@ -95,7 +95,7 @@ seasonal_burden_levels <- function(
   checkmate::assert_names(
     colnames(tsd),
     must.include = c("time", "cases"),
-    subset.of = c("time", "cases", "incidence", "population"),
+    subset.of = c("time", "cases", "incidence", "population", "proportion", "samples"),
     add = coll
   )
   checkmate::assert_integerish(season_start, lower = 1, upper = 53,
@@ -115,13 +115,23 @@ seasonal_burden_levels <- function(
                               unique = TRUE, sorted = TRUE, add = coll)
   }
 
-  # Define observation based on data in `tsd`.
-  if ("incidence" %in% names(tsd)) {
+  # Define observation based on outcome_type in `tsd` and the desired 'family'.
+  burden_outcome <- NULL
+  if ("proportion" %in% names(tsd) & family == "beta") {
+    tsd <- tsd |>
+      dplyr::mutate(observation = .data$proportion)
+    burden_outcome <- "proportion"
+  } else if ("incidence" %in% names(tsd) & family != "beta") {
     tsd <- tsd |>
       dplyr::mutate(observation = .data$incidence)
-  } else {
+    burden_outcome <- "incidence"
+  } else if ("cases" %in% names(tsd) & family != "beta") {
     tsd <- tsd |>
       dplyr::mutate(observation = .data$cases)
+    burden_outcome <- "cases"
+  }
+  if (is.null(burden_outcome)) {
+    coll$push("Mismatch between provided data and desired family. Cannot identify desired burden outcome.")
   }
 
   # Add the seasons to data
@@ -178,7 +188,8 @@ seasonal_burden_levels <- function(
                                    c("very low", "low", "medium", "high")),
           optim = percentiles_fit,
           disease_threshold = disease_threshold,
-          incidence_denominator = attr(tsd, "incidence_denominator")
+          incidence_denominator = attr(tsd, "incidence_denominator"),
+          burden_outcome = burden_outcome
         )
       },
       intensity_levels = {
@@ -198,7 +209,8 @@ seasonal_burden_levels <- function(
             family = percentiles_fit$family
           ),
           disease_threshold = disease_threshold,
-          incidence_denominator = attr(tsd, "incidence_denominator")
+          incidence_denominator = attr(tsd, "incidence_denominator"),
+          burden_outcome = burden_outcome
         )
       }
     )
@@ -222,6 +234,7 @@ seasonal_burden_levels <- function(
     level_results,
     time_interval = attr(tsd, "time_interval"),
     incidence_denominator = attr(tsd, "incidence_denominator"),
+    burden_outcome = burden_outcome,
     class = c("tsd_burden_levels", class(level_results))
   )
 }

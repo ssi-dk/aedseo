@@ -87,7 +87,7 @@ fit_growth_rate <- function(
   growth_data <- purrr::compact(list(
     growth_rate = seq_along(cases),
     cases = cases,
-    denominator = denominator,
+    denominator = denominator
   )) |>
     tibble::as_tibble()
 

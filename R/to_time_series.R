@@ -83,10 +83,13 @@ to_time_series <- function(                                     # nolint: cycloc
   checkmate::assert_integerish(samples, null.ok = TRUE, add = coll)
 
   # Defining output types to be used for asserting and completing columns
-  outcome_type <- c(
-    ifelse(!is.null(population) || !is.null(incidence), "incidence", NULL),
-    ifelse(!is.null(samples) || !is.null(proportion), "proportion", NULL)
-  )
+  outcome_type <- NULL
+  if(!is.null(population) || !is.null(incidence)) {
+    outcome_type <- c(outcome_type, "incidence")
+  }
+  if(!is.null(samples) || !is.null(proportion)) {
+    outcome_type <- c(outcome_type, "proportion")
+  }
   # Defaulting to cases
   outcome_type <- ifelse(is.null(outcome_type), "cases", outcome_type)
 

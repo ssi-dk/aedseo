@@ -50,6 +50,6 @@ test_that("fit_growth_rate supports binomial and quasibinomial families", {
 
   expect_error(
     fit_growth_rate(cases = successes, family = "binomial"),
-    "samples"
+    "denominator"
   )
 })

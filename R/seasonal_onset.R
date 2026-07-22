@@ -222,7 +222,7 @@ seasonal_onset <- function(
     } else {
       # Estimate growth rates
       growth_rates <- fit_growth_rate(
-        observation = obs_iter$observation,
+        cases = obs_iter$observation,
         denominator = if (model_outcome == "proportion") {
           obs_iter$samples
          } else if (model_outcome == "incidence") {

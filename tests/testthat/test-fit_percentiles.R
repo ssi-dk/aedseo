@@ -8,7 +8,7 @@ test_that("Test if checkmate checks work", {
     dplyr::ungroup() |>
     dplyr::mutate(season_count = rev(dplyr::dense_rank(season)) - 1,
                   weight = 0.8^season_count) |>
-    dplyr::select(cases, weight)
+    dplyr::select(observation = cases, weight)
 
   fit_percentiles(weighted_observations = peak_input, conf_levels = c(0.1, 0.2, 0.4, 0.8, 0.9))
 
@@ -50,12 +50,12 @@ test_that("Test that changing weights work", {
   peak_input <- generate_data |>
     dplyr::mutate(season_count = rev(dplyr::dense_rank(season)) - 1,
                   weight = 0.8^season_count) |>
-    dplyr::select(cases, weight)
+    dplyr::select(observation = cases, weight)
 
   peak_input_2 <- generate_data |>
     dplyr::mutate(season_count = rev(dplyr::dense_rank(season)) - 1,
                   weight = 0.5^season_count) |>
-    dplyr::select(cases, weight)
+    dplyr::select(observation = cases, weight)
 
   small_diff <- fit_percentiles(peak_input)
   big_diff <- fit_percentiles(peak_input_2)
@@ -86,8 +86,13 @@ test_that("Test that when there is only one unique observation return NA and war
 })
 
 test_that("fit_percentiles defaults proportional observations to beta", {
-  weighted_observations <- tibble::tibble(
-    observation = c(0.1, 0.2, 0.3, 0.4),
+  weighted_observations <- to_time_series(
+    time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4),
+    proportion = c(0.1, 0.2, 0.3, 0.4),
+    samples = c(10, 10, 10, 10)
+  ) |>
+  dplyr::mutate(
+    observation = proportion,
     weight = c(1, 1, 1, 1)
   )
 
@@ -95,8 +100,4 @@ test_that("fit_percentiles defaults proportional observations to beta", {
   expect_equal(fit$family, "beta")
   expect_true(all(fit$values >= 0 & fit$values <= 1))
 
-  expect_error(
-    fit_percentiles(weighted_observations, family = "lnorm"),
-    "Only the 'beta' family"
-  )
 })

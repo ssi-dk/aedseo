@@ -85,8 +85,8 @@ fit_percentiles <- function(
   )
   checkmate::assert_names(
     colnames(weighted_observations),
-    must.include = "weight",
-    subset.of = c("weight", "cases", "incidence", "proportion", "successes", "observation"),
+    must.include = c("weight", "observation"),
+    subset.of = c("time", "weight", "cases", "incidence", "proportion", "samples", "observation"),
     add = coll
   )
   checkmate::assert_numeric(lower_optim, add = coll)
@@ -96,44 +96,11 @@ fit_percentiles <- function(
   # Match the arguments.
   optim_method <- rlang::arg_match(optim_method)
 
-  # Rename cases or incidence to observation if they are present and observation is not
-  if ("incidence" %in% names(weighted_observations) && !"observation" %in% names(weighted_observations)) {
-    weighted_observations <- weighted_observations |>
-      dplyr::rename(observation = "incidence")
-  }
-  if ("cases" %in% names(weighted_observations) &&
-      !any(c("observation", "incidence") %in% names(weighted_observations))
-  ) {
-    weighted_observations <- weighted_observations |>
-      dplyr::rename(observation = "cases")
-  }
-  if ("proportion" %in% names(weighted_observations) &&
-      !any(c("observation", "incidence", "cases") %in% names(weighted_observations))
-  ) {
-    weighted_observations <- weighted_observations |>
-      dplyr::rename(observation = "proportion")
-  }
-  if ("successes" %in% names(weighted_observations) &&
-      !any(c("observation", "incidence", "cases", "proportion") %in% names(weighted_observations))
-  ) {
-    weighted_observations <- weighted_observations |>
-      dplyr::rename(observation = "successes")
-  }
 
-  is_proportional_data <- all(
-    weighted_observations$observation >= 0 & weighted_observations$observation <= 1,
-    na.rm = TRUE
-  )
   if (is.null(family)) {
-    family <- if (is_proportional_data) "beta" else "lnorm"
+    family <- if ("proportion" %in% attr(weighted_observations, "outcome_type")) "beta" else "lnorm"
   } else {
     family <- rlang::arg_match(family, family_candidates)
-    if (is_proportional_data && family != "beta") {
-      stop("Only the 'beta' family can be used for proportional data.", call. = FALSE)
-    }
-    if (!is_proportional_data && family == "beta") {
-      stop("The 'beta' family can only be used for proportional data.", call. = FALSE)
-    }
   }
 
   # If there is only one unique observation we cannot optimise -> return NA

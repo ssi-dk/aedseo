@@ -1,5 +1,5 @@
 # Model documentation
-rd_cases <- "An integer vector containing the time series cases. For binomial data, use `successes` instead."
+rd_cases <- "An integer vector containing the time series cases."
 rd_disease_threshold <- function(usage = NULL) {
   paste("A number specifying the threshold for considering a disease outbreak. Should be given as incidence if
         `population` and `incidence_denominator` are in the `tsd` object else as cases.",
