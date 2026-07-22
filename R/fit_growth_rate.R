@@ -5,8 +5,8 @@
 #' This function fits a growth rate model to time series observations and provides parameter estimates along with
 #' confidence intervals. For binomial data use `family = "binomial"` or `family = "quasibinomial"`.
 #'
-#' @param observation An integer vector containing cases or binomial successes.
-#' @param denominator An integer vector containing population or binomial trials. This is mandatory for binomial models
+#' @param cases An integer vector containing cases.
+#' @param denominator An integer vector containing population or binomial sample size. This is mandatory for binomial models
 #' @param level The confidence level for parameter estimates, a numeric value between 0 and 1.
 #' @param family `r rd_family()`
 #'
@@ -23,19 +23,19 @@
 #' # (e.g., population growth)
 #' data <- c(100, 120, 150, 180, 220, 270)
 #' fit_growth_rate(
-#'   observation = data,
+#'   cases = data,
 #'   level = 0.95,
 #'   family = "poisson"
 #' )
 #'
 #' # Fit a binomial growth rate model to successes out of trials
 #' fit_growth_rate(
-#'   observation = c(1, 2, 3, 4),
+#'   cases = c(1, 2, 3, 4),
 #'   denominator = c(10, 10, 10, 10),
 #'   family = "binomial"
 #' )
 fit_growth_rate <- function(
-  observation = NULL,
+  cases,
   denominator = NULL,
   level = 0.95,
   family = c(
@@ -49,7 +49,7 @@ fit_growth_rate <- function(
 
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
-  checkmate::assert_numeric(observation, null.ok = FALSE, add = coll)
+  checkmate::assert_numeric(cases, add = coll)
   checkmate::assert_numeric(level, lower = 0, upper = 1, add = coll)
   checkmate::assert_numeric(denominator, null.ok = TRUE, add = coll)
   # Match the selected model
@@ -76,17 +76,17 @@ fit_growth_rate <- function(
     if (is.null(denominator)) {
       coll$push("`denominator` must be supplied for binomial and quasibinomial models")
     } else {
-      checkmate::assert_true(all(observation >= 0, na.rm = TRUE), add = coll)
+      checkmate::assert_true(all(cases >= 0, na.rm = TRUE), add = coll)
       checkmate::assert_true(all(denominator > 0, na.rm = TRUE), add = coll)
-      checkmate::assert_true(all(observation <= denominator, na.rm = TRUE), add = coll)
+      checkmate::assert_true(all(cases <= denominator, na.rm = TRUE), add = coll)
     }
   }
   checkmate::reportAssertions(coll)
 
   # Construct the data with growth rates for the glm model
   growth_data <- purrr::compact(list(
-    growth_rate = seq_along(observation),
-    observation = observation,
+    growth_rate = seq_along(cases),
+    cases = cases,
     denominator = denominator,
   )) |>
     tibble::as_tibble()
@@ -99,7 +99,7 @@ fit_growth_rate <- function(
   } else {
     c("growth_rate", "offset(log(denominator))")
   }
-  response <- ifelse(is_binomial_type, "cbind(observation, denominator - observation)", "observation")
+  response <- ifelse(is_binomial_type, "cbind(cases, denominator - cases)", "cases")
 
   # Fit the model
   growth_fit <- stats::glm(

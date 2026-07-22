@@ -32,8 +32,8 @@ test_that("fit_growth_rate supports binomial and quasibinomial families", {
 
   expect_s3_class(
     fit_growth_rate(
-      successes = successes,
-      trials = trials,
+      cases = successes,
+      denominator = trials,
       family = "binomial"
     )$fit,
     "glm"
@@ -41,15 +41,15 @@ test_that("fit_growth_rate supports binomial and quasibinomial families", {
 
   expect_s3_class(
     fit_growth_rate(
-      successes = successes,
-      trials = trials,
+      cases = successes,
+      denominator = trials,
       family = "quasibinomial"
     )$fit,
     "glm"
   )
 
   expect_error(
-    fit_growth_rate(successes = successes, family = "binomial"),
-    "trials"
+    fit_growth_rate(cases = successes, family = "binomial"),
+    "samples"
   )
 })
