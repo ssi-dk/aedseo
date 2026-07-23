@@ -117,15 +117,15 @@ seasonal_burden_levels <- function(
 
   # Define observation based on outcome_type in `tsd` and the desired 'family'.
   burden_outcome <- NULL
-  if ("proportion" %in% names(tsd) & family == "beta") {
+  if ("proportion" %in% names(tsd) && family == "beta") {
     tsd <- tsd |>
       dplyr::mutate(observation = .data$proportion)
     burden_outcome <- "proportion"
-  } else if ("incidence" %in% names(tsd) & family != "beta") {
+  } else if ("incidence" %in% names(tsd) && family != "beta") {
     tsd <- tsd |>
       dplyr::mutate(observation = .data$incidence)
     burden_outcome <- "incidence"
-  } else if ("cases" %in% names(tsd) & family != "beta") {
+  } else if ("cases" %in% names(tsd) && family != "beta") {
     tsd <- tsd |>
       dplyr::mutate(observation = .data$cases)
     burden_outcome <- "cases"

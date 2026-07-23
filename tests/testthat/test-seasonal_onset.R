@@ -302,4 +302,3 @@ test_that("Average observations in window are correctly calculated", {
 
   purrr::walk2(average_observations_window_output, tsd_data_inc_avg_obs, ~ expect_equal(.x, .y))
 })
-
