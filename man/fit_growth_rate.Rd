@@ -14,7 +14,8 @@ fit_growth_rate(
 \arguments{
 \item{cases}{An integer vector containing cases.}
 
-\item{denominator}{An integer vector containing population or binomial sample size. This is mandatory for binomial models}
+\item{denominator}{An integer vector containing population or binomial sample size.
+This is mandatory for binomial models}
 
 \item{level}{The confidence level for parameter estimates, a numeric value between 0 and 1.}
 

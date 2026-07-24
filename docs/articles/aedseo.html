@@ -94,19 +94,31 @@ burden of current observations based on previous seasons.</p>
 <h3 id="seasonal-data">Seasonal data<a class="anchor" aria-label="anchor" href="#seasonal-data"></a>
 </h3>
 <p>To apply the <code>aedseo</code> algorithm, data needs to be
-transformed into a <code>tsd</code> object. If you have your own data,
-the <code><a href="../reference/to_time_series.html">to_time_series()</a></code> function can be used with the
-arguments: <code>cases</code>, <code>incidence</code>,
-<code>population</code>, <code>incidence_denominator</code>,
-<code>time</code> and <code>time_interval</code>. As default both
-<code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> and <code><a href="../reference/seasonal_burden_levels.html">seasonal_burden_levels()</a></code>
-use <code>cases</code>, but if <code>incidence</code> is in the
-<code>tsd</code> object the output will be in <code>incidence</code>
-instead. If <code>population</code> is additionally given as arguments
-the function will calculate the <code>incidence</code> per 100.000
-(default for <code>incidence_denominator</code> which can be changed in
-input). In the following section, the application of the algorithm is
-shown with simulated cases created with the
+transformed into a <code>tsd</code> object. If you have your own count
+data, the <code><a href="../reference/to_time_series.html">to_time_series()</a></code> function can be used with
+<code>cases</code>, or with <code>incidence</code>,
+<code>population</code> and <code>incidence_denominator</code> to
+calculate cases or incidence. For binomial or proportional data, use
+<code>successes</code> together with <code>trials</code>, or
+<code>proportion</code> together with <code>trials</code>, instead of
+the count/incidence inputs (<code>cases</code>, <code>incidence</code>,
+<code>population</code> and <code>incidence_denominator</code>). The
+<code>time</code> argument is always required, regardless of whether the
+observations are counts, incidences, successes, or proportions. The
+<code>time_interval</code> argument is optional: if it is not specified,
+weekly spacing is assumed; specify it only when the observations are
+recorded at another supported interval, such as days or months. As
+default both <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> and
+<code><a href="../reference/seasonal_burden_levels.html">seasonal_burden_levels()</a></code> use <code>cases</code>, but if
+<code>incidence</code> is in the <code>tsd</code> object the output will
+be in <code>incidence</code> instead; proportional input is kept on the
+proportion scale. If <code>population</code> is additionally given as
+arguments the function will calculate the <code>incidence</code> per
+100.000 (default for <code>incidence_denominator</code> which can be
+changed in input). For binomial inputs, <code>trials</code> supplies the
+denominator and <code>incidence_denominator</code> is set to 1. In the
+following section, the application of the algorithm is shown with
+simulated cases created with the
 <code><a href="../reference/generate_seasonal_data.html">generate_seasonal_data()</a></code>function. More information about
 the function can be found in the
 <code><a href="../articles/generate_seasonal_wave.html">vignette("generate_seasonal_wave")</a></code>.</p>
@@ -116,7 +128,7 @@ representing the underlying mean trend over five years of weekly
 data.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">tsd_data</span><span class="op">)</span></span></code></pre></div>
-<p><img src="aedseo_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="2187.5"></p>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="2187.5"></p>
 </div>
 <div class="section level3">
 <h3 id="determining-season">Determining season<a class="anchor" aria-label="anchor" href="#determining-season"></a>
@@ -147,8 +159,13 @@ significant positive growth rate.</p>
 rolling window of size
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">k = 5</annotation></semantics></math>
 is used to create subsets of the cases for model fitting, and the
-<code>quasipoisson</code> family is used to account for
-overdispersion.</p>
+<code>quasipoisson</code> family is used to account for overdispersion.
+For binomial/proportional observations, use
+<code>successes</code>/<code>trials</code> or
+<code>proportion</code>/<code>trials</code> when creating the
+<code>tsd</code>, fit onset with <code>family = "binomial"</code> or
+<code>family = "quasibinomial"</code>, and estimate thresholds on the
+proportion scale.</p>
 <p>The <code><a href="../reference/estimate_disease_threshold.html">estimate_disease_threshold()</a></code> function can be used to
 automatically estimate the disease-specific threshold. As default it
 uses;</p>
@@ -206,7 +223,7 @@ disease-specific threshold.</p>
 <span>    name   <span class="op">=</span> <span class="st">""</span>,</span>
 <span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Threshold"</span> <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="aedseo_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="2187.5"></p>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="2187.5"></p>
 <p>From the plot above, we observe the length of periods (weeks) with
 subsequent significant growth rates (y-axis). The season with the
 longest consecutive period of growth is <em>2021/2022</em>, lasting 14
@@ -374,7 +391,7 @@ analysis of the current season.</p>
 <span>  y_lower_bound <span class="op">=</span> <span class="va">y_lower_bound</span>,</span>
 <span>  time_interval <span class="op">=</span> <span class="st">"3 weeks"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="aedseo_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" width="2187.5"></p>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="2187.5"></p>
 <p>Using the <code>intensity_levels</code> method to define burden
 levels, the seasonal onset is likely to fall within the <code>low</code>
 or <code>medium</code> category. This is because the
@@ -438,7 +455,7 @@ incidence denominator (100.000) is used.</p>
 <span>  population <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1000000</span>, by <span class="op">=</span> <span class="fl">1000</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">tsd_data</span><span class="op">$</span><span class="va">cases</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Determine the disease-specific threshold:
-<img src="aedseo_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" width="2187.5"></p>
+<img src="aedseo_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="2187.5"></p>
 <p>Run the main algorithm:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seasonal_output_incidence</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/combined_seasonal_output.html">combined_seasonal_output</a></span><span class="op">(</span></span>
@@ -458,7 +475,7 @@ this is adjusted for in the growth rate estimations in
 <span>  y_lower_bound <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  time_interval <span class="op">=</span> <span class="st">"3 weeks"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="aedseo_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" width="2187.5"></p>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="2187.5"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
