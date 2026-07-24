@@ -89,11 +89,11 @@ seasonal_onset <- function(
   if (is.character(family)) {
     family <- match.arg(family)
     family_char <- family
-  } else if (class(family) == "family") {
+  } else if (inherits(family, "family")) {
     family_char <- family$family
-  } else if (class(family) == "function") {
+  } else if (inherits(family, "function")) {
     tmp <- eval(as.call(list(family)))
-    if (class(tmp) == "family") {
+    if (inherits(tmp, "family")) {
       family_char <- tmp$family
     } else {
       coll$push(
@@ -101,6 +101,7 @@ seasonal_onset <- function(
       )
     }
   }
+  checkmate::reportAssertions(coll)
 
   # Deciding which model outcome to use
   incidence_denominator <- attr(tsd, "incidence_denominator")
