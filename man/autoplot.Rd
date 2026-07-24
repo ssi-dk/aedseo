@@ -34,6 +34,7 @@ autoplot(object, ...)
 
 \method{autoplot}{tsd_onset_and_burden}(
   object,
+  only_burden_levels = FALSE,
   y_lower_bound = 5,
   factor_to_max = 2,
   disease_color = "#009DD1",
@@ -89,6 +90,8 @@ seasonal_onset_alarm (first plot) or significantly positive growth rate (second 
 \item{alpha_ribbon}{A numeric specifying the alpha for the confidence intervals of the growth rate.}
 
 \item{legend_position}{A character specifying the position of the legend on the plot.}
+
+\item{only_burden_levels}{a character specifying if only burden levels and observations should be shown on the plot}
 
 \item{y_lower_bound}{A numeric specifying the lower bound of the y-axis.}
 

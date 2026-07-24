@@ -1,5 +1,11 @@
 # aedseo (development version)
 
+## Features
+* The `aedseo` package now allows for modelling of binomial data. `to_time_series()` now accepts `samples` and `proportion` as arguments. The `proportion`
+argument is the proportion of `cases` in the total tested `samples` at every time point. These variables can be used in the `seasonal_onset()` function with
+the family arguments `binomial` or `quasibinomial` and in the `seasonal_burden_levels()` function with the family argument `beta`.
+A `model_output` attribute has been added to the object classes to always be able to track if the results are based on count or binomial data (#100, #101).
+
 # aedseo 1.1.0
 
 ## Features
