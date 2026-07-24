@@ -91,7 +91,7 @@ seasonal_onset <- function(
     family_char <- family
   } else if(inherits(family, "family")) {
     family_char <- family$family
-  } else if(is(family, "function")) {
+  } else if(inherits(family, "function")) {
     tmp <- eval(as.call(list(family)))
     if(inherits(tmp, "family")) {
       family_char <- tmp$family
