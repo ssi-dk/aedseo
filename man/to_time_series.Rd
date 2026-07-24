@@ -23,10 +23,12 @@ With the given incidence_denominator.}
 
 \item{population}{An integer vector containing the time series background population. For binomial data, use \code{trials} instead.}
 
-\item{proportion}{A numeric vector containing binomial proportions in \verb{[0, 1]} (Will be rescaled to \verb{[0, 1]} if percentages in \verb{(1, 100]} are provided).
+\item{proportion}{A numeric vector containing binomial proportions in \verb{[0, 1]} (Will be rescaled to \verb{[0, 1]}
+if percentages in \verb{(1, 100]} are provided).
 Use with \code{trials} for proportional/binomial data.}
 
-\item{samples}{An integer vector containing number of samples tested. Use with \code{cases} or \code{proportion} for binomial data.}
+\item{samples}{An integer vector containing number of samples tested. Use with \code{cases} or
+\code{proportion} for binomial data.}
 
 \item{incidence_denominator}{An integer >= 1, specifying the observations per incidence-denominator.}
 

@@ -116,7 +116,7 @@ to_time_series <- function(                                     # nolint: cycloc
     }
 
     # Calculate cases if needed
-    if (is.null(cases) & !is.null(proportion)) {
+    if (is.null(cases) && !is.null(proportion)) {
       cases <- round(proportion * samples)
     }
 
@@ -145,7 +145,7 @@ to_time_series <- function(                                     # nolint: cycloc
     }
 
     # Calculate cases if possible
-    if (is.null(cases) & !is.null(population)) {
+    if (is.null(cases) && !is.null(population)) {
       cases <- round(incidence / incidence_denominator * population)
     }
     # Calculate incidence if possible

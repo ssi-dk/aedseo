@@ -85,7 +85,7 @@ seasonal_onset <- function(
   checkmate::assert_integerish(season_end, lower = 1, upper = 53,
                                null.ok = TRUE, add = coll)
   checkmate::assert_logical(only_current_season, null.ok = TRUE, add = coll)
-  checkmate::assert_multi_class(x = family, classes = c("character", "function", "family"), add = col1)
+  checkmate::assert_multi_class(x = family, classes = c("character", "function", "family"), add = coll)
   if (is.character(family)) {
     family <- match.arg(family)
     family_char <- family
@@ -105,12 +105,12 @@ seasonal_onset <- function(
   # Deciding which model outcome to use
   incidence_denominator <- attr(tsd, "incidence_denominator")
   model_outcome <- NULL
-  if ("proportion" %in% attr(tsd, "outcome_type") & family_char %in% c("binomial", "quasibinomial")) {
+  if ("proportion" %in% attr(tsd, "outcome_type") && family_char %in% c("binomial", "quasibinomial")) {
     model_outcome <- "proportion"
     incidence_denominator <- 1 # Enforcing unity for proportions
-  } else if ("incidence" %in% attr(tsd, "outcome_type") & family_char %in% c("poisson", "quasipoisson")) {
+  } else if ("incidence" %in% attr(tsd, "outcome_type") && family_char %in% c("poisson", "quasipoisson")) {
     model_outcome <- "incidence"
-  } else if ("cases" %in% attr(tsd, "outcome_type") & family_char %in% c("poisson", "quasipoisson")) {
+  } else if ("cases" %in% attr(tsd, "outcome_type") && family_char %in% c("poisson", "quasipoisson")) {
     model_outcome <- "cases"
   }
 

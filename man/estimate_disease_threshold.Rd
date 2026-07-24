@@ -15,8 +15,8 @@ estimate_disease_threshold(
   pick_significant_sequence = c("longest", "earliest"),
   season_importance_decay = 0.8,
   conf_levels = c(0.25, 0.5, 0.75),
-  family = NULL,
-  burden_family = NULL,
+  family = c("quasipoisson", "poisson", "quasibinomial", "binomial"),
+  burden_family = c("lnorm", "weibull", "exp", "beta"),
   ...
 )
 }

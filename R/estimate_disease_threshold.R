@@ -57,58 +57,37 @@ estimate_disease_threshold <- function(
   pick_significant_sequence = c("longest", "earliest"),
   season_importance_decay = 0.8,
   conf_levels = c(0.25, 0.5, 0.75),
-  family = NULL,
-  burden_family = NULL,
+  family = c(
+    "quasipoisson",
+    "poisson",
+    "quasibinomial",
+    "binomial"
+  ),
+  burden_family = c(
+    "lnorm",
+    "weibull",
+    "exp",
+    "beta"
+  ),
   ...
 ) {
-  is_binomial_tsd <- function(tsd) {
-    "trials" %in% names(tsd) && any(c("successes", "proportion") %in% names(tsd))
-  }
-  default_onset_family <- function(tsd, family) {
-    if (!is.null(family)) {
-      return(family)
-    }
-    if (is_binomial_tsd(tsd)) {
-      "quasibinomial"
-    } else {
-      "quasipoisson"
-    }
-  }
-  family_label <- function(family) {
-    if (is.character(family)) {
-      return(family[1])
-    }
-    if (is.function(family)) {
-      return(family()$family)
-    }
-    if (inherits(family, "family")) {
-      return(family$family)
-    }
-    "custom"
-  }
-  normalize_threshold <- function(x, is_binomial) {
-    if (is_binomial) {
-      pmin(pmax(x, 0), 1)
-    } else {
-      dplyr::if_else(dplyr::between(x, 0, 1), 1, x)
-    }
-  }
-  format_onset_output <- function(onset_output) {
-    if (is_binomial_input) {
-      onset_output <- onset_output |>
-        dplyr::rename(
-          successes = "cases",
-          trials = "population",
-          proportion = "incidence",
-          pooled_proportion_window = "average_observations_window",
-          proportion_threshold_warning = "average_observations_warning"
-        )
-    }
-    onset_output
-  }
-
   # Check input arguments
+  family <- rlang::arg_match(family)
+  burden_family <- rlang::arg_match(burden_family)
+
   coll <- checkmate::makeAssertCollection()
+  checkmate::assert_names(
+    colnames(tsd),
+    must.include = c("time", "cases"),
+    subset.of = c("time", "cases", "incidence", "population", "proportion", "samples"),
+    add = coll
+  )
+  if ("proportion" %in% attr(tsd, "outcome_type")) {
+    checkmate::assert_names(colnames(tsd), must.include = c("proportion", "samples"), add = coll)
+  }
+  if ("incidence" %in% attr(tsd, "outcome_type")) {
+    checkmate::assert_names(colnames(tsd), must.include = c("incidence", "population"), add = coll)
+  }
   checkmate::assert_integerish(season_start, lower = 1, upper = 53,
                                null.ok = FALSE, add = coll)
   checkmate::assert_integerish(season_end, lower = 1, upper = 53,
@@ -123,8 +102,6 @@ estimate_disease_threshold <- function(
 
   # Capture all extra arguments
   extra_args <- list(...)
-  is_binomial_input <- is_binomial_tsd(tsd)
-  onset_family <- default_onset_family(tsd, family)
 
   # Get the allowed arguments for seasonal_burden_levels() and/or fit_percentiles()
   percentile_allowed <- setdiff(names(formals(fit_percentiles)), "family")
@@ -142,11 +119,14 @@ estimate_disease_threshold <- function(
     c(
       list(
         tsd = tsd, season_start = season_start, season_end = season_end,
-        only_current_season = FALSE, disease_threshold = NA_real_, family = onset_family
+        only_current_season = FALSE, disease_threshold = NA_real_, family = family
       ),
       onset_args
     )
   )   # nolint: object_usage_linter.
+
+  # Checking which model_outcome was used
+  model_outcome <- attr(onset_output, "model_outcome")
 
   # Check if skip season
   if (skip_current_season) {
@@ -167,11 +147,11 @@ estimate_disease_threshold <- function(
                       use_prev_seasons_num = use_prev_seasons_num,
                       pick_significant_sequence = pick_significant_sequence,
                       season_importance_decay = season_importance_decay,
-                      family = family_label(onset_family),
+                      family = family,
                       percentiles = conf_levels),
       incidence_denominator = attr(onset_output, "incidence_denominator"),
       time_interval = attr(onset_output, "time_interval"),
-      onset_output = format_onset_output(onset_output)
+      onset_output = onset_output
     )
     class(no_results) <- "tsd_disease_threshold"
     return(no_results)
@@ -182,7 +162,7 @@ estimate_disease_threshold <- function(
 
   # Peak time per season. Prefer incidence when it is available, because it
   # accounts for population/trial denominators; otherwise use raw cases.
-  peak_observation <- if ("incidence" %in% names(onset_output) && !all(is.na(onset_output$incidence))) {
+  peak_observation <- if (model_outcome == "incidence") {
     "incidence"
   } else {
     "cases"
@@ -274,11 +254,11 @@ estimate_disease_threshold <- function(
                       use_prev_seasons_num = use_prev_seasons_num,
                       pick_significant_sequence = pick_significant_sequence,
                       season_importance_decay = season_importance_decay,
-                      family = family_label(onset_family),
+                      family = family,
                       percentiles = conf_levels),
       incidence_denominator = attr(onset_output, "incidence_denominator"),
       time_interval = attr(onset_output, "time_interval"),
-      onset_output = format_onset_output(onset_output)
+      onset_output = onset_output
     )
     class(no_results) <- "tsd_disease_threshold"
     return(no_results)
@@ -312,6 +292,15 @@ estimate_disease_threshold <- function(
       )
   }
 
+  # Function to normalize the threshold based on count or binomial data
+  normalize_threshold <- function(x, is_binomial) {
+    if (is_binomial) {
+      pmin(pmax(x, 0), 1)
+    } else {
+      dplyr::if_else(dplyr::between(x, 0, 1), 1, x)
+    }
+  }
+
   # If there is only one season with observation that will be the threshold
   # If all observations are 1, the disease threshold will be 1
   if (nrow(per_season_sequence) == 1 ||
@@ -323,18 +312,18 @@ estimate_disease_threshold <- function(
     same_result <- list(
       note = "Only one season is used to determine the threshold.",
       seasons = unique(per_season_sequence$season),
-      disease_threshold = normalize_threshold(disease_threshold, is_binomial_input),
+      disease_threshold = normalize_threshold(disease_threshold, model_outcome == "proportion"),
       optim = NA,
       settings = list(skip_current_season = skip_current_season,
                       min_significant_time = min_significant_time,
                       use_prev_seasons_num = use_prev_seasons_num,
                       pick_significant_sequence = pick_significant_sequence,
                       season_importance_decay = season_importance_decay,
-                      family = family_label(onset_family),
+                      family = family,
                       percentiles = conf_levels),
       incidence_denominator = attr(onset_output, "incidence_denominator"),
       time_interval = attr(onset_output, "time_interval"),
-      onset_output = format_onset_output(onset_output)
+      onset_output = onset_output
     )
 
     class(same_result) <- "tsd_disease_threshold"
@@ -349,16 +338,16 @@ estimate_disease_threshold <- function(
     dplyr::select(-"year") |>
     dplyr::rename(observation = "start_average_observations_window")
 
-  # For proportion-based data, account for binomial precision by upweighting
+  # For proportion-based data, account for binomial precision by up-weighting
   # observations from larger trial counts.
-  if (is_binomial_input) {
+  if (model_outcome == "proportion") {
     k_window <- attr(onset_output, "k")
     if (is.null(k_window) || !is.numeric(k_window) || length(k_window) != 1) {
       k_window <- 5
     }
-    onset_population <- onset_output |>
+    onset_proportion <- onset_output |>
       dplyr::arrange(.data$reference_time) |>
-      dplyr::pull("population")
+      dplyr::pull("proportion")
     onset_with_window <- onset_output |>
       dplyr::arrange(.data$reference_time) |>
       dplyr::mutate(
@@ -366,7 +355,7 @@ estimate_disease_threshold <- function(
         population_window = purrr::map_dbl(
           .data$idx,
           function(idx) {
-            sum(onset_population[max(1, idx - k_window + 1):idx], na.rm = TRUE)
+            sum(onset_proportion[max(1, idx - k_window + 1):idx], na.rm = TRUE)
           }
         )
       )
@@ -399,18 +388,18 @@ estimate_disease_threshold <- function(
   fit_results <- list(
     note = "Sufficient information to estimate percentiles.",
     seasons = unique(weighted_significant_sequences$season),
-    disease_threshold = normalize_threshold(percentiles_fit$values[1], is_binomial_input),
+    disease_threshold = normalize_threshold(percentiles_fit$values[1], model_outcome == "proportion"),
     optim = percentiles_fit,
     settings = list(skip_current_season = skip_current_season,
                     min_significant_time = min_significant_time,
                     use_prev_seasons_num = use_prev_seasons_num,
                     pick_significant_sequence = pick_significant_sequence,
                     season_importance_decay = season_importance_decay,
-                    family = family_label(onset_family),
+                    family = family,
                     percentiles = conf_levels),
     incidence_denominator = attr(onset_output, "incidence_denominator"),
     time_interval = attr(onset_output, "time_interval"),
-    onset_output = format_onset_output(onset_output)
+    onset_output = onset_output
   )
 
   # Add class, and keep attributes from the `tsd` class
@@ -418,6 +407,7 @@ estimate_disease_threshold <- function(
     fit_results,
     time_interval = attr(tsd, "time_interval"),
     incidence_denominator = attr(tsd, "incidence_denominator"),
-    class = c("tsd_disease_threshold", class(fit_results))
+    class = c("tsd_disease_threshold", class(fit_results)),
+    model_outcome = model_outcome
   )
 }

@@ -60,7 +60,7 @@ Observations will be incidence if <code>population</code> and <code>incidence</c
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">seasonal_burden_levels</span><span class="op">(</span></span>
 <span>  <span class="va">tsd</span>,</span>
-<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lnorm"</span>, <span class="st">"weibull"</span>, <span class="st">"exp"</span><span class="op">)</span>,</span>
+<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lnorm"</span>, <span class="st">"weibull"</span>, <span class="st">"exp"</span>, <span class="st">"beta"</span><span class="op">)</span>,</span>
 <span>  season_start <span class="op">=</span> <span class="fl">21</span>,</span>
 <span>  season_end <span class="op">=</span> <span class="va">season_start</span> <span class="op">-</span> <span class="fl">1</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"intensity_levels"</span>, <span class="st">"peak_levels"</span><span class="op">)</span>,</span>
@@ -82,12 +82,11 @@ Observations will be incidence if <code>population</code> and <code>incidence</c
 
 
 <dt id="arg-family">family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>
-<dd><p>A character string specifying the family for modeling. Choose between 'poisson', or 'quasipoisson'.
-Must be one of: character, family-generator, or family object.</p></dd>
+<dd><p>A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'beta' for proportional/binomial data. If <code>NULL</code>, defaults to 'beta' for proportional data and 'lnorm' otherwise. Proportional data must use 'beta'; non-proportional data cannot use 'beta'.</p></dd>
 
 
-<dt id="arg-season-start-season-end">season_start, season_end<a class="anchor" aria-label="anchor" href="#arg-season-start-season-end"></a></dt>
-<dd><p>Integers giving the start and end weeks of the seasons to
+<dt id="arg-season-start-">season_start, <a class="anchor" aria-label="anchor" href="#arg-season-start-"></a></dt>
+<dd><p>season_end Integers giving the start and end weeks of the seasons to
 stratify the observations by.</p></dd>
 
 
@@ -143,10 +142,12 @@ level calculations. The <code>n_peak</code> observations have to surpass the <co
 <li><p>'optim' A list containing:</p><ul><li><p>'par': The fit parameters for the chosen family.</p><ul><li><p>par_1:</p><ul><li><p>For 'weibull': Shape parameter.</p></li>
 <li><p>For 'lnorm': Mean of the log-transformed observations.</p></li>
 <li><p>For 'exp': Rate parameter.</p></li>
+<li><p>For 'beta': First shape parameter.</p></li>
 </ul></li>
 <li><p>'par_2':</p><ul><li><p>For 'weibull': Scale parameter.</p></li>
 <li><p>For 'lnorm': Standard deviation of the log-transformed observations.</p></li>
 <li><p>For 'exp': Not applicable (set to NA).</p></li>
+<li><p>For 'beta': Second shape parameter.</p></li>
 </ul></li>
 </ul></li>
 <li><p>'obj_value': The value of the objective function - (negative log-likelihood), which represent the minimised
@@ -155,6 +156,7 @@ objective function value from the optimisation. Smaller value equals better opti
 <li><p>'family': The distribution family used for the optimization.</p><ul><li><p>'weibull': Uses the Weibull distribution for fitting.</p></li>
 <li><p>'lnorm': Uses the Log-normal distribution for fitting.</p></li>
 <li><p>'exp': Uses the Exponential distribution for fitting.</p></li>
+<li><p>'beta': Uses the Beta distribution for proportional/binomial observations.</p></li>
 </ul></li>
 </ul></li>
 <li><p>'disease_threshold': The input disease threshold, which is also the very low level.</p></li>

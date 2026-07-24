@@ -150,20 +150,18 @@ test_that("estimate_disease_threshold distinguishes binomial input from denomina
   time <- seq.Date(from = as.Date("2022-11-02"), by = 1, length.out = 3)
 
   binomial_tsd <- to_time_series(
-    successes = c(1, 2, 3),
-    trials = c(10, 10, 10),
+    cases = c(1, 2, 3),
+    samples = c(10, 10, 10),
     time = time
   )
   binomial_threshold <- estimate_disease_threshold(
     tsd = binomial_tsd,
-    k = 4
+    k = 4,
+    family = "quasibinomial"
   )
 
   expect_true(all(
-    c("successes", "trials", "proportion") %in% names(binomial_threshold$onset_output)
-  ))
-  expect_false(any(
-    c("cases", "population", "incidence") %in% names(binomial_threshold$onset_output)
+    c("cases", "samples", "proportion") %in% names(binomial_threshold$onset_output)
   ))
   expect_equal(binomial_threshold$settings$family, "quasibinomial")
 
@@ -181,9 +179,7 @@ test_that("estimate_disease_threshold distinguishes binomial input from denomina
   expect_true(all(
     c("cases", "population", "incidence") %in% names(incidence_threshold$onset_output)
   ))
-  expect_false(any(
-    c("successes", "trials", "proportion") %in% names(incidence_threshold$onset_output)
-  ))
+
   expect_equal(incidence_threshold$settings$family, "quasipoisson")
 })
 

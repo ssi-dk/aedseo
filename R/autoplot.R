@@ -249,6 +249,7 @@ autoplot.tsd_onset <- function(
 #' Autoplot a `tsd_onset_and_burden` object
 #'
 #' @param object a `tsd_combined_seasonal_output` object.
+#' @param only_burden_levels a character specifying if only burden levels and observations should be shown on the plot
 #' @param y_lower_bound A numeric specifying the lower bound of the y-axis.
 #' @param factor_to_max A numeric specifying the factor to multiply the high burden level for extending the y-axis.
 #' @param disease_color `r rd_disease_color`
@@ -290,6 +291,7 @@ autoplot.tsd_onset <- function(
 #' @export
 autoplot.tsd_onset_and_burden <- function(
   object,
+  only_burden_levels = FALSE,
   y_lower_bound = 5,
   factor_to_max = 2,
   disease_color = "#009DD1",
@@ -354,7 +356,7 @@ autoplot.tsd_onset_and_burden <- function(
   cur_week <- max(virus_df$reference_time)
 
   # Determine last year and date
-  last_year <- stringr::str_split(epi_calendar(cur_week), "/")[[1]][2]
+  last_year <- stringr::str_split(epi_calendar(cur_week, start = season_start, end = season_end), "/")[[1]][2]
   date_last_week_in_season <- ISOweek::ISOweek2date(paste0(last_year, "-W", sprintf("%02d", season_end), "-1"))
 
   # Extend y-axis
@@ -418,20 +420,6 @@ autoplot.tsd_onset_and_burden <- function(
       ggplot2::aes(group = 1, linetype = y_label),
       color = line_color
     ) +
-    ggplot2::geom_vline(
-      data = virus_df |> dplyr::filter(.data$seasonal_onset == TRUE),
-      ggplot2::aes(xintercept = .data$reference_time,
-                   color = "Seasonal onset"),
-      linetype = vline_linetype_onset,
-      linewidth = line_width
-    ) +
-    ggplot2::geom_vline(
-      data = virus_df |> dplyr::filter(.data$seasonal_offset == TRUE),
-      ggplot2::aes(xintercept = .data$reference_time,
-                   color = "Seasonal offset"),
-      linetype = vline_linetype_offset,
-      linewidth = line_width
-    ) +
     ggplot2::scale_y_log10(
       expand = ggplot2::expansion(mult = 0, add = 0),
       breaks = y_tics,
@@ -442,13 +430,35 @@ autoplot.tsd_onset_and_burden <- function(
       name = "",
       values = stats::setNames(line_type, y_label)
     ) +
-    ggplot2::scale_color_manual(
-      name = "",
-      breaks = c("Seasonal onset", "Seasonal offset"),
-      values = c(
-        "Seasonal onset" = vline_color_onset,
-        "Seasonal offset" = vline_color_offset
-      )
+    (
+      if (!only_burden_levels) {
+        list(
+          ggplot2::geom_vline(
+            data = virus_df |> dplyr::filter(.data$seasonal_onset == TRUE),
+            ggplot2::aes(xintercept = .data$reference_time,
+                         color = "Seasonal onset"),
+            linetype = vline_linetype_onset,
+            linewidth = line_width
+          ),
+          ggplot2::geom_vline(
+            data = virus_df |> dplyr::filter(.data$seasonal_offset == TRUE),
+            ggplot2::aes(xintercept = .data$reference_time,
+                         color = "Seasonal offset"),
+            linetype = vline_linetype_offset,
+            linewidth = line_width
+          ),
+          ggplot2::scale_color_manual(
+            name = "",
+            breaks = c("Seasonal onset", "Seasonal offset"),
+            values = c(
+              "Seasonal onset" = vline_color_onset,
+              "Seasonal offset" = vline_color_offset
+            )
+          )
+        )
+      } else {
+        NULL
+      }
     ) +
     ggplot2::labs(y = y_label) +
     ggplot2::theme(
@@ -465,9 +475,15 @@ autoplot.tsd_onset_and_burden <- function(
       end_date = date_last_week_in_season,
       time_interval_step = time_interval_step
     ) +
-    ggplot2::guides(
-      linetype = ggplot2::guide_legend(order = 1),
-      colour   = ggplot2::guide_legend(order = 2, keyheight = ggplot2::unit(10, "mm"))
+    (
+      if (!only_burden_levels) {
+        ggplot2::guides(
+          linetype = ggplot2::guide_legend(order = 1),
+          colour = ggplot2::guide_legend(order = 2, keyheight = grid::unit(10, "mm"))
+        )
+      } else {
+        NULL
+      }
     ) +
     ggplot2::theme(
       legend.key.spacing.y  = grid::unit(4, "mm")
