@@ -43,9 +43,8 @@ A value of 1 gives the pure sinusoidal curve, and greater values concentrate the
 \item{time_interval}{A character vector specifying the time interval. Choose between 'days', 'weeks', or 'months'.}
 
 \item{lower_bound}{A numeric value that can be used to ensure that intensities are always greater than zero,
-which is needed when \code{noise_overdispersion} is different from zero.}
-
-\item{samples}{An optional positive integer specifying the number of samples tested at each time point.
+which is needed when \code{noise_overdispersion} is different from zero.
+#' @param samples An optional positive integer specifying the number of samples tested at each time point.
 When supplied, \code{mean}, \code{amplitude}, and the resulting seasonal wave are interpreted as proportions,
 and cases are drawn from a binomial distribution. In this mode, \code{noise_overdispersion = 1} (or \code{NULL})
 gives binomial variation, values greater than one give quasi-binomial variation using a beta-binomial
