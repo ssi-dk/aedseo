@@ -218,3 +218,76 @@ test_that("generate_seasonal_data() - test increasing relative epidemic concentr
 
   expect_gt(concentrated_0, sinusoidal_0)
 })
+
+test_that("generate_seasonal_data() generates binomial data", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+
+  binomial_data <- generate_seasonal_data(
+    years = 1,
+    mean = 0.3,
+    amplitude = 0.2,
+    samples = 100,
+    time_interval = "months"
+  )
+
+  expect_s3_class(binomial_data, "tsd")
+  expect_equal(nrow(binomial_data), 12)
+  expect_equal(binomial_data$samples, rep(100, 12))
+  expect_equal(binomial_data$proportion, binomial_data$cases / binomial_data$samples)
+  expect_true(all(binomial_data$cases <= binomial_data$samples))
+  expect_true("proportion" %in% attr(binomial_data, "outcome_type"))
+})
+
+test_that("generate_seasonal_data() generates overdispersed binomial data", {
+  skip_if_not_installed("withr")
+
+  binomial_variances <- vapply(c(1, 4), function(overdispersion) {
+    withr::with_seed(123, {
+      generated <- generate_seasonal_data(
+        years = 20,
+        mean = 0.3,
+        amplitude = 0,
+        samples = 100,
+        noise_overdispersion = overdispersion,
+        time_interval = "months"
+      )
+      stats::var(generated$cases)
+    })
+  }, numeric(1))
+
+  expect_gt(binomial_variances[[2]], binomial_variances[[1]])
+})
+
+test_that("generate_seasonal_data() can generate deterministic binomial data", {
+  deterministic <- generate_seasonal_data(
+    years = 1,
+    mean = 0.3,
+    amplitude = 0,
+    samples = 100,
+    noise_overdispersion = 0,
+    time_interval = "months"
+  )
+
+  expect_equal(deterministic$cases, rep(30, 12))
+})
+
+test_that("generate_seasonal_data() validates binomial arguments", {
+  expect_error(
+    generate_seasonal_data(mean = 0.5, amplitude = 0.25, samples = 0),
+    "samples"
+  )
+  expect_error(
+    generate_seasonal_data(mean = 1, amplitude = 1, samples = 100),
+    "between zero and one"
+  )
+  expect_error(
+    generate_seasonal_data(
+      mean = 0.5,
+      amplitude = 0.25,
+      samples = 100,
+      noise_overdispersion = 100
+    ),
+    "less than.*samples"
+  )
+})
