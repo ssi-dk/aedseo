@@ -68,3 +68,27 @@ test_that("Summary prints of burden_levels object", {
   # Verify that the summary printed without errors
   expect_true(grepl(pattern = "Summary of tsd_burden_levels object", x = tmp))
 })
+
+test_that("Summary prints fractional settings for proportional burden levels", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+
+  tsd_data <- generate_seasonal_data(
+    years = 3,
+    mean = 0.3,
+    amplitude = 0.2,
+    noise_overdispersion = 0,
+    samples = 100
+  )
+
+  tsd_burden_levels <- seasonal_burden_levels(
+    tsd = tsd_data,
+    disease_threshold = 0.1,
+    family = "beta"
+  )
+
+  tmp <- capture_output(summary(tsd_burden_levels))
+
+  expect_match(tmp, "Disease specific threshold: 0.1", fixed = TRUE)
+  expect_match(tmp, "Incidence denominator: 1", fixed = TRUE)
+})

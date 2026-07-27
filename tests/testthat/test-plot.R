@@ -59,6 +59,45 @@ test_that("Test that plot works for cases and incidence for tsd, tsd_onset, tsd_
   incidence_plot_3 <- plot(combined_incidence, y_lower_bound = 1)
 
   expect_false(all(is.na(incidence_plot_3$data$incidence)))
+
+
+
+
+  ## Proportion
+
+  tsd_data_proportion <- generate_seasonal_data(
+    years = 3,
+    mean = 0.3,
+    amplitude = 0.2,
+    samples = 100
+  )
+
+  proportion_plot_1 <- autoplot(tsd_data_proportion)
+
+  expect_equal(proportion_plot_1$labels$y, "Proportion")
+  expect_silent(ggplot2::ggplot_build(proportion_plot_1))
+
+  tsd_onset_proportion <- seasonal_onset(
+    tsd = tsd_data_proportion,
+    family = "quasibinomial"
+  )
+
+  proportion_plot_2 <- autoplot(tsd_onset_proportion)
+
+  expect_equal(proportion_plot_2$observed$labels$y, "Proportion")
+  expect_silent(ggplot2::ggplot_build(proportion_plot_2$observed))
+
+  combined_proportion <- combined_seasonal_output(
+    tsd_data_proportion,
+    disease_threshold = 0.1,
+    family = "quasibinomial",
+    family_quant = "beta"
+  )
+
+  proportion_plot_3 <- autoplot(combined_proportion, y_lower_bound = 0.01)
+
+  expect_equal(proportion_plot_3$labels$y, "Proportion")
+  expect_silent(ggplot2::ggplot_build(proportion_plot_3))
 })
 
 test_that("Test that plot works for cases and incidence in `tsd_growth_warning` objects", {

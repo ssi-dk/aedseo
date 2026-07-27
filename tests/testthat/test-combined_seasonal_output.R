@@ -122,6 +122,27 @@ test_that("Test that family argument works as expected", {
     family = "hello",
   ))
 
+  tsd_binomial <- generate_seasonal_data(
+    years = 3,
+    mean = 0.3,
+    amplitude = 0.2,
+    samples = 100
+  )
+
+  expect_no_error(combined_seasonal_output(
+    tsd = tsd_binomial,
+    disease_threshold = 0.1,
+    family = "binomial",
+    family_quant = "beta"
+  ))
+
+  expect_no_error(combined_seasonal_output(
+    tsd = tsd_binomial,
+    disease_threshold = 0.1,
+    family = "quasibinomial",
+    family_quant = "beta"
+  ))
+
 })
 
 test_that("Test that multiple waves feature works for only current season", {
