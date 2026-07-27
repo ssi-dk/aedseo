@@ -21,7 +21,7 @@
 #' @param time_interval `r rd_time_interval`
 #' @param lower_bound A numeric value that can be used to ensure that intensities are always greater than zero,
 #' which is needed when `noise_overdispersion` is different from zero.
-#' #' @param samples An optional positive integer specifying the number of samples tested at each time point.
+#' @param samples An optional positive integer specifying the number of samples tested at each time point.
 #' When supplied, `mean`, `amplitude`, and the resulting seasonal wave are interpreted as proportions,
 #' and cases are drawn from a binomial distribution. In this mode, `noise_overdispersion = 1` (or `NULL`)
 #' gives binomial variation, values greater than one give quasi-binomial variation using a beta-binomial
