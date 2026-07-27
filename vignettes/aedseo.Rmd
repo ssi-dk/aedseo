@@ -314,3 +314,116 @@ plot(
   time_interval = "3 weeks"
 )
 ```
+
+## Example with binomial and quasi-binomial models
+
+Binomial observations consist of a number of positive samples (`cases`) out of a
+number tested (`samples`). The following example generates five years of
+overdispersed binomial data. Supplying `samples` makes `generate_seasonal_data()`
+return the observed proportion in addition to the numerator and denominator;
+`noise_overdispersion = 5` generates beta-binomial variation and therefore makes
+the data suitable for demonstrating a quasi-binomial analysis.
+
+```{r, include = FALSE}
+withr::local_seed(333)
+tsd_quasibinomial <- generate_seasonal_data(
+  years = 5,
+  start_date = as.Date("2020-10-18"),
+  mean = 0.12,
+  amplitude = 0.10,
+  trend_rate = 1.002,
+  noise_overdispersion = 5,
+  relative_epidemic_concentration = 3,
+  time_interval = "weeks",
+  samples = 250
+)
+
+tsd_quasibinomial <- tsd_quasibinomial |>
+  dplyr::filter(time <= "2025-05-12")
+```
+
+In the following figure the simulated data are visualised as the proportion of
+positive samples over time (weeks).
+
+```{r, dpi=300}
+plot(tsd_quasibinomial)
+```
+
+As in the Poisson example, the disease-specific threshold can be estimated from
+the historical seasons. Since the observations are proportions, the estimated 
+threshold is also given as a proportion. The threshold is estimated for both the 
+binomial and the quasi-binomial analysis.
+
+```{r}
+binomial_dth <- estimate_disease_threshold(
+  tsd = tsd_quasibinomial,
+  family = "binomial"
+)
+
+quasibinomial_dth <- estimate_disease_threshold(
+  tsd = tsd_quasibinomial,
+  family = "quasibinomial"
+)
+
+c(
+  binomial = binomial_dth$disease_threshold,
+  quasibinomial = quasibinomial_dth$disease_threshold
+)
+```
+
+
+The main algorithm with the binomial model and the quasi-binomial model can be 
+run. The quasi-binomial model accounts for the extra variation added to the 
+simulated data.
+
+```{r}
+seasonal_output_binomial <- combined_seasonal_output(
+  tsd = tsd_quasibinomial,
+  disease_threshold = binomial_dth$disease_threshold,
+  method = "intensity_levels",
+  family = "binomial"
+)
+
+seasonal_output_quasibinomial <- combined_seasonal_output(
+  tsd = tsd_quasibinomial,
+  disease_threshold = quasibinomial_dth$disease_threshold,
+  method = "intensity_levels",
+  family = "quasibinomial"
+)
+```
+
+
+Seasonal onset output from the quasi-binomial analysis can be extracted by:
+
+```{r}
+summary(seasonal_output_quasibinomial$onset_output)
+```
+
+Seasonal burden output from the quasi-binomial analysis can be extracted by:
+
+```{r}
+summary(seasonal_output_quasibinomial$burden_output)
+```
+
+The two analyses can be compared to see how accounting for overdispersion affects the
+estimates.
+
+Plot the results from the binomial analysis:
+
+```{r, dpi=300}
+plot(
+  x = seasonal_output_binomial,
+  y_lower_bound = 0.01,
+  time_interval = "3 weeks"
+)
+```
+
+Plot the results from the quasi-binomial analysis:
+
+```{r, dpi=300}
+plot(
+  x = seasonal_output_quasibinomial,
+  y_lower_bound = 0.01,
+  time_interval = "3 weeks"
+)
+```

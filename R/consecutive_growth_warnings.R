@@ -77,6 +77,7 @@ consecutive_growth_warnings <- function(
   class(significant_counter) <- c("tsd_growth_warning", class(significant_counter))
   attr(significant_counter, "time_interval") <- attr(onset_output, "time_interval")
   attr(significant_counter, "incidence_denominator") <- attr(onset_output, "incidence_denominator")
+  attr(significant_counter, "model_outcome") <- attr(onset_output, "model_outcome")
 
   return(significant_counter)  # nolint: return_linter
 }

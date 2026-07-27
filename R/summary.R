@@ -319,8 +319,8 @@ summary.tsd_burden_levels <- function(object, ...) {
       %s
 
     Model settings:
-      Disease specific threshold: %d
-      Incidence denominator: %d
+      Disease specific threshold: %g
+      Incidence denominator: %g
       Called using distributional family: %s",
     object$values["very low"],
     object$values["low"],
