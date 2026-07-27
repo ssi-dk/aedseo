@@ -10,7 +10,11 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 4.8,
+  out.width = "100%",
+  fig.align = "center"
 )
 ```
 
@@ -59,7 +63,7 @@ tsd_data <- tsd_data |>
 In the following figure simulated data (solid circles) are visualised as cases over time (weeks).
 The solid line connects these circles, representing the underlying mean trend over five years of weekly data.
 ```{r, dpi=300}
-plot(tsd_data)
+autoplot(tsd_data, time_interval_step = "6 months")
 ```
 
 ### Determining season
@@ -218,10 +222,11 @@ The `plot()` S3 method for `tsd_combined_seasonal_output` objects allows you to 
 disease_threshold <- 22
 y_lower_bound <- ifelse(disease_threshold < 10, 1, 5)
 
-plot(
-  x = seasonal_output,
+autoplot(
+  object = seasonal_output,
   y_lower_bound = y_lower_bound,
-  time_interval = "3 weeks"
+  time_interval_step = "6 weeks",
+  legend_position = "bottom"
 )
 ```
 
@@ -291,7 +296,7 @@ autoplot(
   ggplot2::scale_linetype_manual(
     name   = "",
     values = c("Threshold" = "dashed")
-  )
+  ) 
 ```
 
 Run the main algorithm:
@@ -308,11 +313,12 @@ by adding it as offset to the model.
 
 Plot results for the current season with cases pr. 100.000 (incidence):
 ```{r, dpi=300}
-plot(
-  x = seasonal_output_incidence,
+autoplot(
+  object = seasonal_output_incidence,
   y_lower_bound = 1,
-  time_interval = "3 weeks"
-)
+  time_interval_step = "6 weeks",
+  legend_position = "bottom"
+) 
 ```
 
 ## Example with binomial and quasi-binomial models
@@ -346,7 +352,7 @@ In the following figure the simulated data are visualised as the proportion of
 positive samples over time (weeks).
 
 ```{r, dpi=300}
-plot(tsd_quasibinomial)
+autoplot(tsd_quasibinomial, time_interval_step = "6 months")
 ```
 
 As in the Poisson example, the disease-specific threshold can be estimated from
@@ -411,19 +417,21 @@ estimates.
 Plot the results from the binomial analysis:
 
 ```{r, dpi=300}
-plot(
-  x = seasonal_output_binomial,
+autoplot(
+  object = seasonal_output_binomial,
   y_lower_bound = 0.01,
-  time_interval = "3 weeks"
+  time_interval_step = "6 weeks",
+  legend_position = "bottom"
 )
 ```
 
 Plot the results from the quasi-binomial analysis:
 
 ```{r, dpi=300}
-plot(
-  x = seasonal_output_quasibinomial,
+autoplot(
+  object = seasonal_output_quasibinomial,
   y_lower_bound = 0.01,
-  time_interval = "3 weeks"
-)
+  time_interval_step = "6 weeks",
+  legend_position = "bottom"
+) 
 ```
