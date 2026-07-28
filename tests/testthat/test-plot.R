@@ -1,6 +1,8 @@
 test_that("Test that plot works for cases and incidence for tsd, tsd_onset, tsd_onset_and_burden objects", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
+  grDevices::pdf(tempfile(fileext = ".pdf"))
+  withr::defer(grDevices::dev.off())
 
   ## Cases
 
@@ -103,6 +105,8 @@ test_that("Test that plot works for cases and incidence for tsd, tsd_onset, tsd_
 test_that("Test that plot works for cases and incidence in `tsd_growth_warning` objects", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
+  grDevices::pdf(tempfile(fileext = ".pdf"))
+  withr::defer(grDevices::dev.off())
 
   ## Cases
   tsd_data_cases <- generate_seasonal_data(

@@ -47,6 +47,27 @@ test_that("Summary prints with disease threshold (tsd_onset object)", {
   expect_true(grepl(pattern = "Summary of tsd_onset object with disease_threshold", x = tmp))
 })
 
+test_that("Summary prints proportional output when no onset is detected", {
+  tsd_data <- generate_seasonal_data(
+    years = 1,
+    mean = 0.3,
+    amplitude = 0,
+    noise_overdispersion = 0,
+    samples = 100
+  )
+  tsd_onset <- seasonal_onset(
+    tsd = tsd_data,
+    family = "quasibinomial",
+    disease_threshold = 0.9
+  )
+
+  tmp <- capture_output(summary(tsd_onset))
+
+  expect_match(tmp, "Summary of tsd_onset object with disease_threshold", fixed = TRUE)
+  expect_match(tmp, "Observations at reference time point: NA", fixed = TRUE)
+  expect_match(tmp, "Disease specific threshold: 0.9", fixed = TRUE)
+})
+
 test_that("Summary prints of burden_levels object", {
   skip_if_not_installed("withr")
   withr::local_seed(123)

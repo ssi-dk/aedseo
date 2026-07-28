@@ -30,7 +30,7 @@ onset alarm can be triggered.}
 
 \item{family}{A character string, family-generator, or family object specifying the distribution family for growth-rate
 modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'poisson' or
-'quasipoisson' for cases/incidences, and se 'binomial' or 'quasibinomial' for binomial data supplied as
+'quasipoisson' for cases/incidences, and use 'binomial' or 'quasibinomial' for binomial data supplied as
 \code{cases} and \code{samples}.}
 
 \item{na_fraction_allowed}{Numeric value between 0 and 1 specifying the fraction of observations in the window

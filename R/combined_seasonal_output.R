@@ -91,12 +91,7 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
     "quasibinomial",
     "binomial"
   ),
-  family_quant = c(
-    "lnorm",
-    "weibull",
-    "exp",
-    "beta"
-  ),
+  family_quant = NULL,
   season_start = 21,
   season_end = season_start - 1,
   only_current_season = TRUE,
@@ -118,8 +113,21 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
   if (is.character(family)) {
     family <- match.arg(family)
   }
-  if (is.character(family_quant)) {
-    family_quant <- match.arg(family_quant)
+  if (is.null(family_quant)) {
+    family_name <- if (is.character(family)) {
+      family
+    } else if (inherits(family, "family")) {
+      family$family
+    } else {
+      family()$family
+    }
+    family_quant <- if (family_name %in% c("binomial", "quasibinomial")) {
+      "beta"
+    } else {
+      "lnorm"
+    }
+  } else if (is.character(family_quant)) {
+    family_quant <- match.arg(family_quant, c("lnorm", "weibull", "exp", "beta"))
   }
 
   # Capture all extra arguments

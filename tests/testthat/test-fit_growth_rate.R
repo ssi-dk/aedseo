@@ -27,13 +27,13 @@ test_that("The growth rate models converge", {
 })
 
 test_that("fit_growth_rate supports binomial and quasibinomial families", {
-  successes <- c(1, 2, 3, 4)
-  trials <- c(10, 10, 10, 10)
+  cases <- c(1, 2, 3, 4)
+  samples <- c(10, 10, 10, 10)
 
   expect_s3_class(
     fit_growth_rate(
-      cases = successes,
-      denominator = trials,
+      cases = cases,
+      denominator = samples,
       family = "binomial"
     )$fit,
     "glm"
@@ -41,15 +41,15 @@ test_that("fit_growth_rate supports binomial and quasibinomial families", {
 
   expect_s3_class(
     fit_growth_rate(
-      cases = successes,
-      denominator = trials,
+      cases = cases,
+      denominator = samples,
       family = "quasibinomial"
     )$fit,
     "glm"
   )
 
   expect_error(
-    fit_growth_rate(cases = successes, family = "binomial"),
+    fit_growth_rate(cases = cases, family = "binomial"),
     "denominator"
   )
 })

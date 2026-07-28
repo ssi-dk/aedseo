@@ -37,11 +37,11 @@ observations based on previous seasons.
 
 To apply the `aedseo` algorithm, data needs to be transformed into a `tsd` object.
 If you have your own count data, the `to_time_series()` function can be used with `cases`, or with `incidence`, `population` and `incidence_denominator` to calculate cases or incidence.
-For binomial or proportional data, use `successes` together with `trials`, or `proportion` together with `trials`, instead of the count/incidence inputs (`cases`, `incidence`, `population` and `incidence_denominator`).
-The `time` argument is always required, regardless of whether the observations are counts, incidences, successes, or proportions.
+For binomial or proportional data, use `cases` together with `samples`, or `proportion` together with `samples`.
+The `time` argument is always required, regardless of whether the observations are counts, incidences, cases, or proportions.
 The `time_interval` argument is optional: if it is not specified, weekly spacing is assumed; specify it only when the observations are recorded at another supported interval, such as days or months.
-As default both `seasonal_onset()` and `seasonal_burden_levels()` use `cases`, but if `incidence` is in the `tsd` object the output will be in `incidence` instead; proportional input is kept on the proportion scale.
-If `population` is additionally given as arguments the function will calculate the `incidence` per 100.000 (default for `incidence_denominator` which can be changed in input). For binomial inputs, `trials` supplies the denominator and `incidence_denominator` is set to 1.
+As default both `seasonal_onset()` and `seasonal_burden_levels()` use `cases`, but if `incidence` is in the `tsd` object (for count data) the output will be in `incidence` instead; proportional input is kept on the proportion scale.
+If `population` is additionally given as arguments (for count data) the function will calculate the `incidence` per 100,000 (default for `incidence_denominator` which can be changed in input). For binomial inputs, `samples` supplies the denominator and `incidence_denominator` is set to 1.
 In the following section, the application of the algorithm is shown with simulated cases created with the `generate_seasonal_data()`function.
 More information about the function can be found in the `vignette("generate_seasonal_wave")`.
 ```{r, include = FALSE}
@@ -60,7 +60,7 @@ tsd_data <- tsd_data |>
   dplyr::filter(time <= "2025-05-12")
 ```
 
-In the following figure simulated data (solid circles) are visualised as cases over time (weeks).
+In the following figure simulated count data (solid circles) are visualised as cases over time (weeks).
 The solid line connects these circles, representing the underlying mean trend over five years of weekly data.
 ```{r, dpi=300}
 autoplot(tsd_data, time_interval_step = "6 months")
@@ -83,7 +83,7 @@ In this example the disease-specific threshold is determined based on consecutiv
 Significant weeks are defined as those with a case count that has a significant positive growth rate.
 
 To capture short-term changes and fluctuations in the cases, a rolling window of size $k = 5$ is used to create subsets of the cases for model fitting,
-and the `quasipoisson` family is used to account for overdispersion. For binomial/proportional observations, use `successes`/`trials` or `proportion`/`trials` when creating the `tsd`, fit onset with `family = "binomial"` or `family = "quasibinomial"`, and estimate thresholds on the proportion scale.
+and the `quasipoisson` family is used to account for overdispersion. 
 
 The `estimate_disease_threshold()` function can be used to automatically estimate the disease-specific threshold.
 As default it uses;
@@ -179,7 +179,7 @@ seasonal_output <- combined_seasonal_output(
 The default function estimates onset and burden levels for the current season. If it is desired to see calculations for all previous seasons, the `only_current_season`
 argument should be set to `FALSE`.
 
-*Note: *Burden levels can not be estimated for the first season and needs at least two seasons of data as the estimations are based on data from previous seasons.\\
+*Note: *Burden levels can not be estimated for the first season and needs at least two seasons of data as the estimations are based on data from previous seasons.
 
 
 ### Seasonal offset and multiple waves
@@ -258,8 +258,8 @@ historical_summary(tsd_onset)
 ```
 
 ## Example with incidence
-In the `tsd` object from previous example we add that the population is 1.000.000 and increases with 1000 each week.
-The default incidence denominator (100.000) is used.
+In the `tsd` object from previous example we add that the population is 1,000,000 and increases with 1,000 each week.
+The default incidence denominator (100,000) is used.
 ```{r, dpi=300}
 tsd_incidence <- to_time_series(
   cases = tsd_data$cases,
@@ -308,10 +308,10 @@ seasonal_output_incidence <- combined_seasonal_output(
   family = "quasipoisson"
 )
 ```
-*NOTE: *Since the population changes during the time series this is adjusted for in the growth rate estimations in `seasonal_onset()`
+*Note: *Since the population changes during the time series this is adjusted for in the growth rate estimations in `seasonal_onset()`
 by adding it as offset to the model.
 
-Plot results for the current season with cases pr. 100.000 (incidence):
+Plot results for the current season with cases per 100,000 (incidence):
 ```{r, dpi=300}
 autoplot(
   object = seasonal_output_incidence,
@@ -327,8 +327,8 @@ Binomial observations consist of a number of positive samples (`cases`) out of a
 number tested (`samples`). The following example generates five years of
 overdispersed binomial data. Supplying `samples` makes `generate_seasonal_data()`
 return the observed proportion in addition to the numerator and denominator;
-`noise_overdispersion = 5` generates beta-binomial variation and therefore makes
-the data suitable for demonstrating a quasi-binomial analysis.
+`noise_overdispersion = 5` generates beta-binomial variation and therefore provides
+a overdispersed example for quasi-binomial analysis.
 
 ```{r, include = FALSE}
 withr::local_seed(333)
@@ -399,19 +399,25 @@ seasonal_output_quasibinomial <- combined_seasonal_output(
 ```
 
 
-Seasonal onset output from the quasi-binomial analysis can be extracted by:
+Seasonal onset output from the binomial analysis can be extracted by:
+
+```{r}
+summary(seasonal_output_binomial$onset_output)
+```
+
+Seasonal burden output from the binomial analysis can be extracted by:
+
+```{r}
+summary(seasonal_output_binomial$burden_output)
+```
+The same can be done for the quasi-binomial analysis:
 
 ```{r}
 summary(seasonal_output_quasibinomial$onset_output)
-```
-
-Seasonal burden output from the quasi-binomial analysis can be extracted by:
-
-```{r}
 summary(seasonal_output_quasibinomial$burden_output)
 ```
 
-The two analyses can be compared to see how accounting for overdispersion affects the
+The two analyses can also be compared visually to see how accounting for overdispersion affects the
 estimates.
 
 Plot the results from the binomial analysis:
