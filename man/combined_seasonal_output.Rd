@@ -7,7 +7,7 @@
 combined_seasonal_output(
   tsd,
   disease_threshold = 20,
-  family = c("quasipoisson", "poisson"),
+  family = c("quasipoisson", "poisson", "quasibinomial", "binomial"),
   family_quant = c("lnorm", "weibull", "exp", "beta"),
   season_start = 21,
   season_end = season_start - 1,
