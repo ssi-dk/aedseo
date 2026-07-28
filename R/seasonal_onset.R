@@ -257,7 +257,7 @@ seasonal_onset <- function(
       # Calculate average cases in window (k)
       average_observations_window <- base::sum(obs_iter$cases, na.rm = TRUE) / k
     } else {
-      # Calculate pooled incidence/proportion in window (k), weighted by trials
+      # Calculate pooled incidence/proportion in window (k), weighted by samples
       # and expressed on the original incidence denominator scale.
       total_cases <- base::sum(obs_iter$observation, na.rm = TRUE)
       if (model_outcome == "proportion") {

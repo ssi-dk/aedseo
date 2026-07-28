@@ -8,7 +8,7 @@ combined_seasonal_output(
   tsd,
   disease_threshold = 20,
   family = c("quasipoisson", "poisson", "quasibinomial", "binomial"),
-  family_quant = c("lnorm", "weibull", "exp", "beta"),
+  family_quant = NULL,
   season_start = 21,
   season_end = season_start - 1,
   only_current_season = TRUE,
@@ -29,7 +29,7 @@ disease threshold that has to be surpassed for the observation to be included in
 
 \item{family}{A character string, family-generator, or family object specifying the distribution family for growth-rate
 modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'poisson' or
-'quasipoisson' for cases/incidences, and se 'binomial' or 'quasibinomial' for binomial data supplied as
+'quasipoisson' for cases/incidences, and use 'binomial' or 'quasibinomial' for binomial data supplied as
 \code{cases} and \code{samples}.  This is passed to 'seasonal_onset()'.}
 
 \item{family_quant}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'lnorm', 'weibull' or 'exp' for count data, or use 'beta' for proportional/binomial data.}

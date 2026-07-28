@@ -242,6 +242,25 @@ test_that("family works the same via name, generator or object", {
   ))
 })
 
+test_that("binomial onset output keeps one row per fitted window", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  tsd_data <- generate_seasonal_data(
+    years = 1,
+    mean = 0.3,
+    amplitude = 0.2,
+    samples = 100
+  )
+
+  onset_output <- seasonal_onset(tsd = tsd_data, family = "binomial")
+
+  expected_rows <- nrow(tsd_data) - attr(onset_output, "k") + 1
+  expected_indices <- attr(onset_output, "k"):nrow(tsd_data)
+  expect_equal(nrow(onset_output), expected_rows)
+  expect_equal(onset_output$proportion, tsd_data$proportion[expected_indices])
+  expect_equal(onset_output$samples, tsd_data$samples[expected_indices])
+})
+
 test_that("Test that seasonal onset correctly creates NA for significant growth in output", {
   skip_if_not_installed("withr")
   withr::local_seed(123)

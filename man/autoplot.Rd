@@ -51,7 +51,7 @@ autoplot(object, ...)
   vline_color_offset = "#006f3c",
   vline_linetype_offset = "dotted",
   line_width = 1,
-  y_scale_labels = scales::label_comma(big.mark = ".", decimal.mark = ","),
+  y_scale_labels = scales::label_comma(),
   theme_custom = ggplot2::theme_bw(),
   legend_position = "right",
   ...
@@ -93,7 +93,8 @@ seasonal_onset_alarm (first plot) or significantly positive growth rate (second 
 
 \item{only_burden_levels}{a character specifying if only burden levels and observations should be shown on the plot}
 
-\item{y_lower_bound}{A numeric specifying the lower bound of the y-axis.}
+\item{y_lower_bound}{A numeric specifying the lower bound of the log-scaled y-axis.
+Ignored for proportions, which always start at zero on a linear scale.}
 
 \item{factor_to_max}{A numeric specifying the factor to multiply the high burden level for extending the y-axis.}
 
@@ -157,7 +158,8 @@ The transparency of the points indicates whether a growth warning condition is m
 \itemize{
 \item Generates a line connecting the observations in the current season, along with colored regions
 representing different burdens levels and a vertical line indicating seasonal onset.
-The y-axis is scaled with \code{ggplot2::scale_y_log10} to give better visualisation of the burden levels.
+The y-axis is log-scaled for counts and incidence to improve visualisation of the burden levels.
+Proportions use a linear y-axis starting at zero so that zero observations remain visible.
 }
 }
 \examples{

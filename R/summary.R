@@ -30,10 +30,14 @@
 summary.tsd_onset <- function(object, ...) {
   checkmate::assert_class(object, "tsd_onset")
 
-  # Use incidence if in onset_output else use cases
-  use_incidence <- FALSE
-  if (!is.na(attr(object, "incidence_denominator"))) {
-    use_incidence <- TRUE
+  # Report observations on the scale used by the fitted model.
+  model_outcome <- attr(object, "model_outcome")
+  observation_column <- if (identical(model_outcome, "proportion")) {
+    "proportion"
+  } else if (identical(model_outcome, "incidence")) {
+    "incidence"
+  } else {
+    "cases"
   }
 
   # Extract the last observation
@@ -50,17 +54,7 @@ summary.tsd_onset <- function(object, ...) {
   last_season <- last_observation$season
 
   # Latest observation
-  if (use_incidence) {
-    latest_observation <- as.numeric(
-      last_observation |>
-        dplyr::pull(.data$incidence)
-    )
-  } else {
-    latest_observation <- as.numeric(
-      last_observation |>
-        dplyr::pull(.data$cases)
-    )
-  }
+  latest_observation <- as.numeric(last_observation[[observation_column]])
 
   # Latest average of observations in window
   latest_average_observations_window <- last_observation |>
@@ -113,34 +107,21 @@ summary.tsd_onset <- function(object, ...) {
       dplyr::filter(.data$season == last_season) |>
       dplyr::filter(.data$seasonal_onset == TRUE)
 
-    seasonal_onset_ref_time <- as.character(
-      seasonal_onset_ref_obs |>
-        dplyr::pull(.data$reference_time)
-    )
-    if (use_incidence) {
-      seasonal_onset_obs <- as.numeric(
-        seasonal_onset_ref_obs |>
-          dplyr::pull(.data$incidence) |>
-          as.numeric()
-      )
+    if (nrow(seasonal_onset_ref_obs) == 0) {
+      seasonal_onset_ref_time <- NA_character_
+      seasonal_onset_obs <- NA_real_
+      seasonal_onset_sum_obs <- NA_character_
+      seasonal_onset_gr <- NA_real_
+      seasonal_onset_upper_gr <- NA_real_
+      seasonal_onset_lower_gr <- NA_real_
     } else {
-      seasonal_onset_obs <- as.numeric(
-        seasonal_onset_ref_obs |>
-          dplyr::pull(.data$cases)
-      )
+      seasonal_onset_ref_time <- as.character(seasonal_onset_ref_obs$reference_time)
+      seasonal_onset_obs <- as.numeric(seasonal_onset_ref_obs[[observation_column]])
+      seasonal_onset_sum_obs <- as.character(seasonal_onset_ref_obs$average_observations_window)
+      seasonal_onset_gr <- seasonal_onset_ref_obs$growth_rate
+      seasonal_onset_upper_gr <- seasonal_onset_ref_obs$upper_growth_rate
+      seasonal_onset_lower_gr <- seasonal_onset_ref_obs$lower_growth_rate
     }
-    seasonal_onset_sum_obs <- as.character(
-      seasonal_onset_ref_obs |>
-        dplyr::pull(.data$average_observations_window)
-    )
-    seasonal_onset_gr <- seasonal_onset_ref_obs |>
-      dplyr::pull(.data$growth_rate)
-
-    seasonal_onset_upper_gr <- seasonal_onset_ref_obs |>
-      dplyr::pull(.data$upper_growth_rate)
-
-    seasonal_onset_lower_gr <- seasonal_onset_ref_obs |>
-      dplyr::pull(.data$lower_growth_rate)
   }
 
   offset_block <- ""
@@ -150,35 +131,16 @@ summary.tsd_onset <- function(object, ...) {
       dplyr::filter(.data$season == last_season) |>
       dplyr::filter(.data$seasonal_offset == TRUE)
 
-    seasonal_offset_ref_time <- as.character(
-      seasonal_offset_ref_obs |>
-        dplyr::pull(.data$reference_time)
-    )
-    if (use_incidence) {
-      seasonal_offset_obs <- as.numeric(
-        seasonal_offset_ref_obs |>
-          dplyr::pull(.data$incidence) |>
-          as.numeric()
-      )
-    } else {
-      seasonal_offset_obs <- as.numeric(
-        seasonal_offset_ref_obs |>
-          dplyr::pull(.data$cases)
+    if (nrow(seasonal_offset_ref_obs) > 0) {
+      offset_block <- sprintf(
+        "Reference-offset time point (first seasonal offset alarm in season): %s
+      Observations at reference-offset time point: %g
+      Average observations (in k window) at reference-offset time point: %s ",
+        as.character(seasonal_offset_ref_obs$reference_time),
+        as.numeric(seasonal_offset_ref_obs[[observation_column]]),
+        as.character(seasonal_offset_ref_obs$average_observations_window)
       )
     }
-    seasonal_offset_sum_obs <- as.character(
-      seasonal_offset_ref_obs |>
-        dplyr::pull(.data$average_observations_window)
-    )
-
-    offset_block <- sprintf(
-      "Reference-offset time point (first seasonal offset alarm in season): %s
-      Observations at reference-offset time point: %d
-      Average observations (in k window) at reference-offset time point: %s ",
-      seasonal_offset_ref_time,
-      seasonal_offset_obs,
-      seasonal_offset_sum_obs
-    )
   }
 
   # Generate the summary message
@@ -188,8 +150,8 @@ summary.tsd_onset <- function(object, ...) {
 
       Model output:
         Reference time point (last case in series): %s
-        Observations at reference time point: %d
-        Average observations (in k window) at reference time point: %d
+        Observations at reference time point: %g
+        Average observations (in k window) at reference time point: %g
         Total number of growth warnings in the series: %d
         Latest growth warning: %s
         Growth rate estimate at reference time point:
@@ -203,8 +165,8 @@ summary.tsd_onset <- function(object, ...) {
         Called using distributional family: %s
         Window size: %d
         The time interval for the observations: %s
-        Disease specific threshold: %d
-        Incidence denominator: %d",
+        Disease specific threshold: %g
+        Incidence denominator: %g",
       as.character(reference_time),
       latest_observation,
       as.numeric(latest_average_observations_window),
@@ -229,7 +191,7 @@ summary.tsd_onset <- function(object, ...) {
 
       Model output:
         Reference time point (first seasonal onset alarm in season): %s
-        Observations at reference time point: %d
+        Observations at reference time point: %g
         Average observations (in k window) at reference time point: %s
         Growth rate estimate at reference time point:
           Estimate   Lower (%.1f%%)   Upper (%.1f%%)
@@ -247,16 +209,16 @@ summary.tsd_onset <- function(object, ...) {
         Called using distributional family: %s
         Window size: %d
         The time interval for the observations: %s
-        Disease specific threshold: %d
-        Incidence denominator: %d",
+        Disease specific threshold: %g
+        Incidence denominator: %g",
       seasonal_onset_ref_time,
       seasonal_onset_obs,
       seasonal_onset_sum_obs,
       lower_confidence_interval * 100,
       upper_confidence_interval * 100,
       seasonal_onset_gr,
-      seasonal_onset_upper_gr,
       seasonal_onset_lower_gr,
+      seasonal_onset_upper_gr,
       offset_block,
       sum_of_growth_warnings,
       as.character(latest_growth_warning),
