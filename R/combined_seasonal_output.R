@@ -293,6 +293,7 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
     family = attr(onset_output_raw, "family"),
     time_interval = attr(onset_output_raw, "time_interval"),
     incidence_denominator = attr(onset_output_raw, "incidence_denominator"),
+    model_outcome = attr(onset_output_raw, "model_outcome"),
     class = c("tsd_onset", class(onset_output))
   )
 
