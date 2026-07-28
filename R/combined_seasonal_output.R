@@ -87,7 +87,9 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
   disease_threshold = 20,
   family = c(
     "quasipoisson",
-    "poisson"
+    "poisson",
+    "quasibinomial",
+    "binomial"
   ),
   family_quant = c(
     "lnorm",
