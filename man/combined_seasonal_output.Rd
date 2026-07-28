@@ -28,10 +28,11 @@ trigger a seasonal onset alarm. If the average observation count in a window of 
 disease threshold that has to be surpassed for the observation to be included in the level calculations.}
 
 \item{family}{A character string, family-generator, or family object specifying the distribution family for growth-rate
-modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'binomial'
-or 'quasibinomial' for binomial data supplied as \code{successes} and \code{trials}.  This is passed to 'seasonal_onset()'.}
+modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'poisson' or
+'quasipoisson' for cases/incidences, and se 'binomial' or 'quasibinomial' for binomial data supplied as
+\code{cases} and \code{samples}.  This is passed to 'seasonal_onset()'.}
 
-\item{family_quant}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'beta' for proportional/binomial data. If \code{NULL}, defaults to 'beta' for proportional data and 'lnorm' otherwise. Proportional data must use 'beta'; non-proportional data cannot use 'beta'.}
+\item{family_quant}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'lnorm', 'weibull' or 'exp' for count data, or use 'beta' for proportional/binomial data.}
 
 \item{season_start, season_end}{Integers giving the start and end weeks of the seasons to
 stratify the observations by.}
@@ -72,7 +73,7 @@ A \code{tsd_onset} object containing:
 \item 'skipped_window': Logical. Was the window skipped due to missing observations?
 \item 'converged': Logical. Was the IWLS judged to have converged?
 \item 'seasonal_onset': Logical. The first detected seasonal onset in the season.
-\item Attributes: \code{time_interval} and \code{incidence_denominator}.
+\item Attributes: \code{time_interval}, \code{incidence_denominator} and \code{model_output}.
 }
 
 As extra the \code{tsd_onset} object will for each season contain a \code{seasonal_offset} variable:
@@ -128,8 +129,8 @@ objective function value from the optimisation. Smaller value equals better opti
 }
 }
 \item 'disease_threshold': The input disease threshold, which is also the very low level.
-\item 'incidence_denominator': The observations per incidence-denominator.
-\item Attributes: \code{time_interval} and \code{incidence_denominator}.
+\item 'incidence_denominator': only used for count data with population given.
+\item Attributes: \code{time_interval}, \code{incidence_denominator} and \code{burden_outcome}.
 }
 
 #' Attributes in the \code{tsd_onset_and_burden} object are:

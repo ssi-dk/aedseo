@@ -21,7 +21,7 @@ indicate that an observation has more influence on the model outcome, while lowe
 \item{conf_levels}{A numeric vector specifying the confidence levels for parameter estimates. The values have
 to be unique and in ascending order, that is the lowest level is first and highest level is last.}
 
-\item{family}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'beta' for proportional/binomial data. If \code{NULL}, defaults to 'beta' for proportional data and 'lnorm' otherwise. Proportional data must use 'beta'; non-proportional data cannot use 'beta'.}
+\item{family}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'lnorm', 'weibull' or 'exp' for count data, or use 'beta' for proportional/binomial data.}
 
 \item{optim_method}{A character string specifying the method to be used in the optimisation. Lookup \code{?optim::stats}
 for details about methods.

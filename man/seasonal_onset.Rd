@@ -29,8 +29,9 @@ onset alarm. If the average observation count in a window of size k exceeds \cod
 onset alarm can be triggered.}
 
 \item{family}{A character string, family-generator, or family object specifying the distribution family for growth-rate
-modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'binomial'
-or 'quasibinomial' for binomial data supplied as \code{successes} and \code{trials}.}
+modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'poisson' or
+'quasipoisson' for cases/incidences, and se 'binomial' or 'quasibinomial' for binomial data supplied as
+\code{cases} and \code{samples}.}
 
 \item{na_fraction_allowed}{Numeric value between 0 and 1 specifying the fraction of observations in the window
 of size k that are allowed to be NA or zero, i.e. without cases, in onset calculations.}
@@ -58,7 +59,7 @@ A \code{tsd_onset} object containing:
 \item 'skipped_window': Logical. Was the window skipped due to missing observations?
 \item 'converged': Logical. Was the IWLS judged to have converged?
 \item 'seasonal_onset': Logical. The first detected seasonal onset in the season.
-\item Attributes: \code{time_interval} and \code{incidence_denominator}.
+\item Attributes: \code{time_interval}, \code{incidence_denominator} and \code{model_output}.
 }
 }
 \description{

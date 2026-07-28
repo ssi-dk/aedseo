@@ -21,7 +21,7 @@ seasonal_burden_levels(
 \arguments{
 \item{tsd}{A \code{tsd} object containing time series data}
 
-\item{family}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'beta' for proportional/binomial data. If \code{NULL}, defaults to 'beta' for proportional data and 'lnorm' otherwise. Proportional data must use 'beta'; non-proportional data cannot use 'beta'.}
+\item{family}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'lnorm', 'weibull' or 'exp' for count data, or use 'beta' for proportional/binomial data.}
 
 \item{season_start, season_end}{Integers giving the start and end weeks of the seasons to
 stratify the observations by.}
@@ -97,8 +97,8 @@ objective function value from the optimisation. Smaller value equals better opti
 }
 }
 \item 'disease_threshold': The input disease threshold, which is also the very low level.
-\item 'incidence_denominator': The observations per incidence-denominator.
-\item Attributes: \code{time_interval} and \code{incidence_denominator}.
+\item 'incidence_denominator': only used for count data with population given.
+\item Attributes: \code{time_interval}, \code{incidence_denominator} and \code{burden_outcome}.
 }
 }
 \description{

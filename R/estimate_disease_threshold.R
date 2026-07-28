@@ -29,9 +29,10 @@
 #' @param burden_family `r rd_burden_level_family` Passed to `fit_percentiles()` as its `family` argument.
 #' @param ... Arguments passed to the `seasonal_onset()` or `fit_percentiles()` function.
 #' `only_current_season = FALSE` and `disease_threshold = NA_real_` cannot be changed in `seasonal_onset()`.
-#'
-#' @return An object of class `tsd_disease_threshold`, containing;
 #' ....
+#'
+#' @return `r rd_disease_threshold_return`
+#' `r rd_seasonal_onset_return`
 #'
 #' @export
 #'

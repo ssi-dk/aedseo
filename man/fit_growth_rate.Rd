@@ -20,8 +20,9 @@ This is mandatory for binomial models}
 \item{level}{The confidence level for parameter estimates, a numeric value between 0 and 1.}
 
 \item{family}{A character string, family-generator, or family object specifying the distribution family for growth-rate
-modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'binomial'
-or 'quasibinomial' for binomial data supplied as \code{successes} and \code{trials}.}
+modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'poisson' or
+'quasipoisson' for cases/incidences, and se 'binomial' or 'quasibinomial' for binomial data supplied as
+\code{cases} and \code{samples}.}
 }
 \value{
 A list containing:

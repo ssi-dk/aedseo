@@ -22,7 +22,7 @@
 #' `proportion` for binomial data.
 #' @param proportion A numeric vector containing binomial proportions in `[0, 1]` (Will be rescaled to `[0, 1]`
 #' if percentages in `(1, 100]` are provided).
-#' Use with `trials` for proportional/binomial data.
+#' Use with `samples` for proportional/binomial data.
 #' @param incidence_denominator An integer >= 1, specifying the observations per incidence-denominator.
 #' @param time A date vector containing the corresponding dates.
 #' @param time_interval `r rd_time_interval`

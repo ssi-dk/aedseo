@@ -53,17 +53,47 @@ to be unique and in ascending order, the first percentile is the disease specifi
 Specify one or three confidence levels e.g.: \code{c(0.25)} \code{c(0.25, 0.5, 0.75)}.}
 
 \item{family}{A character string, family-generator, or family object specifying the distribution family for growth-rate
-modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'binomial'
-or 'quasibinomial' for binomial data supplied as \code{successes} and \code{trials}.  Passed to \code{seasonal_onset()} and then to \code{fit_growth_rate()}.}
+modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'poisson' or
+'quasipoisson' for cases/incidences, and se 'binomial' or 'quasibinomial' for binomial data supplied as
+\code{cases} and \code{samples}.  Passed to \code{seasonal_onset()} and then to \code{fit_growth_rate()}.}
 
-\item{burden_family}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'beta' for proportional/binomial data. If \code{NULL}, defaults to 'beta' for proportional data and 'lnorm' otherwise. Proportional data must use 'beta'; non-proportional data cannot use 'beta'. Passed to \code{fit_percentiles()} as its \code{family} argument.}
+\item{burden_family}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'lnorm', 'weibull' or 'exp' for count data, or use 'beta' for proportional/binomial data. Passed to \code{fit_percentiles()} as its \code{family} argument.}
 
 \item{...}{Arguments passed to the \code{seasonal_onset()} or \code{fit_percentiles()} function.
-\code{only_current_season = FALSE} and \code{disease_threshold = NA_real_} cannot be changed in \code{seasonal_onset()}.}
+\code{only_current_season = FALSE} and \code{disease_threshold = NA_real_} cannot be changed in \code{seasonal_onset()}.
+....}
 }
 \value{
-An object of class \code{tsd_disease_threshold}, containing;
-....
+A \code{tsd_disease_threshold} object containing:
+\itemize{
+\item 'note': Information about the percentiles fit.
+\item 'season': The season that the disease threshold is estimated with.
+\item 'disease_threshold': The disease threshold value.
+\item 'optim': The arguments used in the \code{seasonal_burden_levels()} calculation of the percentiles.
+\item 'settings': Settings used to estimate the disease specific threshold.
+\item 'incidence-denominator': only used for count data with population given.
+\item 'time_interval': time interval of the time series data in days, weeks, or months.
+}
+
+A \code{tsd_onset} object containing:
+\itemize{
+\item 'reference_time': The time point for which the growth rate is estimated.
+\item 'cases': The cases at reference time point.
+\item 'population': The population at reference time point.
+\item 'incidence': The incidence at reference time point.
+\item 'season': The stratification of observables in corresponding seasons.
+\item 'growth_rate': The estimated growth rate.
+\item 'lower_growth_rate': The lower bound of the growth rate's confidence interval.
+\item 'upper_growth_rate': The upper bound of the growth rate's confidence interval.
+\item 'growth_warning': Logical. Is the growth rate significantly higher than zero?
+\item 'average_observation_window': The average of cases/incidence, or pooled proportion, within the time window.
+\item 'average_observation_warning': Logical. Does the average observations exceed the disease threshold?
+\item 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?
+\item 'skipped_window': Logical. Was the window skipped due to missing observations?
+\item 'converged': Logical. Was the IWLS judged to have converged?
+\item 'seasonal_onset': Logical. The first detected seasonal onset in the season.
+\item Attributes: \code{time_interval}, \code{incidence_denominator} and \code{model_output}.
+}
 }
 \description{
 This function estimates the disease specific threshold, based on previous seasons.
