@@ -20,7 +20,7 @@ rd_disease_threshold <- function(usage = NULL) {
 rd_family <- function(usage = NULL) {
   paste("A character string, family-generator, or family object specifying the distribution family for growth-rate
         modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'poisson' or
-        'quasipoisson' for cases/incidences, and se 'binomial' or 'quasibinomial' for binomial data supplied as
+        'quasipoisson' for cases/incidences, and use 'binomial' or 'quasibinomial' for binomial data supplied as
         `cases` and `samples`.",
         if (identical(usage, "combined")) " This is passed to 'seasonal_onset()'." else "")
 }
