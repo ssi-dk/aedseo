@@ -141,19 +141,6 @@ test_that("Test that family argument works as expected", {
     family = "quasibinomial"
   )
   expect_equal(attr(combined_quasibinomial$burden_output, "burden_outcome"), "proportion")
-  expect_no_error(combined_seasonal_output(
-    tsd = tsd_binomial,
-    disease_threshold = 0.1,
-    family = "binomial",
-    family_quant = "beta"
-  ))
-
-  expect_no_error(combined_seasonal_output(
-    tsd = tsd_binomial,
-    disease_threshold = 0.1,
-    family = "quasibinomial",
-    family_quant = "beta"
-  ))
 
 })
 

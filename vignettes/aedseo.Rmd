@@ -327,8 +327,8 @@ Binomial observations consist of a number of positive samples (`cases`) out of a
 number tested (`samples`). The following example generates five years of
 overdispersed binomial data. Supplying `samples` makes `generate_seasonal_data()`
 return the observed proportion in addition to the numerator and denominator;
-`noise_overdispersion = 5` generates beta-binomial variation and therefore makes
-the data suitable for demonstrating a quasi-binomial analysis.
+`noise_overdispersion = 5` generates beta-binomial variation and therefore provides
+a overdispersed example for quasi-binomial analysis.
 
 ```{r, include = FALSE}
 withr::local_seed(333)
@@ -399,19 +399,25 @@ seasonal_output_quasibinomial <- combined_seasonal_output(
 ```
 
 
-Seasonal onset output from the quasi-binomial analysis can be extracted by:
+Seasonal onset output from the binomial analysis can be extracted by:
+
+```{r}
+summary(seasonal_output_binomial$onset_output)
+```
+
+Seasonal burden output from the binomial analysis can be extracted by:
+
+```{r}
+summary(seasonal_output_binomial$burden_output)
+```
+The same can be done for the quasi-binomial analysis:
 
 ```{r}
 summary(seasonal_output_quasibinomial$onset_output)
-```
-
-Seasonal burden output from the quasi-binomial analysis can be extracted by:
-
-```{r}
 summary(seasonal_output_quasibinomial$burden_output)
 ```
 
-The two analyses can be compared to see how accounting for overdispersion affects the
+The two analyses can also be compared visually to see how accounting for overdispersion affects the
 estimates.
 
 Plot the results from the binomial analysis:
