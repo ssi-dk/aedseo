@@ -62,9 +62,6 @@ test_that("Test that plot works for cases and incidence for tsd, tsd_onset, tsd_
 
   expect_false(all(is.na(incidence_plot_3$data$incidence)))
 
-
-
-
   ## Proportion
 
   tsd_data_proportion <- generate_seasonal_data(
@@ -95,11 +92,26 @@ test_that("Test that plot works for cases and incidence for tsd, tsd_onset, tsd_
     family = "quasibinomial",
     family_quant = "beta"
   )
+  current_season <- max(combined_proportion$onset_output$season)
+  first_current <- which(combined_proportion$onset_output$season == current_season)[1]
+  combined_proportion$onset_output$proportion[first_current] <- 0
 
-  proportion_plot_3 <- autoplot(combined_proportion, y_lower_bound = 0.01)
+  proportion_plot_3 <- autoplot(combined_proportion)
 
   expect_equal(proportion_plot_3$labels$y, "Proportion")
-  expect_silent(ggplot2::ggplot_build(proportion_plot_3))
+  expect_equal(attr(combined_proportion$burden_output, "burden_outcome"), "proportion")
+  expect_false(all(is.na(proportion_plot_3$data$proportion)))
+  expect_true(any(proportion_plot_3$data$proportion == 0))
+  expect_true(any(vapply(proportion_plot_3$layers, \(layer) inherits(layer$geom, "GeomLine"), logical(1))))
+  proportion_y_scale <- proportion_plot_3$scales$get_scales("y")
+  expect_equal(proportion_y_scale$trans$name, "identity")
+  expect_equal(proportion_y_scale$limits[1], 0)
+  built_proportion_plot <- ggplot2::ggplot_build(proportion_plot_3)
+  expect_true(any(vapply(
+    built_proportion_plot$data,
+    \(layer) any(layer$y == 0, na.rm = TRUE),
+    logical(1)
+  )))
 })
 
 test_that("Test that plot works for cases and incidence in `tsd_growth_warning` objects", {
@@ -145,4 +157,16 @@ test_that("Test that plot works for cases and incidence in `tsd_growth_warning` 
   incidence_plot <- plot(tsd_growth_w_incidence)
 
   expect_false(all(is.na(incidence_plot$data$incidence)))
+
+  ## Proportion
+  tsd_data_proportion <- generate_seasonal_data(years = 3, samples = 100)
+  tsd_onset_proportion <- seasonal_onset(
+    tsd = tsd_data_proportion,
+    family = "quasibinomial",
+    only_current_season = FALSE
+  )
+  tsd_growth_w_proportion <- consecutive_growth_warnings(tsd_onset_proportion)
+  proportion_plot <- autoplot(tsd_growth_w_proportion)
+
+  expect_equal(proportion_plot$scales$get_scales("x")$trans$name, "identity")
 })
