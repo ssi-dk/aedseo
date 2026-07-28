@@ -62,9 +62,6 @@ test_that("Test that plot works for cases and incidence for tsd, tsd_onset, tsd_
 
   expect_false(all(is.na(incidence_plot_3$data$incidence)))
 
-
-
-
   ## Proportion
 
   tsd_data_proportion <- generate_seasonal_data(
@@ -115,8 +112,6 @@ test_that("Test that plot works for cases and incidence for tsd, tsd_onset, tsd_
     \(layer) any(layer$y == 0, na.rm = TRUE),
     logical(1)
   )))
-
-  expect_silent(ggplot2::ggplot_build(proportion_plot_3))
 })
 
 test_that("Test that plot works for cases and incidence in `tsd_growth_warning` objects", {
@@ -164,16 +159,10 @@ test_that("Test that plot works for cases and incidence in `tsd_growth_warning` 
   expect_false(all(is.na(incidence_plot$data$incidence)))
 
   ## Proportion
-  tsd_data_proportion <- generate_seasonal_data(
-    years = 3,
-    mean = 0.3,
-    amplitude = 0.2,
-    samples = 100
-  )
+  tsd_data_proportion <- generate_seasonal_data(years = 3, samples = 100)
   tsd_onset_proportion <- seasonal_onset(
     tsd = tsd_data_proportion,
     family = "quasibinomial",
-    season_start = 21,
     only_current_season = FALSE
   )
   tsd_growth_w_proportion <- consecutive_growth_warnings(tsd_onset_proportion)

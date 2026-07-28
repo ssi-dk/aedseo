@@ -425,7 +425,6 @@ Plot the results from the binomial analysis:
 ```{r, dpi=300}
 autoplot(
   object = seasonal_output_binomial,
-  y_lower_bound = 0.01,
   time_interval_step = "6 weeks",
   legend_position = "bottom"
 )
@@ -436,7 +435,6 @@ Plot the results from the quasi-binomial analysis:
 ```{r, dpi=300}
 autoplot(
   object = seasonal_output_quasibinomial,
-  y_lower_bound = 0.01,
   time_interval_step = "6 weeks",
   legend_position = "bottom"
 )
