@@ -55,12 +55,18 @@ autoplot.tsd <- function(
   start_date <- min(object$time)
   end_date <- max(object$time)
 
-  # Use incidence if in onset_output else use cases
-  obs_name <- "cases"
-  y_label <- "Cases"
-  if (!is.na(attr(object, "incidence_denominator"))) {
+  # Plot outcome type
+  obs_name <- NULL
+  y_label <- NULL
+  if ("proportion" %in% attr(object, "outcome_type")) {
+    obs_name <- "proportion"
+    y_label <- "Proportion"
+  } else if ("incidence" %in% attr(object, "outcome_type")) {
     obs_name <- "incidence"
     y_label <- "Incidence"
+  } else if ("cases" %in% attr(object, "outcome_type")) {
+    obs_name <- "cases"
+    y_label <- "Cases"
   }
 
   object |>
@@ -135,12 +141,18 @@ autoplot.tsd_onset <- function(
   start_date <- min(object$reference_time)
   end_date <- max(object$reference_time)
 
-  # Use incidence if in onset_output else use cases
-  obs_name <- "cases"
-  y_label <- "Cases"
-  if (!is.na(attr(object, "incidence_denominator"))) {
+  # Plot outcome type
+  obs_name <- NULL
+  y_label <- NULL
+  if ("proportion" %in% attr(object, "model_outcome")) {
+    obs_name <- "proportion"
+    y_label <- "Proportion"
+  } else if ("incidence" %in% attr(object, "model_outcome")) {
     obs_name <- "incidence"
     y_label <- "Incidence"
+  } else if ("cases" %in% attr(object, "model_outcome")) {
+    obs_name <- "cases"
+    y_label <- "Cases"
   }
 
   # Set growth_warning to FALSE if NA
@@ -231,7 +243,10 @@ autoplot.tsd_onset <- function(
       end_date = end_date,
       time_interval_step = time_interval_step
     ) +
-    ggplot2::labs(y = "Growth rate estimates") +
+    ggplot2::labs(
+      y = "Growth rate estimates",
+      caption = paste("Model outcome:", y_label)
+    ) +
     ggplot2::theme_bw() +
     ggplot2::theme(
       axis.text = ggplot2::element_text(size = 9, color = "black", family = text_family),
@@ -334,12 +349,18 @@ autoplot.tsd_onset_and_burden <- function(
   virus_df <- object$onset_output |>
     dplyr::filter(.data$season == max(.data$season))
 
-  # Use incidence if in onset_output else use cases
-  obs_name <- "cases"
-  y_label <- "Cases"
-  if (!is.na(attr(object$burden_output, "incidence_denominator"))) {
+  # Plot outcome type
+  obs_name <- NULL
+  y_label <- NULL
+  if ("proportion" %in% attr(virus_df, "model_outcome")) {
+    obs_name <- "proportion"
+    y_label <- "Proportion"
+  } else if ("incidence" %in% attr(virus_df, "model_outcome")) {
     obs_name <- "incidence"
     y_label <- "Incidence"
+  } else if ("cases" %in% attr(virus_df, "model_outcome")) {
+    obs_name <- "cases"
+    y_label <- "Cases"
   }
 
   # Add multiple wave onset if present in data frame
@@ -531,10 +552,14 @@ autoplot.tsd_growth_warning <- function(
   breaks_y_axis = 8,
   ...
 ) {
-  # Use incidence if in onset_output else use cases
-  obs_name <- "cases"
-  if (!is.na(attr(object, "incidence_denominator"))) {
+  # Use outcome type
+  obs_name <- NULL
+  if ("proportion" %in% attr(object, "model_outcome")) {
+    obs_name <- "proportion"
+  } else if ("incidence" %in% attr(object, "model_outcome")) {
     obs_name <- "incidence"
+  } else if ("cases" %in% attr(object, "model_outcome")) {
+    obs_name <- "cases"
   }
   time_interval <- attr(object, "time_interval")
 
@@ -573,7 +598,8 @@ autoplot.tsd_growth_warning <- function(
     ) +
     ggplot2::labs(
       y = paste("Number of subsequent significant", time_interval),
-      x = paste("Rolling", k, time_interval, "average of", obs_name)
+      x = paste("Rolling", k, time_interval, "average of", obs_name),
+      caption = paste("Model outcome:", obs_name)
     ) +
     ggplot2::theme_bw() +
     ggplot2::theme(
