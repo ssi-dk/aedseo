@@ -23,14 +23,14 @@ test_that("Test that plot works for cases and incidence for tsd, tsd_onset, tsd_
 
   cases_plot_2 <- plot(tsd_onset_cases)
 
-  expect_equal(all(cases_plot_2$data$incidence), NA)
+  expect_true(all(is.na(cases_plot_2$data$incidence)))
 
   # tsd_onset_and_burden
   combined_cases <- combined_seasonal_output(tsd_data_cases)
 
   cases_plot_3 <- plot(combined_cases)
 
-  expect_equal(all(cases_plot_3$data$incidence), NA)
+  expect_true(all(is.na(cases_plot_3$data$incidence)))
 
 
   ## Incidence
@@ -137,7 +137,7 @@ test_that("Test that plot works for cases and incidence in `tsd_growth_warning` 
 
   cases_plot <- plot(tsd_growth_w_cases)
 
-  expect_equal(all(cases_plot$data$incidence), NA)
+  expect_true(all(is.na(cases_plot$data$incidence)))
 
   ## Incidence
   tsd_data_incidence <- to_time_series(
