@@ -439,3 +439,36 @@ autoplot(
   legend_position = "bottom"
 )
 ```
+Finally, we can compare with a quasi-poisson analysis of the same data. First the disease threshold is estimated to be:
+
+```{r}
+tsd_quasibinomial_cases <- to_time_series(cases = tsd_quasibinomial$cases, time = tsd_quasibinomial$time)
+quasipoisson_bin_dth <- estimate_disease_threshold(
+  tsd = tsd_quasibinomial_cases,
+  family = "quasipoisson"
+)
+quasipoisson_bin_dth$disease_threshold
+```
+
+```{r}
+seasonal_output_quasipoisson <- combined_seasonal_output(
+  tsd = tsd_quasibinomial_cases,
+  disease_threshold = quasipoisson_bin_dth$disease_threshold,
+  method = "intensity_levels",
+  family = "quasipoisson"
+)
+```
+
+And summaries of the output: 
+
+```{r}
+summary(seasonal_output_quasipoisson$onset_output)
+summary(seasonal_output_quasipoisson$burden_output)
+```
+The seasonal onset alarm is in the week between the two binomial models and the disease threshold should be divided
+by the number of samples (250) to compare which also places this in between. So in this case where the number of
+samples is constant over time the different models yield comparable results. In a more real life setting where the
+number of samples changes over time it is important to know the reason for the changes. If it reflects changes in
+surveillance effort, e.g. variations in number of contribution doctors in a sentinel system, then the (quasi-)binomial
+family should be preferred. If the reason is that more people are sick and a constant fraction of all individuals with
+symptoms are tested then the (quasi-)poisson family is likely to be more appropriate.
