@@ -91,28 +91,31 @@ the height of peaks between seasons.</li>
 <p>The disease-specific threshold is the <code>very low</code>
 breakpoint for both methods. Breakpoints are named as the upper bounds
 for the burden levels, and are visualised on following plot.</p>
-<p><img src="burden_levels_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" width="2187.5"></p>
+<p><img src="burden_levels_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="2187.5"></p>
 <div class="section level2">
 <h2 id="methodology">Methodology<a class="anchor" aria-label="anchor" href="#methodology"></a>
 </h2>
 <p>The methodology used to define the burden levels of seasonal
-epidemics is based on observations (cases or incidence) from previous
-seasons. Historical data from all available seasons is used to establish
-the levels for the current season. This is done by:</p>
+epidemics is based on observations (cases, incidence, or proportions)
+from previous seasons. Historical data from all available seasons is
+used to establish the levels for the current season. This is done
+by:</p>
 <ul>
-<li>Using either cases or incidence as observations (default is
+<li>Using cases, incidence, or proportions as observations (default is
 <code>cases</code>, but if <code>incidence</code> is in the
-<code>tsd</code> object it will be used instead).</li>
+<code>tsd</code> object it will be used instead; binomial/proportional
+input remains on the proportion scale).</li>
 <li>Using <code>n</code> highest (peak) observations from each
 season.</li>
 <li>Selecting only observations if they surpass the disease-specific
 threshold.</li>
 <li>Weighting the observations such that recent observations have a
 greater influence than older observations.</li>
-<li>A proper distribution (log-normal, weibull and exponential are
-currently implemented) is fitted to the weighted <code>n</code> peak
-observations. The selected distribution with the fitted parameters is
-used to calculate percentiles to be used as breakpoints.</li>
+<li>A proper distribution (log-normal, Weibull, exponential, or beta for
+proportional/binomial observations) is fitted to the weighted
+<code>n</code> peak observations. The selected distribution with the
+fitted parameters is used to calculate percentiles to be used as
+breakpoints.</li>
 <li>Burden levels can be defined by two methods:
 <ul>
 <li>
@@ -171,10 +174,14 @@ dramatic shifts from one season to the next, a lower
 </h4>
 <p>The <code>family</code> argument is used to select which distribution
 the <code>n_peak</code> observations should be fitted to, users can
-choose between <code>lnorm</code>, <code>weibull</code> and
-<code>exp</code> distributions. The log-normal distribution
-theoretically aligns well with the nature of epidemic data, which often
-exhibits multiplicative growth patterns. In our optimisation process, we
+choose between <code>lnorm</code>, <code>weibull</code>,
+<code>exp</code>, and <code>beta</code> distributions. Use
+<code>beta</code> for proportional/binomial observations on the
+<code>[0, 1]</code> scale; if <code>family = NULL</code>, proportional
+data default to <code>beta</code> and non-proportional data default to
+<code>lnorm</code>. The log-normal distribution theoretically aligns
+well with the nature of epidemic data, which often exhibits
+multiplicative growth patterns. In our optimisation process, we
 evaluated the distributions to determine their performance in fitting
 Danish non-sentinel cases and hospitalisation data for RSV, SARS-CoV-2
 and Influenza (A and B). All three distributions had comparable weighted
@@ -234,7 +241,7 @@ disease-specific threshold is determined for all data combinations with
 use of the method described in <code><a href="../articles/aedseo.html">vignette("aedseo")</a></code>. The
 disease-specific threshold should be revised before a new season starts,
 especially if the data has a trend.
-<img src="burden_levels_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="3000"></p>
+<img src="burden_levels_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="3000"></p>
 <div class="section level3">
 <h3 id="use-the-intensity_levels-method">Use the intensity_levels method<a class="anchor" aria-label="anchor" href="#use-the-intensity_levels-method"></a>
 </h3>
@@ -335,7 +342,7 @@ arguments.</p>
 <div class="section level3">
 <h3 id="aedseo-and-mem-levels">aedseo and mem levels<a class="anchor" aria-label="anchor" href="#aedseo-and-mem-levels"></a>
 </h3>
-<p><img src="burden_levels_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="3000"></p>
+<p><img src="burden_levels_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="3000"></p>
 <p>In the plots:</p>
 <ul>
 <li>Observations below 3 are filtered out to improve visualization.</li>

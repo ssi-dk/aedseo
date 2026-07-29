@@ -146,6 +146,43 @@ test_that("Test that function returns NA when tsd is too short for the window si
   )
 })
 
+test_that("estimate_disease_threshold distinguishes binomial input from denominator-one incidence", {
+  time <- seq.Date(from = as.Date("2022-11-02"), by = 1, length.out = 3)
+
+  binomial_tsd <- to_time_series(
+    cases = c(1, 2, 3),
+    samples = c(10, 10, 10),
+    time = time
+  )
+  binomial_threshold <- estimate_disease_threshold(
+    tsd = binomial_tsd,
+    k = 4,
+    family = "quasibinomial"
+  )
+
+  expect_true(all(
+    c("cases", "samples", "proportion") %in% names(binomial_threshold$onset_output)
+  ))
+  expect_equal(binomial_threshold$settings$family, "quasibinomial")
+
+  incidence_tsd <- to_time_series(
+    cases = c(1, 2, 3),
+    population = c(10, 10, 10),
+    incidence_denominator = 1,
+    time = time
+  )
+  incidence_threshold <- estimate_disease_threshold(
+    tsd = incidence_tsd,
+    k = 4
+  )
+
+  expect_true(all(
+    c("cases", "population", "incidence") %in% names(incidence_threshold$onset_output)
+  ))
+
+  expect_equal(incidence_threshold$settings$family, "quasipoisson")
+})
+
 test_that("family arguments are routed to onset and percentile fits", {
   skip_if_not_installed("withr")
   withr::local_seed(111)

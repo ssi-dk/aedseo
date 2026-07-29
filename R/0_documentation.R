@@ -19,13 +19,22 @@ rd_disease_threshold <- function(usage = NULL) {
 }
 rd_family <- function(usage = NULL) {
   paste("A character string, family-generator, or family object specifying the distribution family for growth-rate
-        modeling. Choose between 'quasipoisson' and 'poisson'.",
+        modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'poisson' or
+        'quasipoisson' for cases/incidences, and use 'binomial' or 'quasibinomial' for binomial data supplied as
+        `cases` and `samples`.",
         if (identical(usage, "combined")) " This is passed to 'seasonal_onset()'." else "")
 }
-rd_burden_level_family <- "A character string specifying the family for modeling burden levels. 
-        Choose between 'lnorm', 'weibull', and 'exp'."
+rd_burden_level_family <- paste(
+  "A character string specifying the family for modeling burden levels.",
+  "Choose between 'lnorm', 'weibull', 'exp', or 'beta'.",
+  "Use 'lnorm', 'weibull' or 'exp' for count data, or",
+  "use 'beta' for proportional/binomial data."
+)
 rd_only_current_season <- "Should the output only include results for the current season?"
-rd_population <- "An integer vector containing the time series background population."
+rd_population <- paste(
+  "An integer vector containing the time series background population.",
+  "For binomial data, use `samples` instead."
+)
 rd_season_start_end <- function(usage = NULL) {
   paste("Integers giving the start and end weeks of the seasons to
   stratify the observations by.",
@@ -42,13 +51,13 @@ rd_seasonal_onset_return <- paste(
   "- 'lower_growth_rate': The lower bound of the growth rate's confidence interval.\n",
   "- 'upper_growth_rate': The upper bound of the growth rate's confidence interval.\n",
   "- 'growth_warning': Logical. Is the growth rate significantly higher than zero?\n",
-  "- 'average_observation_window': The average of cases or incidence within the time window.\n",
+  "- 'average_observation_window': The average of cases/incidence, or pooled proportion, within the time window.\n",
   "- 'average_observation_warning': Logical. Does the average observations exceed the disease threshold?\n",
   "- 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?\n",
   "- 'skipped_window': Logical. Was the window skipped due to missing observations?\n",
   "- 'converged': Logical. Was the IWLS judged to have converged?\n",
   "- 'seasonal_onset': Logical. The first detected seasonal onset in the season.\n",
-  "- Attributes: `time_interval` and `incidence_denominator`."
+  "- Attributes: `time_interval`, `incidence_denominator` and `model_output`."
 )
 rd_seasonal_burden_levels_return <- paste(
   "\nA `tsd_burden_levels` object containing:\n",
@@ -62,10 +71,12 @@ rd_seasonal_burden_levels_return <- paste(
   "         - For 'weibull': Shape parameter.\n",
   "         - For 'lnorm': Mean of the log-transformed observations.\n",
   "         - For 'exp': Rate parameter.\n",
+  "         - For 'beta': First shape parameter.\n",
   "      - 'par_2':\n",
   "         - For 'weibull': Scale parameter.\n",
   "         - For 'lnorm': Standard deviation of the log-transformed observations.\n",
   "         - For 'exp': Not applicable (set to NA).\n",
+  "         - For 'beta': Second shape parameter.\n",
   "  - 'obj_value': The value of the objective function - (negative log-likelihood), which represent the minimised\n",
   "  objective function value from the optimisation. Smaller value equals better optimisation.\n",
   "  - 'converged': Logical. TRUE if the optimisation converged.\n",
@@ -73,9 +84,20 @@ rd_seasonal_burden_levels_return <- paste(
   "     - 'weibull': Uses the Weibull distribution for fitting.\n",
   "     - 'lnorm': Uses the Log-normal distribution for fitting.\n",
   "     - 'exp': Uses the Exponential distribution for fitting.\n",
+  "     - 'beta': Uses the Beta distribution for proportional/binomial observations.\n",
   "- 'disease_threshold': The input disease threshold, which is also the very low level.\n",
-  "- 'incidence_denominator': The observations per incidence-denominator.\n",
-  "- Attributes: `time_interval` and `incidence_denominator`."
+  "- 'incidence_denominator': only used for count data with population given.\n",
+  "- Attributes: `time_interval`, `incidence_denominator` and `burden_outcome`."
+)
+rd_disease_threshold_return <- paste(
+  "\nA `tsd_disease_threshold` object containing:\n",
+  "- 'note': Information about the percentiles fit.\n",
+  "- 'season': The season that the disease threshold is estimated with.\n",
+  "- 'disease_threshold': The disease threshold value.\n",
+  "- 'optim': The arguments used in the `seasonal_burden_levels()` calculation of the percentiles.\n",
+  "- 'settings': Settings used to estimate the disease specific threshold.\n",
+  "- 'incidence-denominator': only used for count data with population given.\n",
+  "- 'time_interval': time interval of the time series data in days, weeks, or months.\n"
 )
 rd_tsd <- "A `tsd` object containing time series data"
 

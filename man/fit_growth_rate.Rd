@@ -2,23 +2,27 @@
 % Please edit documentation in R/fit_growth_rate.R
 \name{fit_growth_rate}
 \alias{fit_growth_rate}
-\title{Fit a growth rate model to time series cases.}
+\title{Fit a growth rate model to time series observations.}
 \usage{
 fit_growth_rate(
   cases,
-  population = NULL,
+  denominator = NULL,
   level = 0.95,
-  family = c("quasipoisson", "poisson")
+  family = c("quasipoisson", "poisson", "quasibinomial", "binomial")
 )
 }
 \arguments{
-\item{cases}{An integer vector containing the time series cases.}
+\item{cases}{An integer vector containing cases.}
 
-\item{population}{An integer vector containing the time series background population.}
+\item{denominator}{An integer vector containing population or binomial sample size.
+This is mandatory for binomial models}
 
 \item{level}{The confidence level for parameter estimates, a numeric value between 0 and 1.}
 
-\item{family}{A character string, family-generator, or family object specifying the distribution family for growth-rate modeling. Choose between 'quasipoisson' and 'poisson'.}
+\item{family}{A character string, family-generator, or family object specifying the distribution family for growth-rate
+modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'poisson' or
+'quasipoisson' for cases/incidences, and se 'binomial' or 'quasibinomial' for binomial data supplied as
+\code{cases} and \code{samples}.}
 }
 \value{
 A list containing:
@@ -31,8 +35,8 @@ confidence intervals.
 }
 }
 \description{
-This function fits a growth rate model to time series cases and provides parameter estimates along with
-confidence intervals.
+This function fits a growth rate model to time series observations and provides parameter estimates along with
+confidence intervals. For binomial data use \code{family = "binomial"} or \code{family = "quasibinomial"}.
 }
 \examples{
 # Fit a growth rate model to a time series of counts
@@ -42,5 +46,12 @@ fit_growth_rate(
   cases = data,
   level = 0.95,
   family = "poisson"
+)
+
+# Fit a binomial growth rate model to successes out of trials
+fit_growth_rate(
+  cases = c(1, 2, 3, 4),
+  denominator = c(10, 10, 10, 10),
+  family = "binomial"
 )
 }

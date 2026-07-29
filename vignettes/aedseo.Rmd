@@ -32,9 +32,12 @@ observations based on previous seasons.
 ### Seasonal data
 
 To apply the `aedseo` algorithm, data needs to be transformed into a `tsd` object.
-If you have your own data, the `to_time_series()` function can be used with the arguments: `cases`, `incidence`, `population`, `incidence_denominator`, `time` and `time_interval`.
-As default both `seasonal_onset()` and `seasonal_burden_levels()` use `cases`, but if `incidence` is in the `tsd` object the output will be in `incidence` instead.
-If `population` is additionally given as arguments the function will calculate the `incidence` per 100.000 (default for `incidence_denominator` which can be changed in input).
+If you have your own count data, the `to_time_series()` function can be used with `cases`, or with `incidence`, `population` and `incidence_denominator` to calculate cases or incidence.
+For binomial or proportional data, use `successes` together with `trials`, or `proportion` together with `trials`, instead of the count/incidence inputs (`cases`, `incidence`, `population` and `incidence_denominator`).
+The `time` argument is always required, regardless of whether the observations are counts, incidences, successes, or proportions.
+The `time_interval` argument is optional: if it is not specified, weekly spacing is assumed; specify it only when the observations are recorded at another supported interval, such as days or months.
+As default both `seasonal_onset()` and `seasonal_burden_levels()` use `cases`, but if `incidence` is in the `tsd` object the output will be in `incidence` instead; proportional input is kept on the proportion scale.
+If `population` is additionally given as arguments the function will calculate the `incidence` per 100.000 (default for `incidence_denominator` which can be changed in input). For binomial inputs, `trials` supplies the denominator and `incidence_denominator` is set to 1.
 In the following section, the application of the algorithm is shown with simulated cases created with the `generate_seasonal_data()`function.
 More information about the function can be found in the `vignette("generate_seasonal_wave")`.
 ```{r, include = FALSE}
@@ -76,7 +79,7 @@ In this example the disease-specific threshold is determined based on consecutiv
 Significant weeks are defined as those with a case count that has a significant positive growth rate.
 
 To capture short-term changes and fluctuations in the cases, a rolling window of size $k = 5$ is used to create subsets of the cases for model fitting,
-and the `quasipoisson` family is used to account for overdispersion.
+and the `quasipoisson` family is used to account for overdispersion. For binomial/proportional observations, use `successes`/`trials` or `proportion`/`trials` when creating the `tsd`, fit onset with `family = "binomial"` or `family = "quasibinomial"`, and estimate thresholds on the proportion scale.
 
 The `estimate_disease_threshold()` function can be used to automatically estimate the disease-specific threshold.
 As default it uses;

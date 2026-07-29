@@ -70,7 +70,7 @@ test_that("cases vs. incidence input/conversion works as expected", {
     population = c(1e+06, 1e+06, 1e+06, 1e+06),
     time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4)
   )
-  expect_named(tsd_cal_incidence, c("time", "cases", "population", "incidence"))
+  expect_named(tsd_cal_incidence, c("time", "cases", "incidence", "population"))
 
   expect_error(to_time_series(
     incidence = c(1.0, 1.5, 2.0, 1.8),
@@ -90,5 +90,46 @@ test_that("cases vs. incidence input/conversion works as expected", {
     population = c(1e+06, 1e+06, 1e+06, 1e+06),
     time = seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 4)
   )
-  expect_named(tsd_miss_cases, c("time", "incidence", "population", "cases"))
+  expect_named(tsd_miss_cases, c("time", "cases", "incidence", "population"))
+})
+
+test_that("binomial input is converted to proportion-scale tsd", {
+  time <- seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 3)
+
+  tsd_successes <- to_time_series(
+    cases = c(10L, 12L, 30L),
+    samples = c(100L, 120L, 150L),
+    time = time
+  )
+
+  expect_s3_class(tsd_successes, "tsd")
+  expect_named(tsd_successes, c("time", "cases", "proportion", "samples"))
+  expect_equal(tsd_successes$cases, c(10L, 12L, 30L))
+  expect_equal(tsd_successes$samples, c(100L, 120L, 150L))
+  expect_equal(tsd_successes$proportion, c(0.1, 0.1, 0.2))
+  expect_equal(attr(tsd_successes, "incidence_denominator"), 1)
+
+  tsd_proportion <- to_time_series(
+    proportion = c(10, 25, 0.5),
+    samples = c(100L, 200L, 20L),
+    time = time
+  )
+
+  expect_named(tsd_proportion, c("time", "cases", "proportion", "samples"))
+  expect_equal(tsd_proportion$cases, c(10, 50, 0))
+  expect_equal(tsd_proportion$proportion, c(0.1, 0.25, 0.005))
+  expect_equal(tsd_proportion$samples, c(100L, 200L, 20L))
+})
+
+test_that("binomial input validation catches invalid combinations", {
+  time <- seq(from = as.Date("2023-01-01"), by = "1 week", length.out = 2)
+
+  expect_error(
+    to_time_series(cases = c(3L, 5L), samples = c(2L, 4L), time = time),
+    "less than or equal"
+  )
+  expect_error(
+    to_time_series(proportion = c(0.5, 101), samples = c(10L, 10L), time = time),
+    "between 0 and 1"
+  )
 })

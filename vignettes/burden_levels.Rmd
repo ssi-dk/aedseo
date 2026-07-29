@@ -12,6 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+has_mem <- requireNamespace("mem", quietly = TRUE)
 ```
 
 ```{r setup, warning=FALSE, message=FALSE}
@@ -139,15 +140,15 @@ burden_levels_df |>
 
 ## Methodology
 
-The methodology used to define the burden levels of seasonal epidemics is based on observations (cases or incidence) from previous seasons.
+The methodology used to define the burden levels of seasonal epidemics is based on observations (cases, incidence, or proportions) from previous seasons.
 Historical data from all available seasons is used to establish the levels for the current season.
 This is done by:
 
-- Using either cases or incidence as observations (default is `cases`, but if `incidence` is in the `tsd` object it will be used instead).
+- Using cases, incidence, or proportions as observations (default is `cases`, but if `incidence` is in the `tsd` object it will be used instead; binomial/proportional input remains on the proportion scale).
 - Using `n` highest (peak) observations from each season.
 - Selecting only observations if they surpass the disease-specific threshold.
 - Weighting the observations such that recent observations have a greater influence than older observations.
-- A proper distribution (log-normal, weibull and exponential are currently implemented) is fitted to the weighted
+- A proper distribution (log-normal, Weibull, exponential, or beta for proportional/binomial observations) is fitted to the weighted
  `n` peak observations. The selected distribution with the fitted parameters is used to calculate percentiles to be used as breakpoints.
 - Burden levels can be defined by two methods:
   - `peak_levels` which models the height of the seasonal peaks. Using the log-normal distribution without weights is similar
@@ -177,7 +178,7 @@ Conversely, if the data exhibit dramatic shifts from one season to the next, a l
 
 #### Distribution and optimisation
 The `family` argument is used to select which distribution the `n_peak` observations should be fitted to, users can
-choose between `lnorm`, `weibull` and `exp` distributions. The log-normal distribution theoretically
+choose between `lnorm`, `weibull`, `exp`, and `beta` distributions. Use `beta` for proportional/binomial observations on the `[0, 1]` scale; if `family = NULL`, proportional data default to `beta` and non-proportional data default to `lnorm`. The log-normal distribution theoretically
 aligns well with the nature of epidemic data, which often exhibits multiplicative growth patterns.
 In our optimisation process, we evaluated the distributions to determine their performance in fitting Danish non-sentinel
 cases and hospitalisation data for RSV, SARS-CoV-2 and Influenza (A and B). All three distributions had comparable
@@ -368,7 +369,10 @@ peak_levels_n_neg_t <- seasonal_burden_levels(
 ## Compare intensity_levels, peak_levels and mem algorithms
 
 [mem](https://github.com/lozalojo/mem) is run with default arguments.
-```{r}
+
+`r if (!has_mem) "The mem comparison is skipped when the optional mem package is not installed."`
+
+```{r, eval=has_mem}
 # Remove current season such as previous seasons predict for newest season
 previous_seasons <- tsd_data_all |>
   dplyr::mutate(season = epi_calendar(time)) |>
@@ -398,7 +402,7 @@ mem_thresholds <- previous_seasons |>
 ```
 
 ### aedseo  and mem levels
-```{r, echo = FALSE, fig.width=10, fig.height=8, dpi=300}
+```{r, echo = FALSE, eval=has_mem, fig.width=10, fig.height=8, dpi=300}
 #### Create data frame
 burden_levels_df <- tibble::tibble(
   Level = names(

@@ -3,7 +3,8 @@
 #' @description
 #'
 #' This function estimates the disease specific threshold, based on previous seasons.
-#' If the disease threshold is estimated between ]0:1] it will be set to 1.
+#' For count/incidence data, thresholds estimated between ]0:1] are set to 1.
+#' For binomial/proportional data, thresholds remain on the proportion scale and beta percentiles are used by default.
 #'
 #' @param tsd `r rd_tsd`
 #' @param season_start,season_end `r rd_season_start_end()`
@@ -28,9 +29,10 @@
 #' @param burden_family `r rd_burden_level_family` Passed to `fit_percentiles()` as its `family` argument.
 #' @param ... Arguments passed to the `seasonal_onset()` or `fit_percentiles()` function.
 #' `only_current_season = FALSE` and `disease_threshold = NA_real_` cannot be changed in `seasonal_onset()`.
-#'
-#' @return An object of class `tsd_disease_threshold`, containing;
 #' ....
+#'
+#' @return `r rd_disease_threshold_return`
+#' `r rd_seasonal_onset_return`
 #'
 #' @export
 #'
@@ -58,17 +60,35 @@ estimate_disease_threshold <- function(
   conf_levels = c(0.25, 0.5, 0.75),
   family = c(
     "quasipoisson",
-    "poisson"
+    "poisson",
+    "quasibinomial",
+    "binomial"
   ),
   burden_family = c(
     "lnorm",
     "weibull",
-    "exp"
+    "exp",
+    "beta"
   ),
   ...
 ) {
   # Check input arguments
+  family <- rlang::arg_match(family)
+  burden_family <- rlang::arg_match(burden_family)
+
   coll <- checkmate::makeAssertCollection()
+  checkmate::assert_names(
+    colnames(tsd),
+    must.include = c("time", "cases"),
+    subset.of = c("time", "cases", "incidence", "population", "proportion", "samples"),
+    add = coll
+  )
+  if ("proportion" %in% attr(tsd, "outcome_type")) {
+    checkmate::assert_names(colnames(tsd), must.include = c("proportion", "samples"), add = coll)
+  }
+  if ("incidence" %in% attr(tsd, "outcome_type")) {
+    checkmate::assert_names(colnames(tsd), must.include = c("incidence", "population"), add = coll)
+  }
   checkmate::assert_integerish(season_start, lower = 1, upper = 53,
                                null.ok = FALSE, add = coll)
   checkmate::assert_integerish(season_end, lower = 1, upper = 53,
@@ -94,10 +114,6 @@ estimate_disease_threshold <- function(
 
   # Throw an error if any of the inputs are not supported
   pick_significant_sequence <- match.arg(pick_significant_sequence)
-  if (is.character(burden_family)) {
-    burden_family <- rlang::arg_match(burden_family)
-  }
-
   # Estimate growth rates
   onset_output <- do.call(
     seasonal_onset,
@@ -109,6 +125,9 @@ estimate_disease_threshold <- function(
       onset_args
     )
   )   # nolint: object_usage_linter.
+
+  # Checking which model_outcome was used
+  model_outcome <- attr(onset_output, "model_outcome")
 
   # Check if skip season
   if (skip_current_season) {
@@ -129,6 +148,7 @@ estimate_disease_threshold <- function(
                       use_prev_seasons_num = use_prev_seasons_num,
                       pick_significant_sequence = pick_significant_sequence,
                       season_importance_decay = season_importance_decay,
+                      family = family,
                       percentiles = conf_levels),
       incidence_denominator = attr(onset_output, "incidence_denominator"),
       time_interval = attr(onset_output, "time_interval"),
@@ -141,11 +161,17 @@ estimate_disease_threshold <- function(
   # Count consecutive significant observations
   sign_warnings <- consecutive_growth_warnings(onset_output)
 
-  # Peak time per season
+  # Peak time per season. Prefer incidence when it is available, because it
+  # accounts for population/trial denominators; otherwise use raw cases.
+  peak_observation <- if (model_outcome == "incidence") {
+    "incidence"
+  } else {
+    "cases"
+  }
   peaks <- onset_output |>
     dplyr::arrange(.data$season) |>
     dplyr::group_by(.data$season) |>
-    dplyr::slice_max(order_by = .data$cases, n = 1, with_ties = FALSE, na_rm = TRUE) |>
+    dplyr::slice_max(order_by = .data[[peak_observation]], n = 1, with_ties = FALSE, na_rm = TRUE) |>
     dplyr::ungroup() |>
     dplyr::select("season", peak_time = "reference_time") |>
     dplyr::slice_tail(n = use_prev_seasons_num)
@@ -229,6 +255,7 @@ estimate_disease_threshold <- function(
                       use_prev_seasons_num = use_prev_seasons_num,
                       pick_significant_sequence = pick_significant_sequence,
                       season_importance_decay = season_importance_decay,
+                      family = family,
                       percentiles = conf_levels),
       incidence_denominator = attr(onset_output, "incidence_denominator"),
       time_interval = attr(onset_output, "time_interval"),
@@ -259,10 +286,20 @@ estimate_disease_threshold <- function(
     per_season_sequence <- per_season_sequence |>
       dplyr::mutate(
         start_average_observations_window = dplyr::if_else(
-          .data$start_average_observations_window <= 0, 1,
+          .data$start_average_observations_window <= 0,
+          1,
           .data$start_average_observations_window
         )
       )
+  }
+
+  # Function to normalize the threshold based on count or binomial data
+  normalize_threshold <- function(x, is_binomial) {
+    if (is_binomial) {
+      pmin(pmax(x, 0), 1)
+    } else {
+      dplyr::if_else(dplyr::between(x, 0, 1), 1, x)
+    }
   }
 
   # If there is only one season with observation that will be the threshold
@@ -276,13 +313,14 @@ estimate_disease_threshold <- function(
     same_result <- list(
       note = "Only one season is used to determine the threshold.",
       seasons = unique(per_season_sequence$season),
-      disease_threshold = dplyr::if_else(dplyr::between(disease_threshold, 0, 1), 1, disease_threshold),
+      disease_threshold = normalize_threshold(disease_threshold, model_outcome == "proportion"),
       optim = NA,
       settings = list(skip_current_season = skip_current_season,
                       min_significant_time = min_significant_time,
                       use_prev_seasons_num = use_prev_seasons_num,
                       pick_significant_sequence = pick_significant_sequence,
                       season_importance_decay = season_importance_decay,
+                      family = family,
                       percentiles = conf_levels),
       incidence_denominator = attr(onset_output, "incidence_denominator"),
       time_interval = attr(onset_output, "time_interval"),
@@ -301,6 +339,40 @@ estimate_disease_threshold <- function(
     dplyr::select(-"year") |>
     dplyr::rename(observation = "start_average_observations_window")
 
+  # For proportion-based data, account for binomial precision by up-weighting
+  # observations from larger trial counts.
+  if (model_outcome == "proportion") {
+    k_window <- attr(onset_output, "k")
+    if (is.null(k_window) || !is.numeric(k_window) || length(k_window) != 1) {
+      k_window <- 5
+    }
+    onset_proportion <- onset_output |>
+      dplyr::arrange(.data$reference_time) |>
+      dplyr::pull("proportion")
+    onset_with_window <- onset_output |>
+      dplyr::arrange(.data$reference_time) |>
+      dplyr::mutate(
+        idx = dplyr::row_number(),
+        population_window = purrr::map_dbl(
+          .data$idx,
+          function(idx) {
+            sum(onset_proportion[max(1, idx - k_window + 1):idx], na.rm = TRUE)
+          }
+        )
+      )
+    pop_weights <- onset_with_window |>
+      dplyr::filter(.data$reference_time %in% weighted_significant_sequences$start_window_time) |>
+      dplyr::select("season", "reference_time", "population_window") |>
+      dplyr::rename(start_window_time = "reference_time", population_weight = "population_window")
+    weighted_significant_sequences <- weighted_significant_sequences |>
+      dplyr::left_join(pop_weights, by = c("season", "start_window_time")) |>
+      dplyr::mutate(
+        population_weight = dplyr::coalesce(.data$population_weight, 1),
+        weight = .data$weight * .data$population_weight
+      ) |>
+      dplyr::select(-"population_weight")
+  }
+
   # Run percentiles_fit function
   percentiles_fit <- do.call(
     fit_percentiles,
@@ -317,13 +389,14 @@ estimate_disease_threshold <- function(
   fit_results <- list(
     note = "Sufficient information to estimate percentiles.",
     seasons = unique(weighted_significant_sequences$season),
-    disease_threshold = dplyr::if_else(dplyr::between(percentiles_fit$values[1], 0, 1), 1, percentiles_fit$values[1]),
+    disease_threshold = normalize_threshold(percentiles_fit$values[1], model_outcome == "proportion"),
     optim = percentiles_fit,
     settings = list(skip_current_season = skip_current_season,
                     min_significant_time = min_significant_time,
                     use_prev_seasons_num = use_prev_seasons_num,
                     pick_significant_sequence = pick_significant_sequence,
                     season_importance_decay = season_importance_decay,
+                    family = family,
                     percentiles = conf_levels),
     incidence_denominator = attr(onset_output, "incidence_denominator"),
     time_interval = attr(onset_output, "time_interval"),
@@ -335,6 +408,7 @@ estimate_disease_threshold <- function(
     fit_results,
     time_interval = attr(tsd, "time_interval"),
     incidence_denominator = attr(tsd, "incidence_denominator"),
-    class = c("tsd_disease_threshold", class(fit_results))
+    class = c("tsd_disease_threshold", class(fit_results)),
+    model_outcome = model_outcome
   )
 }

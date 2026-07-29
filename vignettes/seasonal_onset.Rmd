@@ -62,8 +62,10 @@ with the variance ($v$) being significantly larger than the mean. This biologica
 One approach is to employ quasi-Poisson regression, which assumes $v=\sigma\lambda$,
 or to use negative binomial regression (not implemented yet), which assumes $v=\lambda+\lambda^2/\theta$, where both $\sigma$ and $\theta$ are overdispersion parameters.
 
-If the background population changes during the time-span for the cases, the growth rate estimations can be adjusted
-by applying population as offset in the model.
+For binomial/proportional observations, create the `tsd` with `successes`/`trials` or `proportion`/`trials` and use `family = "binomial"` or `family = "quasibinomial"`. The model then uses `trials` as the denominator (successes out of trials), and the rolling average is reported as a pooled proportion.
+
+If the background population changes during the time-span for count/incidence data, the growth rate estimations can be adjusted
+by applying population as offset in Poisson/quasi-Poisson models.
 
 ## Applying the seasonal_onset algorithm
 

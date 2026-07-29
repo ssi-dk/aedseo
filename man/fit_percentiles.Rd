@@ -7,21 +7,21 @@
 fit_percentiles(
   weighted_observations,
   conf_levels = c(0.5, 0.9, 0.95),
-  family = c("lnorm", "weibull", "exp"),
+  family = NULL,
   optim_method = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN", "Brent"),
   lower_optim = -Inf,
   upper_optim = Inf
 )
 }
 \arguments{
-\item{weighted_observations}{A tibble containing two columns of length n; \code{observation}, which contains either cases
-or incidences, and \code{weight}, which is the importance assigned to the observation. Higher weights indicate that an
-observation has more influence on the model outcome, while lower weights reduce its impact.}
+\item{weighted_observations}{A tibble containing two columns of length n; \code{observation}, which contains cases,
+incidences, or proportions, and \code{weight}, which is the importance assigned to the observation. Higher weights
+indicate that an observation has more influence on the model outcome, while lower weights reduce its impact.}
 
 \item{conf_levels}{A numeric vector specifying the confidence levels for parameter estimates. The values have
 to be unique and in ascending order, that is the lowest level is first and highest level is last.}
 
-\item{family}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', and 'exp'.}
+\item{family}{A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'lnorm', 'weibull' or 'exp' for count data, or use 'beta' for proportional/binomial data.}
 
 \item{optim_method}{A character string specifying the method to be used in the optimisation. Lookup \code{?optim::stats}
 for details about methods.
@@ -43,12 +43,14 @@ A list containing:
 \item For 'weibull': Shape parameter (k).
 \item For 'lnorm': Mean of the log-transformed observations.
 \item For 'exp': Rate parameter (rate).
+\item For 'beta': First shape parameter.
 }
 \item 'par_2':
 \itemize{
 \item For 'weibull': Scale parameter (scale).
 \item For 'lnorm': Standard deviation of the log-transformed observations.
 \item For 'exp': Not applicable (set to NA).
+\item For 'beta': Second shape parameter.
 }
 }
 \item 'obj_value': The value of the objective function - (negative log-likelihood), which represent the minimized
@@ -59,11 +61,12 @@ objective function value from the optimisation. Smaller value equals better opti
 \item 'weibull': Uses the Weibull distribution for fitting.
 \item 'lnorm': Uses the Log-normal distribution for fitting.
 \item 'exp': Uses the Exponential distribution for fitting.
+\item 'beta': Uses the Beta distribution for proportional/binomial observations.
 }
 }
 }
 \description{
-This function estimates the percentiles of weighted time series cases or incidences.
+This function estimates the percentiles of weighted time series cases, incidences, or proportions.
 The output contains the percentiles from the fitted distribution.
 }
 \examples{
@@ -83,6 +86,6 @@ data_input <- tibble::tibble(
 fit_percentiles(
   weighted_observations = data_input,
   conf_levels = c(0.50, 0.90, 0.95),
-  family= "weibull"
+  family = "weibull"
 )
 }

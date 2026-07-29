@@ -238,7 +238,7 @@ test_that("family works the same via name, generator or object", {
 
   expect_error(seasonal_onset(
     tsd = tsd_data,
-    family = stats::binomial,
+    family = 4,
   ))
 })
 
@@ -265,4 +265,40 @@ test_that("Test that seasonal onset correctly creates NA for significant growth 
   )
 
   expect_true(all(is.na(onset_data$upper_growth_rate)))
+})
+
+
+test_that("Average observations in window are correctly calculated", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+
+  # Generate seasonal data
+  tsd_data <- generate_seasonal_data(
+    years = 1,
+    start_date = as.Date("2021-01-04"),
+    amplitude = 10000
+  )
+
+  tsd_data_inc <-
+    to_time_series(time = tsd_data$time,
+                   cases = tsd_data$cases,
+                   population = 1e5,
+                   incidence_denominator = 100)
+
+  onset_output_inc <- seasonal_onset(
+    tsd = tsd_data_inc
+  )
+
+  # Use k = 5
+  tsd_data_inc_avg_obs <- tsd_data_inc |>
+    dplyr::mutate(
+      inc_rolling_avg = pracma::movavg(incidence, n = 5)
+    ) |>
+    dplyr::slice_max(order_by = time, n = (nrow(tsd_data) - 4)) |>
+    dplyr::arrange(time) |>
+    dplyr::pull(inc_rolling_avg)
+
+  average_observations_window_output <- onset_output_inc$average_observations_window
+
+  purrr::walk2(average_observations_window_output, tsd_data_inc_avg_obs, ~ expect_equal(.x, .y))
 })

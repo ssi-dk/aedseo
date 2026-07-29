@@ -9,7 +9,7 @@ seasonal_onset(
   k = 5,
   level = 0.95,
   disease_threshold = NA_real_,
-  family = c("quasipoisson", "poisson"),
+  family = c("quasipoisson", "poisson", "quasibinomial", "binomial"),
   na_fraction_allowed = 0.4,
   season_start = NULL,
   season_end = season_start - 1,
@@ -28,7 +28,10 @@ seasonal_onset(
 onset alarm. If the average observation count in a window of size k exceeds \code{disease_threshold}, a seasonal
 onset alarm can be triggered.}
 
-\item{family}{A character string, family-generator, or family object specifying the distribution family for growth-rate modeling. Choose between 'quasipoisson' and 'poisson'.}
+\item{family}{A character string, family-generator, or family object specifying the distribution family for growth-rate
+modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'poisson' or
+'quasipoisson' for cases/incidences, and se 'binomial' or 'quasibinomial' for binomial data supplied as
+\code{cases} and \code{samples}.}
 
 \item{na_fraction_allowed}{Numeric value between 0 and 1 specifying the fraction of observations in the window
 of size k that are allowed to be NA or zero, i.e. without cases, in onset calculations.}
@@ -50,20 +53,22 @@ A \code{tsd_onset} object containing:
 \item 'lower_growth_rate': The lower bound of the growth rate's confidence interval.
 \item 'upper_growth_rate': The upper bound of the growth rate's confidence interval.
 \item 'growth_warning': Logical. Is the growth rate significantly higher than zero?
-\item 'average_observation_window': The average of cases or incidence within the time window.
+\item 'average_observation_window': The average of cases/incidence, or pooled proportion, within the time window.
 \item 'average_observation_warning': Logical. Does the average observations exceed the disease threshold?
 \item 'seasonal_onset_alarm': Logical. Is there a seasonal onset alarm?
 \item 'skipped_window': Logical. Was the window skipped due to missing observations?
 \item 'converged': Logical. Was the IWLS judged to have converged?
 \item 'seasonal_onset': Logical. The first detected seasonal onset in the season.
-\item Attributes: \code{time_interval} and \code{incidence_denominator}.
+\item Attributes: \code{time_interval}, \code{incidence_denominator} and \code{model_output}.
 }
 }
 \description{
 This function performs automated and early detection of seasonal epidemic onsets on a \code{tsd} object.
-It estimates growth rates and calculates the average sum of cases in consecutive time intervals (\code{k}).
-If the time series data includes \code{population} it will be used as offset to adjust the growth rate in the glm,
-additionally the output will include incidence, population and average sum of incidence.
+It estimates growth rates and calculates the average observation in consecutive time intervals (\code{k}).
+For count/incidence data, Poisson/quasi-Poisson models use \code{population} as an offset when available.
+For binomial data created with \code{samples} and \code{cases} or \code{proportion}, use \code{family = "binomial"}
+or \code{family = "quasibinomial"}; \code{samples} is used as the denominator and the rolling window is reported
+as a pooled proportion.
 }
 \examples{
 # Create a tibble object from sample data

@@ -3,9 +3,11 @@
 #' @description
 #'
 #' This function performs automated and early detection of seasonal epidemic onsets on a `tsd` object.
-#' It estimates growth rates and calculates the average sum of cases in consecutive time intervals (`k`).
-#' If the time series data includes `population` it will be used as offset to adjust the growth rate in the glm,
-#' additionally the output will include incidence, population and average sum of incidence.
+#' It estimates growth rates and calculates the average observation in consecutive time intervals (`k`).
+#' For count/incidence data, Poisson/quasi-Poisson models use `population` as an offset when available.
+#' For binomial data created with `samples` and `cases` or `proportion`, use `family = "binomial"`
+#' or `family = "quasibinomial"`; `samples` is used as the denominator and the rolling window is reported
+#' as a pooled proportion.
 #'
 #' @param tsd `r rd_tsd`
 #' @param k An integer specifying the window size for modeling growth rates and average sum of cases.
@@ -46,7 +48,9 @@ seasonal_onset <- function(
   disease_threshold = NA_real_,
   family = c(
     "quasipoisson",
-    "poisson"
+    "poisson",
+    "quasibinomial",
+    "binomial"
     # TODO: #10 Include negative.binomial regressions. @telkamp7
   ),
   na_fraction_allowed = 0.4,
@@ -58,12 +62,19 @@ seasonal_onset <- function(
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(tsd, add = coll)
   checkmate::assert_class(tsd, "tsd", add = coll)
+
   checkmate::assert_names(
     colnames(tsd),
     must.include = c("time", "cases"),
-    subset.of = c("time", "cases", "incidence", "population"),
+    subset.of = c("time", "cases", "incidence", "population", "proportion", "samples"),
     add = coll
   )
+  if ("proportion" %in% attr(tsd, "outcome_type")) {
+    checkmate::assert_names(colnames(tsd), must.include = c("proportion", "samples"), add = coll)
+  }
+  if ("incidence" %in% attr(tsd, "outcome_type")) {
+    checkmate::assert_names(colnames(tsd), must.include = c("incidence", "population"), add = coll)
+  }
   checkmate::assert_numeric(level, lower = 0, upper = 1, add = coll)
   checkmate::assert_numeric(na_fraction_allowed, lower = 0, upper = 1,
                             add = coll)
@@ -74,6 +85,42 @@ seasonal_onset <- function(
   checkmate::assert_integerish(season_end, lower = 1, upper = 53,
                                null.ok = TRUE, add = coll)
   checkmate::assert_logical(only_current_season, null.ok = TRUE, add = coll)
+  checkmate::assert_multi_class(x = family, classes = c("character", "function", "family"), add = coll)
+  if (is.character(family)) {
+    family <- match.arg(family)
+    family_char <- family
+  } else if (inherits(family, "family")) {
+    family_char <- family$family
+  } else if (inherits(family, "function")) {
+    tmp <- eval(as.call(list(family)))
+    if (inherits(tmp, "family")) {
+      family_char <- tmp$family
+    } else {
+      coll$push(
+        "The family argument was a function that did not return an object with class 'family'."
+      )
+    }
+  }
+  checkmate::reportAssertions(coll)
+
+  # Deciding which model outcome to use
+  incidence_denominator <- attr(tsd, "incidence_denominator")
+  model_outcome <- NULL
+  if ("proportion" %in% attr(tsd, "outcome_type") && family_char %in% c("binomial", "quasibinomial")) {
+    model_outcome <- "proportion"
+    incidence_denominator <- 1 # Enforcing unity for proportions
+  } else if ("incidence" %in% attr(tsd, "outcome_type") && family_char %in% c("poisson", "quasipoisson")) {
+    model_outcome <- "incidence"
+  } else if ("cases" %in% attr(tsd, "outcome_type") && family_char %in% c("poisson", "quasipoisson")) {
+    model_outcome <- "cases"
+  }
+
+  if (is.null(model_outcome)) {
+    coll$push(
+      "Mismatch between variables in the input data and the desired family for the glm. Unable to decide model outcome."
+    )
+  }
+
   if (!is.null(season_start) && is.null(season_end)) {
     coll$push("If season_start is assigned season_end must also be assigned.")
   }
@@ -92,11 +139,6 @@ seasonal_onset <- function(
     tsd <- tsd |> dplyr::mutate(season = "not_defined")
   }
 
-  # Use incidence if in tsd else use cases
-  use_incidence <- FALSE
-  if ("population" %in% names(tsd) && "incidence" %in% names(tsd)) {
-    use_incidence <- TRUE
-  }
 
   # Define observation as cases in `tsd`.
   tsd <- tsd |>
@@ -149,6 +191,8 @@ seasonal_onset <- function(
       season = tsd$season,
       population = if ("population" %in% names(tsd)) tsd$population else NA_real_,
       incidence = if ("incidence"  %in% names(tsd)) tsd$incidence  else NA_real_,
+      proportion = if ("proportion" %in% names(tsd)) tsd$proportion else NA_real_,
+      samples = if ("samples"  %in% names(tsd)) tsd$samples  else NA_real_,
       growth_rate = NA_real_,
       lower_growth_rate = NA_real_,
       upper_growth_rate = NA_real_,
@@ -156,6 +200,7 @@ seasonal_onset <- function(
       average_observations_window = NA_real_,
       average_observations_warning = FALSE,
       seasonal_onset_alarm = FALSE,
+      seasonal_onset = FALSE,
       skipped_window = TRUE,
       converged = FALSE
     )
@@ -168,16 +213,17 @@ seasonal_onset <- function(
       level = level,
       disease_threshold = disease_threshold,
       family = family,
-      incidence_denominator = attr(tsd, "incidence_denominator")
+      incidence_denominator = incidence_denominator,
+      model_outcome = model_outcome
     )
 
     # Keep attributes from the `tsd` class
     attr(ans, "time_interval") <- attr(tsd, "time_interval")
-    attr(ans, "incidence_denominator") <- attr(tsd, "incidence_denominator")
 
     return(ans)
   }
 
+  # Estimate growth rates for all possible intervals
   for (i in k:n) {
     # Index observations for this iteration
     obs_iter <- tsd[(i - k + 1):i, ]
@@ -192,7 +238,13 @@ seasonal_onset <- function(
       # Estimate growth rates
       growth_rates <- fit_growth_rate(
         cases = obs_iter$observation,
-        population = if ("population" %in% names(tsd)) obs_iter$population else NULL,
+        denominator = if (model_outcome == "proportion") {
+          obs_iter$samples
+        } else if (model_outcome == "incidence") {
+          obs_iter$population
+        } else {
+          NULL
+        },
         level = level,
         family = family
       )
@@ -201,15 +253,30 @@ seasonal_onset <- function(
     # See if the growth rate is significantly higher than zero
     growth_warning <- growth_rates$estimate[2] > 0
 
-    if (use_incidence) {
-      # Calculate average incidence in window (k)
-      average_observations_window <- base::sum(obs_iter$incidence, na.rm = TRUE) / k
-    } else {
+    if (model_outcome == "cases") {
       # Calculate average cases in window (k)
       average_observations_window <- base::sum(obs_iter$cases, na.rm = TRUE) / k
+    } else {
+      # Calculate pooled incidence/proportion in window (k), weighted by trials
+      # and expressed on the original incidence denominator scale.
+      total_cases <- base::sum(obs_iter$observation, na.rm = TRUE)
+      if (model_outcome == "proportion") {
+        total_population <- base::sum(obs_iter$samples, na.rm = TRUE)
+      } else {
+        total_population <- base::sum(obs_iter$population, na.rm = TRUE)
+      }
+      average_observations_window <- ifelse(total_population > 0,
+        (total_cases / total_population) * incidence_denominator,
+        NA_real_
+      )
     }
-    # Evaluate if average_incidence_window exceeds disease_threshold
-    average_observations_warning <- average_observations_window > disease_threshold
+    # Evaluate if average_incidence_window exceeds disease_threshold.
+    # If no threshold is supplied, no threshold-based onset can be detected,
+    # but keep the output schema consistent for downstream methods.
+    average_observations_warning <- ifelse(is.na(disease_threshold),
+      FALSE,
+      average_observations_window > disease_threshold
+    )
 
     # Give a seasonal_onset_alarm if both criteria are met
     seasonal_onset_alarm <- growth_warning & average_observations_warning
@@ -221,8 +288,10 @@ seasonal_onset <- function(
         reference_time = tsd$time[i],
         cases = tsd$cases[i],
         season = tsd$season[i],
-        population = if ("population" %in% names(tsd)) tsd$population[i] else NA,
-        incidence = if ("incidence" %in% names(tsd)) tsd$incidence[i] else NA,
+        population = if ("population" %in% names(tsd)) tsd$population[i] else NA_real_,
+        incidence = if ("incidence" %in% names(tsd)) tsd$incidence[i] else NA_real_,
+        proportion = if ("proportion" %in% names(tsd)) tsd$proportion[i] else NA_real_,
+        samples = if ("samples"  %in% names(tsd)) tsd$samples[i]  else NA_real_,
         growth_rate = growth_rates$estimate[1],
         lower_growth_rate = growth_rates$estimate[2],
         upper_growth_rate = growth_rates$estimate[3],
@@ -236,16 +305,17 @@ seasonal_onset <- function(
     )
   }
 
-  if (!is.na(disease_threshold)) {
-    # Extract seasons from onset_output and create seasonal_onset
-    res <- res |>
-      dplyr::mutate(
-        onset_flag = cumsum(.data$seasonal_onset_alarm),
-        seasonal_onset = .data$onset_flag == 1 & !duplicated(.data$onset_flag),
-        .by = "season"
-      ) |>
-      dplyr::select(-"onset_flag")
-  }
+  # Extract seasons from onset_output and create seasonal_onset. When no
+  # disease_threshold is supplied, seasonal_onset_alarm is FALSE for every row
+  # and seasonal_onset is therefore consistently present but always FALSE.
+  res <- res |>
+    dplyr::mutate(
+      seasonal_onset_alarm = tidyr::replace_na(.data$seasonal_onset_alarm, FALSE),
+      onset_flag = cumsum(.data$seasonal_onset_alarm),
+      seasonal_onset = .data$onset_flag == 1 & !duplicated(.data$onset_flag),
+      .by = "season"
+    ) |>
+    dplyr::select(-"onset_flag")
 
   # Create as tibble with an`tsd_onset` class
   # Add attributes, and keep attributes from the `tsd` class
@@ -256,7 +326,8 @@ seasonal_onset <- function(
     disease_threshold = disease_threshold,
     family = family,
     time_interval = attr(tsd, "time_interval"),
-    incidence_denominator = attr(tsd, "incidence_denominator")
+    incidence_denominator = incidence_denominator,
+    model_outcome = model_outcome
   )
 
   structure(
