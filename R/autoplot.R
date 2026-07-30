@@ -56,15 +56,18 @@ autoplot.tsd <- function(
   start_date <- min(object$time)
   end_date <- max(object$time)
 
-  # Use proportions for binomial data, incidence when available, or cases otherwise
-  obs_name <- "cases"
-  y_label <- "Cases"
-  if ("proportion" %in% attr(object, "outcome_type")) {
+  # Plot outcome type
+  obs_name <- NULL
+  y_label <- NULL
+  if (identical(attr(object, "outcome_type"), "proportion")) {
     obs_name <- "proportion"
     y_label <- "Proportion"
-  } else if (!is.na(attr(object, "incidence_denominator"))) {
+  } else if (identical(attr(object, "outcome_type"), "incidence")) {
     obs_name <- "incidence"
     y_label <- "Incidence"
+  } else if (identical(attr(object, "outcome_type"), "cases")) {
+    obs_name <- "cases"
+    y_label <- "Cases"
   }
 
   object |>
@@ -138,15 +141,18 @@ autoplot.tsd_onset <- function(
   start_date <- min(object$reference_time)
   end_date <- max(object$reference_time)
 
-  # Use proportions for binomial data, incidence when available, or cases otherwise
-  obs_name <- "cases"
-  y_label <- "Cases"
+  # Plot outcome type
+  obs_name <- NULL
+  y_label <- NULL
   if (identical(attr(object, "model_outcome"), "proportion")) {
     obs_name <- "proportion"
     y_label <- "Proportion"
-  } else if (!is.na(attr(object, "incidence_denominator"))) {
+  } else if (identical(attr(object, "model_outcome"), "incidence")) {
     obs_name <- "incidence"
     y_label <- "Incidence"
+  } else if (identical(attr(object, "model_outcome"), "cases")) {
+    obs_name <- "cases"
+    y_label <- "Cases"
   }
 
   # Set growth_warning to FALSE if NA
@@ -237,7 +243,10 @@ autoplot.tsd_onset <- function(
       end_date = end_date,
       time_interval_step = time_interval_step
     ) +
-    ggplot2::labs(y = "Growth rate estimates") +
+    ggplot2::labs(
+      y = "Growth rate estimates",
+      caption = paste("Model outcome:", y_label)
+    ) +
     ggplot2::theme_bw() +
     ggplot2::theme(
       axis.text = ggplot2::element_text(size = 9, color = "black", family = text_family),
@@ -333,24 +342,27 @@ autoplot.tsd_onset_and_burden <- function(
   if (all(sapply(virus_levels_df, is.list))) {
     virus_levels_df <- dplyr::last(unclass(virus_levels_df))
   }
-  checkmate::assert_numeric(fill_alpha, lower = 0, upper = 1,
-                            len = length(virus_levels_df$values) + 1, add = coll)
+  checkmate::assert_numeric(fill_alpha, lower = 0, upper = 1, len = length(virus_levels_df$values) + 1, add = coll)
   checkmate::reportAssertions(coll)
 
   # Extract onset data
   virus_df <- object$onset_output |>
     dplyr::filter(.data$season == max(.data$season))
 
-  # Use proportions for binomial data, incidence when available, or cases otherwise
-  obs_name <- "cases"
-  y_label <- "Cases"
-  burden_outcome <- attr(object$burden_output, "burden_outcome")
-  if (identical(burden_outcome, "proportion")) {
+  # Plot outcome type
+  obs_name <- NULL
+  y_label <- NULL
+  is_proportion <- FALSE
+  if (identical(attr(virus_df, "model_outcome"), "proportion")) {
     obs_name <- "proportion"
     y_label <- "Proportion"
-  } else if (identical(burden_outcome, "incidence")) {
+    is_proportion <- TRUE
+  } else if (identical(attr(virus_df, "model_outcome"), "incidence")) {
     obs_name <- "incidence"
     y_label <- "Incidence"
+  } else if (identical(attr(virus_df, "model_outcome"), "cases")) {
+    obs_name <- "cases"
+    y_label <- "Cases"
   }
 
   # Add multiple wave onset if present in data frame
@@ -369,8 +381,6 @@ autoplot.tsd_onset_and_burden <- function(
   # Determine last year and date
   last_year <- stringr::str_split(epi_calendar(cur_week, start = season_start, end = season_end), "/")[[1]][2]
   date_last_week_in_season <- ISOweek::ISOweek2date(paste0(last_year, "-W", sprintf("%02d", season_end), "-1"))
-
-  is_proportion <- identical(burden_outcome, "proportion")
 
   # Extend y-axis. Proportions remain on their natural [0, 1] scale and include zero.
   plot_y_lower_bound <- if (is_proportion) 0 else y_lower_bound
@@ -571,12 +581,14 @@ autoplot.tsd_growth_warning <- function(
   breaks_y_axis = 8,
   ...
 ) {
-  # Use proportions for binomial data, incidence when available, or cases otherwise
-  obs_name <- "cases"
+  # Use outcome type
+  obs_name <- NULL
   if (identical(attr(object, "model_outcome"), "proportion")) {
     obs_name <- "proportion"
-  } else if (!is.na(attr(object, "incidence_denominator"))) {
+  } else if (identical(attr(object, "model_outcome"), "incidence")) {
     obs_name <- "incidence"
+  } else if (identical(attr(object, "model_outcome"), "cases")) {
+    obs_name <- "cases"
   }
   time_interval <- attr(object, "time_interval")
 

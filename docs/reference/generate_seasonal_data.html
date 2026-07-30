@@ -59,7 +59,8 @@ This function assumes 365 days, 52 weeks, and 12 months per year. Leap years are
 <span>  noise_overdispersion <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  relative_epidemic_concentration <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  time_interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"weeks"</span>, <span class="st">"days"</span>, <span class="st">"months"</span><span class="op">)</span>,</span>
-<span>  lower_bound <span class="op">=</span> <span class="fl">1e-06</span></span>
+<span>  lower_bound <span class="op">=</span> <span class="fl">1e-06</span>,</span>
+<span>  samples <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -95,7 +96,8 @@ of the sine wave, hence the phase shift of the seasonal wave. The phase must be 
 
 <dt id="arg-noise-overdispersion">noise_overdispersion<a class="anchor" aria-label="anchor" href="#arg-noise-overdispersion"></a></dt>
 <dd><p>A numeric value specifying the overdispersion of the generated data.
-0 means deterministic, 1 is pure poisson and for values &gt; 1 a negative binomial is assumed.</p></dd>
+0 means deterministic, 1 gives Poisson or binomial noise, and values greater than one use a negative
+binomial distribution for count data or a beta-binomial distribution for binomial data.</p></dd>
 
 
 <dt id="arg-relative-epidemic-concentration">relative_epidemic_concentration<a class="anchor" aria-label="anchor" href="#arg-relative-epidemic-concentration"></a></dt>
@@ -111,11 +113,21 @@ A value of 1 gives the pure sinusoidal curve, and greater values concentrate the
 <dd><p>A numeric value that can be used to ensure that intensities are always greater than zero,
 which is needed when <code>noise_overdispersion</code> is different from zero.</p></dd>
 
+
+<dt id="arg-samples">samples<a class="anchor" aria-label="anchor" href="#arg-samples"></a></dt>
+<dd><p>An optional positive integer specifying the number of samples tested at each time point.
+When supplied, <code>mean</code>, <code>amplitude</code>, and the resulting seasonal wave are interpreted as proportions,
+and cases are drawn from a binomial distribution. In this mode, <code>noise_overdispersion = 1</code> (or <code>NULL</code>)
+gives binomial variation, values greater than one give quasi-binomial variation using a beta-binomial
+distribution, and zero gives deterministic rounded counts.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>tsd</code> object with simulated data containing:</p><ul><li><p>'time': The time point for the corresponding data.</p></li>
 <li><p>'cases': The number of cases at the time point.</p></li>
+<li><p>'proportion': The proportion of positive samples for binomial data. (optional)</p></li>
+<li><p>'samples': The number of samples tested for binomial data. (optional)</p></li>
 </ul></div>
 
     <div class="section level2">
@@ -137,6 +149,11 @@ which is needed when <code>noise_overdispersion</code> is different from zero.</
 <span class="r-in"><span><span class="fu"><a href="plot.html">plot</a></span><span class="op">(</span><span class="va">noise_sim</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="generate_seasonal_data-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># With binomial data (positive samples out of samples tested)</span></span></span>
+<span class="r-in"><span><span class="va">binomial_sim</span> <span class="op">&lt;-</span> <span class="fu">generate_seasonal_data</span><span class="op">(</span>mean <span class="op">=</span> <span class="fl">0.3</span>, amplitude <span class="op">=</span> <span class="fl">0.2</span>, samples <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="plot.html">plot</a></span><span class="op">(</span><span class="va">binomial_sim</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="generate_seasonal_data-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#With distinct parameters, trend and noise</span></span></span>
 <span class="r-in"><span><span class="va">sim_data</span> <span class="op">&lt;-</span> <span class="fu">generate_seasonal_data</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  years <span class="op">=</span> <span class="fl">2</span>,</span></span>
@@ -148,7 +165,7 @@ which is needed when <code>noise_overdispersion</code> is different from zero.</
 <span class="r-in"><span>  time_interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"weeks"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot.html">plot</a></span><span class="op">(</span><span class="va">sim_data</span>, time_interval <span class="op">=</span> <span class="st">"2 months"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="generate_seasonal_data-4.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="generate_seasonal_data-5.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

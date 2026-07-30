@@ -41,13 +41,19 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="aedseo-development-version">aedseo (development version)<a class="anchor" aria-label="anchor" href="#aedseo-development-version"></a></h2>
+<div class="section level3">
+<h3 id="features-development-version">Features<a class="anchor" aria-label="anchor" href="#features-development-version"></a></h3>
+<ul><li>The <code>aedseo</code> package now allows for modelling of binomial data. <code><a href="../reference/to_time_series.html">to_time_series()</a></code> now accepts <code>samples</code> and <code>proportion</code> as arguments. The <code>proportion</code> argument is the proportion of <code>cases</code> in the total tested <code>samples</code> at every time point. These variables can be used in the <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> function with the family arguments <code>binomial</code> or <code>quasibinomial</code> and in the <code><a href="../reference/seasonal_burden_levels.html">seasonal_burden_levels()</a></code> function with the family argument <code>beta</code>. A <code>model_output</code> attribute has been added to the object classes to always be able to track if the results are based on count or binomial data (<a href="https://github.com/ssi-dk/aedseo/issues/100" class="external-link">#100</a>, <a href="https://github.com/ssi-dk/aedseo/issues/101" class="external-link">#101</a>).</li>
+<li>
+<code><a href="../reference/summary.tsd_onset.html">summary.tsd_onset()</a></code> now reports proportional observations on the proportion scale and prints an explicit <code>NA</code> reference when no seasonal onset was detected, instead of producing no output.</li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="aedseo-110">aedseo 1.1.0<a class="anchor" aria-label="anchor" href="#aedseo-110"></a></h2><p class="text-muted">CRAN release: 2026-01-23</p>
 <div class="section level3">
 <h3 id="features-1-1-0">Features<a class="anchor" aria-label="anchor" href="#features-1-1-0"></a></h3>
-<ul><li><p>The aedseo package does now allow for modelling of binomial data. The <code><a href="../reference/to_time_series.html">to_time_series()</a></code> now accepts <code>samples</code> and <code>proportion</code>. The <code>proportion</code> is the proportion of <code>cases</code> in the total tested <code>samples</code> at every time point. These variables can be used in the <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> function with the family arguments <code>binomial</code> or <code>quasibinomial</code> and in the <code><a href="../reference/seasonal_burden_levels.html">seasonal_burden_levels()</a></code> function with the family argument <code>beta</code>. A <code>model_output</code> attribute has been added to the object classes to always be able to track if the results are based on count or binomial data (<a href="https://github.com/ssi-dk/aedseo/issues/100" class="external-link">#100</a>, <a href="https://github.com/ssi-dk/aedseo/issues/101" class="external-link">#101</a>).</p></li>
-<li><p><code><a href="../reference/combined_seasonal_output.html">combined_seasonal_output()</a></code> now includes a <code>seasonal_offset</code> logical variables in the output that estimates when the season has ended after the first <code>seasonal_onset</code>. It can be controlled by the inputs: <code>burden_level_decrease</code> and <code>steps_with_decrease</code> (<a href="https://github.com/ssi-dk/aedseo/issues/93" class="external-link">#93</a>).</p></li>
+<ul><li>
+<code><a href="../reference/combined_seasonal_output.html">combined_seasonal_output()</a></code> now includes a <code>seasonal_offset</code> logical variables in the output that estimates when the season has ended after the first <code>seasonal_onset</code>. It can be controlled by the inputs: <code>burden_level_decrease</code> and <code>steps_with_decrease</code> (<a href="https://github.com/ssi-dk/aedseo/issues/93" class="external-link">#93</a>).</li>
 </ul></div>
 </div>
     <div class="section level2">

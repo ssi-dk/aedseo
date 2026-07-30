@@ -99,36 +99,34 @@ data, the <code><a href="../reference/to_time_series.html">to_time_series()</a><
 <code>cases</code>, or with <code>incidence</code>,
 <code>population</code> and <code>incidence_denominator</code> to
 calculate cases or incidence. For binomial or proportional data, use
-<code>successes</code> together with <code>trials</code>, or
-<code>proportion</code> together with <code>trials</code>, instead of
-the count/incidence inputs (<code>cases</code>, <code>incidence</code>,
-<code>population</code> and <code>incidence_denominator</code>). The
+<code>cases</code> together with <code>samples</code>, or
+<code>proportion</code> together with <code>samples</code>. The
 <code>time</code> argument is always required, regardless of whether the
-observations are counts, incidences, successes, or proportions. The
+observations are cases, incidences, or proportions. The
 <code>time_interval</code> argument is optional: if it is not specified,
 weekly spacing is assumed; specify it only when the observations are
 recorded at another supported interval, such as days or months. As
 default both <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> and
 <code><a href="../reference/seasonal_burden_levels.html">seasonal_burden_levels()</a></code> use <code>cases</code>, but if
-<code>incidence</code> is in the <code>tsd</code> object the output will
-be in <code>incidence</code> instead; proportional input is kept on the
-proportion scale. If <code>population</code> is additionally given as
-arguments the function will calculate the <code>incidence</code> per
-100.000 (default for <code>incidence_denominator</code> which can be
-changed in input). For binomial inputs, <code>trials</code> supplies the
-denominator and <code>incidence_denominator</code> is set to 1. In the
-following section, the application of the algorithm is shown with
-simulated cases created with the
-<code><a href="../reference/generate_seasonal_data.html">generate_seasonal_data()</a></code>function. More information about
-the function can be found in the
+<code>incidence</code> is in the <code>tsd</code> object (for count
+data) the output will be in <code>incidence</code> instead; proportional
+input is kept on the proportion scale. If <code>population</code> is
+additionally given as arguments (for count data) the function will
+calculate the <code>incidence</code> per 100,000 (default for
+<code>incidence_denominator</code> which can be changed in input). For
+binomial inputs, <code>samples</code> supplies the denominator and
+<code>incidence_denominator</code> is set to 1. In the following
+section, the application of the algorithm is shown with simulated cases
+created with the <code><a href="../reference/generate_seasonal_data.html">generate_seasonal_data()</a></code>function. More
+information about the function can be found in the
 <code><a href="../articles/generate_seasonal_wave.html">vignette("generate_seasonal_wave")</a></code>.</p>
-<p>In the following figure simulated data (solid circles) are visualised
-as cases over time (weeks). The solid line connects these circles,
-representing the underlying mean trend over five years of weekly
-data.</p>
+<p>In the following figure simulated count data (solid circles) are
+visualised as cases over time (weeks). The solid line connects these
+circles, representing the underlying mean trend over five years of
+weekly data.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">tsd_data</span><span class="op">)</span></span></code></pre></div>
-<p><img src="aedseo_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="2187.5"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">tsd_data</span>, time_interval_step <span class="op">=</span> <span class="st">"6 months"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="determining-season">Determining season<a class="anchor" aria-label="anchor" href="#determining-season"></a>
@@ -159,13 +157,8 @@ significant positive growth rate.</p>
 rolling window of size
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">k = 5</annotation></semantics></math>
 is used to create subsets of the cases for model fitting, and the
-<code>quasipoisson</code> family is used to account for overdispersion.
-For binomial/proportional observations, use
-<code>successes</code>/<code>trials</code> or
-<code>proportion</code>/<code>trials</code> when creating the
-<code>tsd</code>, fit onset with <code>family = "binomial"</code> or
-<code>family = "quasibinomial"</code>, and estimate thresholds on the
-proportion scale.</p>
+<code>quasipoisson</code> family is used to account for
+overdispersion.</p>
 <p>The <code><a href="../reference/estimate_disease_threshold.html">estimate_disease_threshold()</a></code> function can be used to
 automatically estimate the disease-specific threshold. As default it
 uses;</p>
@@ -223,7 +216,7 @@ disease-specific threshold.</p>
 <span>    name   <span class="op">=</span> <span class="st">""</span>,</span>
 <span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Threshold"</span> <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="aedseo_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="2187.5"></p>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>From the plot above, we observe the length of periods (weeks) with
 subsequent significant growth rates (y-axis). The season with the
 longest consecutive period of growth is <em>2021/2022</em>, lasting 14
@@ -288,7 +281,7 @@ seasons, the <code>only_current_season</code> argument should be set to
 <code>FALSE</code>.</p>
 <p><em>Note: </em>Burden levels can not be estimated for the first
 season and needs at least two seasons of data as the estimations are
-based on data from previous seasons.\</p>
+based on data from previous seasons.</p>
 </div>
 <div class="section level3">
 <h3 id="seasonal-offset-and-multiple-waves">Seasonal offset and multiple waves<a class="anchor" aria-label="anchor" href="#seasonal-offset-and-multiple-waves"></a>
@@ -337,7 +330,7 @@ package. <code><a href="https://rdrr.io/r/stats/predict.html" class="external-li
 <span><span class="co">#&gt;         Average observations (in k window) at reference time point: 24.6</span></span>
 <span><span class="co">#&gt;         Growth rate estimate at reference time point:</span></span>
 <span><span class="co">#&gt;           Estimate   Lower (2.5%)   Upper (97.5%)</span></span>
-<span><span class="co">#&gt;             0.584     0.902          0.303</span></span>
+<span><span class="co">#&gt;             0.584     0.303          0.902</span></span>
 <span><span class="co">#&gt;         Reference-offset time point (first seasonal offset alarm in season): 2025-04-06</span></span>
 <span><span class="co">#&gt;       Observations at reference-offset time point: 24</span></span>
 <span><span class="co">#&gt;       Average observations (in k window) at reference-offset time point: 70.8 </span></span>
@@ -386,12 +379,13 @@ analysis of the current season.</p>
 <span><span class="va">disease_threshold</span> <span class="op">&lt;-</span> <span class="fl">22</span></span>
 <span><span class="va">y_lower_bound</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">disease_threshold</span> <span class="op">&lt;</span> <span class="fl">10</span>, <span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="va">seasonal_output</span>,</span>
+<span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span></span>
+<span>  object <span class="op">=</span> <span class="va">seasonal_output</span>,</span>
 <span>  y_lower_bound <span class="op">=</span> <span class="va">y_lower_bound</span>,</span>
-<span>  time_interval <span class="op">=</span> <span class="st">"3 weeks"</span></span>
+<span>  time_interval_step <span class="op">=</span> <span class="st">"6 weeks"</span>,</span>
+<span>  legend_position <span class="op">=</span> <span class="st">"bottom"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="aedseo_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="2187.5"></p>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>Using the <code>intensity_levels</code> method to define burden
 levels, the seasonal onset is likely to fall within the <code>low</code>
 or <code>medium</code> category. This is because the
@@ -446,8 +440,8 @@ threshold, as it might need some adjustment.</p>
 <h2 id="example-with-incidence">Example with incidence<a class="anchor" aria-label="anchor" href="#example-with-incidence"></a>
 </h2>
 <p>In the <code>tsd</code> object from previous example we add that the
-population is 1.000.000 and increases with 1000 each week. The default
-incidence denominator (100.000) is used.</p>
+population is 1,000,000 and increases with 1,000 each week. The default
+incidence denominator (100,000) is used.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tsd_incidence</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/to_time_series.html">to_time_series</a></span><span class="op">(</span></span>
 <span>  cases <span class="op">=</span> <span class="va">tsd_data</span><span class="op">$</span><span class="va">cases</span>,</span>
@@ -455,7 +449,7 @@ incidence denominator (100.000) is used.</p>
 <span>  population <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1000000</span>, by <span class="op">=</span> <span class="fl">1000</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">tsd_data</span><span class="op">$</span><span class="va">cases</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Determine the disease-specific threshold:
-<img src="aedseo_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="2187.5"></p>
+<img src="aedseo_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>Run the main algorithm:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seasonal_output_incidence</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/combined_seasonal_output.html">combined_seasonal_output</a></span><span class="op">(</span></span>
@@ -464,18 +458,266 @@ incidence denominator (100.000) is used.</p>
 <span>  method <span class="op">=</span> <span class="st">"intensity_levels"</span>,</span>
 <span>  family <span class="op">=</span> <span class="st">"quasipoisson"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><em>NOTE: </em>Since the population changes during the time series
+<p><em>Note: </em>Since the population changes during the time series
 this is adjusted for in the growth rate estimations in
 <code><a href="../reference/seasonal_onset.html">seasonal_onset()</a></code> by adding it as offset to the model.</p>
-<p>Plot results for the current season with cases pr. 100.000
+<p>Plot results for the current season with cases per 100,000
 (incidence):</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="va">seasonal_output_incidence</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span></span>
+<span>  object <span class="op">=</span> <span class="va">seasonal_output_incidence</span>,</span>
 <span>  y_lower_bound <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  time_interval <span class="op">=</span> <span class="st">"3 weeks"</span></span>
+<span>  time_interval_step <span class="op">=</span> <span class="st">"6 weeks"</span>,</span>
+<span>  legend_position <span class="op">=</span> <span class="st">"bottom"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="aedseo_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="2187.5"></p>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level2">
+<h2 id="example-with-binomial-and-quasi-binomial-models">Example with binomial and quasi-binomial models<a class="anchor" aria-label="anchor" href="#example-with-binomial-and-quasi-binomial-models"></a>
+</h2>
+<p>Binomial observations consist of a number of positive samples
+(<code>cases</code>) out of a number tested (<code>samples</code>). The
+following example generates five years of overdispersed binomial data.
+Supplying <code>samples</code> makes
+<code><a href="../reference/generate_seasonal_data.html">generate_seasonal_data()</a></code> return the observed proportion in
+addition to the numerator and denominator;
+<code>noise_overdispersion = 5</code> generates beta-binomial variation
+and therefore provides an overdispersed example for quasi-binomial
+analysis.</p>
+<p>In the following figure the simulated data are visualised as the
+proportion of positive samples over time (weeks).</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">tsd_quasibinomial</span>, time_interval_step <span class="op">=</span> <span class="st">"6 months"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
+<p>As in the Poisson example, the disease-specific threshold can be
+estimated from the historical seasons. Since the observations are
+proportions, the estimated threshold is also given as a proportion. The
+threshold is estimated for both the binomial and the quasi-binomial
+analysis.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">binomial_dth</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_disease_threshold.html">estimate_disease_threshold</a></span><span class="op">(</span></span>
+<span>  tsd <span class="op">=</span> <span class="va">tsd_quasibinomial</span>,</span>
+<span>  family <span class="op">=</span> <span class="st">"binomial"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">quasibinomial_dth</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_disease_threshold.html">estimate_disease_threshold</a></span><span class="op">(</span></span>
+<span>  tsd <span class="op">=</span> <span class="va">tsd_quasibinomial</span>,</span>
+<span>  family <span class="op">=</span> <span class="st">"quasibinomial"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  binomial <span class="op">=</span> <span class="va">binomial_dth</span><span class="op">$</span><span class="va">disease_threshold</span>,</span>
+<span>  quasibinomial <span class="op">=</span> <span class="va">quasibinomial_dth</span><span class="op">$</span><span class="va">disease_threshold</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt;      binomial quasibinomial </span></span>
+<span><span class="co">#&gt;    0.06131882    0.10985654</span></span></code></pre></div>
+<p>The main algorithm with the binomial model and the quasi-binomial
+model can be run. The quasi-binomial model accounts for the extra
+variation added to the simulated data.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">seasonal_output_binomial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/combined_seasonal_output.html">combined_seasonal_output</a></span><span class="op">(</span></span>
+<span>  tsd <span class="op">=</span> <span class="va">tsd_quasibinomial</span>,</span>
+<span>  disease_threshold <span class="op">=</span> <span class="va">binomial_dth</span><span class="op">$</span><span class="va">disease_threshold</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"intensity_levels"</span>,</span>
+<span>  family <span class="op">=</span> <span class="st">"binomial"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">seasonal_output_quasibinomial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/combined_seasonal_output.html">combined_seasonal_output</a></span><span class="op">(</span></span>
+<span>  tsd <span class="op">=</span> <span class="va">tsd_quasibinomial</span>,</span>
+<span>  disease_threshold <span class="op">=</span> <span class="va">quasibinomial_dth</span><span class="op">$</span><span class="va">disease_threshold</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"intensity_levels"</span>,</span>
+<span>  family <span class="op">=</span> <span class="st">"quasibinomial"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Seasonal onset output from the binomial analysis can be extracted
+by:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">seasonal_output_binomial</span><span class="op">$</span><span class="va">onset_output</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Summary of tsd_onset object with disease_threshold</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       Model output:</span></span>
+<span><span class="co">#&gt;         Reference time point (first seasonal onset alarm in season): 2024-10-20</span></span>
+<span><span class="co">#&gt;         Observations at reference time point: 0.14</span></span>
+<span><span class="co">#&gt;         Average observations (in k window) at reference time point: 0.0648</span></span>
+<span><span class="co">#&gt;         Growth rate estimate at reference time point:</span></span>
+<span><span class="co">#&gt;           Estimate   Lower (2.5%)   Upper (97.5%)</span></span>
+<span><span class="co">#&gt;             0.392     0.222          0.570</span></span>
+<span><span class="co">#&gt;         </span></span>
+<span><span class="co">#&gt;         Total number of growth warnings in the series: 16</span></span>
+<span><span class="co">#&gt;         Latest growth warning: 2025-01-05</span></span>
+<span><span class="co">#&gt;         Latest average observations warning: 2025-05-04</span></span>
+<span><span class="co">#&gt;         Latest seasonal onset alarm: 2025-01-05</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       The season for reference time point:</span></span>
+<span><span class="co">#&gt;         2024/2025</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       Model settings:</span></span>
+<span><span class="co">#&gt;         Called using distributional family: binomial</span></span>
+<span><span class="co">#&gt;         Window size: 5</span></span>
+<span><span class="co">#&gt;         The time interval for the observations: weeks</span></span>
+<span><span class="co">#&gt;         Disease specific threshold: 0.0613188</span></span>
+<span><span class="co">#&gt;         Incidence denominator: 1</span></span></code></pre></div>
+<p>Seasonal burden output from the binomial analysis can be extracted
+by:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">seasonal_output_binomial</span><span class="op">$</span><span class="va">burden_output</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Summary of tsd_burden_levels object</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     Breakpoint estimates:</span></span>
+<span><span class="co">#&gt;       very low : 0.061319</span></span>
+<span><span class="co">#&gt;       low: 0.118481</span></span>
+<span><span class="co">#&gt;       medium: 0.228931</span></span>
+<span><span class="co">#&gt;       high: 0.442343</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     The season for the burden levels:</span></span>
+<span><span class="co">#&gt;       2024/2025</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     Model settings:</span></span>
+<span><span class="co">#&gt;       Disease specific threshold: 0.0613188</span></span>
+<span><span class="co">#&gt;       Incidence denominator: 1</span></span>
+<span><span class="co">#&gt;       Called using distributional family: beta</span></span></code></pre></div>
+<p>The same can be done for the quasi-binomial analysis:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">seasonal_output_quasibinomial</span><span class="op">$</span><span class="va">onset_output</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Summary of tsd_onset object with disease_threshold</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       Model output:</span></span>
+<span><span class="co">#&gt;         Reference time point (first seasonal onset alarm in season): 2024-11-03</span></span>
+<span><span class="co">#&gt;         Observations at reference time point: 0.244</span></span>
+<span><span class="co">#&gt;         Average observations (in k window) at reference time point: 0.1296</span></span>
+<span><span class="co">#&gt;         Growth rate estimate at reference time point:</span></span>
+<span><span class="co">#&gt;           Estimate   Lower (2.5%)   Upper (97.5%)</span></span>
+<span><span class="co">#&gt;             0.475     0.343          0.612</span></span>
+<span><span class="co">#&gt;         </span></span>
+<span><span class="co">#&gt;         Total number of growth warnings in the series: 5</span></span>
+<span><span class="co">#&gt;         Latest growth warning: 2024-12-15</span></span>
+<span><span class="co">#&gt;         Latest average observations warning: 2025-04-06</span></span>
+<span><span class="co">#&gt;         Latest seasonal onset alarm: 2024-12-15</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       The season for reference time point:</span></span>
+<span><span class="co">#&gt;         2024/2025</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       Model settings:</span></span>
+<span><span class="co">#&gt;         Called using distributional family: quasibinomial</span></span>
+<span><span class="co">#&gt;         Window size: 5</span></span>
+<span><span class="co">#&gt;         The time interval for the observations: weeks</span></span>
+<span><span class="co">#&gt;         Disease specific threshold: 0.109857</span></span>
+<span><span class="co">#&gt;         Incidence denominator: 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">seasonal_output_quasibinomial</span><span class="op">$</span><span class="va">burden_output</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Summary of tsd_burden_levels object</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     Breakpoint estimates:</span></span>
+<span><span class="co">#&gt;       very low : 0.109857</span></span>
+<span><span class="co">#&gt;       low: 0.174771</span></span>
+<span><span class="co">#&gt;       medium: 0.278045</span></span>
+<span><span class="co">#&gt;       high: 0.442343</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     The season for the burden levels:</span></span>
+<span><span class="co">#&gt;       2024/2025</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     Model settings:</span></span>
+<span><span class="co">#&gt;       Disease specific threshold: 0.109857</span></span>
+<span><span class="co">#&gt;       Incidence denominator: 1</span></span>
+<span><span class="co">#&gt;       Called using distributional family: beta</span></span></code></pre></div>
+<p>The two analyses can also be compared visually to see how accounting
+for overdispersion affects the estimates.</p>
+<p>Plot the results from the binomial analysis:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span></span>
+<span>  object <span class="op">=</span> <span class="va">seasonal_output_binomial</span>,</span>
+<span>  time_interval_step <span class="op">=</span> <span class="st">"3 weeks"</span>,</span>
+<span>  legend_position <span class="op">=</span> <span class="st">"bottom"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-23-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
+<p>Plot the results from the quasi-binomial analysis:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span></span>
+<span>  object <span class="op">=</span> <span class="va">seasonal_output_quasibinomial</span>,</span>
+<span>  time_interval_step <span class="op">=</span> <span class="st">"3 weeks"</span>,</span>
+<span>  legend_position <span class="op">=</span> <span class="st">"bottom"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-24-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;">
+Finally, we can compare with a quasi-Poisson analysis of the same data.
+First the disease threshold is estimated to be:</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tsd_quasibinomial_cases</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/to_time_series.html">to_time_series</a></span><span class="op">(</span>cases <span class="op">=</span> <span class="va">tsd_quasibinomial</span><span class="op">$</span><span class="va">cases</span>, time <span class="op">=</span> <span class="va">tsd_quasibinomial</span><span class="op">$</span><span class="va">time</span><span class="op">)</span></span>
+<span><span class="va">quasipoisson_bin_dth</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_disease_threshold.html">estimate_disease_threshold</a></span><span class="op">(</span></span>
+<span>  tsd <span class="op">=</span> <span class="va">tsd_quasibinomial_cases</span>,</span>
+<span>  family <span class="op">=</span> <span class="st">"quasipoisson"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">quasipoisson_bin_dth</span><span class="op">$</span><span class="va">disease_threshold</span></span>
+<span><span class="co">#&gt; [1] 21.6643</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">seasonal_output_quasipoisson</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/combined_seasonal_output.html">combined_seasonal_output</a></span><span class="op">(</span></span>
+<span>  tsd <span class="op">=</span> <span class="va">tsd_quasibinomial_cases</span>,</span>
+<span>  disease_threshold <span class="op">=</span> <span class="va">quasipoisson_bin_dth</span><span class="op">$</span><span class="va">disease_threshold</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"intensity_levels"</span>,</span>
+<span>  family <span class="op">=</span> <span class="st">"quasipoisson"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Summaries of the output:</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">seasonal_output_quasipoisson</span><span class="op">$</span><span class="va">onset_output</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Summary of tsd_onset object with disease_threshold</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       Model output:</span></span>
+<span><span class="co">#&gt;         Reference time point (first seasonal onset alarm in season): 2024-10-27</span></span>
+<span><span class="co">#&gt;         Observations at reference time point: 40</span></span>
+<span><span class="co">#&gt;         Average observations (in k window) at reference time point: 22.6</span></span>
+<span><span class="co">#&gt;         Growth rate estimate at reference time point:</span></span>
+<span><span class="co">#&gt;           Estimate   Lower (2.5%)   Upper (97.5%)</span></span>
+<span><span class="co">#&gt;             0.370     0.208          0.539</span></span>
+<span><span class="co">#&gt;         Reference-offset time point (first seasonal offset alarm in season): 2025-03-23</span></span>
+<span><span class="co">#&gt;       Observations at reference-offset time point: 28</span></span>
+<span><span class="co">#&gt;       Average observations (in k window) at reference-offset time point: 38 </span></span>
+<span><span class="co">#&gt;         Total number of growth warnings in the series: 5</span></span>
+<span><span class="co">#&gt;         Latest growth warning: 2024-12-15</span></span>
+<span><span class="co">#&gt;         Latest average observations warning: 2025-04-20</span></span>
+<span><span class="co">#&gt;         Latest seasonal onset alarm: 2024-12-15</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       The season for reference time point:</span></span>
+<span><span class="co">#&gt;         2024/2025</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       Model settings:</span></span>
+<span><span class="co">#&gt;         Called using distributional family: quasipoisson</span></span>
+<span><span class="co">#&gt;         Window size: 5</span></span>
+<span><span class="co">#&gt;         The time interval for the observations: weeks</span></span>
+<span><span class="co">#&gt;         Disease specific threshold: 21.6643</span></span>
+<span><span class="co">#&gt;         Incidence denominator: NA</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">seasonal_output_quasipoisson</span><span class="op">$</span><span class="va">burden_output</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Summary of tsd_burden_levels object</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     Breakpoint estimates:</span></span>
+<span><span class="co">#&gt;       very low : 21.664300</span></span>
+<span><span class="co">#&gt;       low: 37.667029</span></span>
+<span><span class="co">#&gt;       medium: 65.490464</span></span>
+<span><span class="co">#&gt;       high: 113.866184</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     The season for the burden levels:</span></span>
+<span><span class="co">#&gt;       2024/2025</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     Model settings:</span></span>
+<span><span class="co">#&gt;       Disease specific threshold: 21.6643</span></span>
+<span><span class="co">#&gt;       Incidence denominator: NA</span></span>
+<span><span class="co">#&gt;       Called using distributional family: lnorm</span></span></code></pre></div>
+<p>Plot the results from the quasi-Poisson analysis:</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span></span>
+<span>  object <span class="op">=</span> <span class="va">seasonal_output_quasipoisson</span>,</span>
+<span>  time_interval_step <span class="op">=</span> <span class="st">"3 weeks"</span>,</span>
+<span>  legend_position <span class="op">=</span> <span class="st">"bottom"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="aedseo_files/figure-html/unnamed-chunk-28-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;">
+The seasonal onset alarm for the quasi-Poisson model is in the week
+between the two binomial models and the disease threshold should be
+divided by the number of samples (250) to compare which also places this
+in between. So in this case where the number of samples is constant over
+time the different models yield comparable results. In a more real life
+setting where the number of samples changes over time it is important to
+know the reason for the changes. If it reflects changes in surveillance
+effort, e.g. variations in number of contribution doctors in a sentinel
+system, then the (quasi-)binomial family should be preferred. If the
+reason is that more people are sick and a constant fraction of all
+individuals with symptoms are tested then the (quasi-)Poisson family is
+likely to be more appropriate.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

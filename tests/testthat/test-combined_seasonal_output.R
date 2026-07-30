@@ -88,7 +88,7 @@ test_that("Test that default arguments can be overwritten", {
   )
 })
 
-test_that("Test that family argument works as expected", {
+test_that("Test that family and data type arguments works as expected", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
   # Generate seasonal data
@@ -122,6 +122,15 @@ test_that("Test that family argument works as expected", {
     family = "hello",
   ))
 
+  combined_count <- combined_seasonal_output(
+    tsd = tsd_data,
+    disease_threshold = 0.1
+  )
+  expect_equal(attr(combined_count$burden_output, "burden_outcome"), "cases")
+  expect_equal(combined_count$burden_output$optim$family, "lnorm")
+  expect_equal(attr(combined_count$onset_output, "model_outcome"), "cases")
+  expect_equal(attr(combined_count$onset_output, "family"), "quasipoisson")
+
   tsd_binomial <- generate_seasonal_data(
     years = 3,
     mean = 0.3,
@@ -135,6 +144,9 @@ test_that("Test that family argument works as expected", {
     family = "binomial"
   )
   expect_equal(attr(combined_binomial$burden_output, "burden_outcome"), "proportion")
+  expect_equal(combined_binomial$burden_output$optim$family, "beta")
+  expect_equal(attr(combined_binomial$onset_output, "model_outcome"), "proportion")
+  expect_equal(attr(combined_binomial$onset_output, "family"), "binomial")
 
   combined_quasibinomial <- combined_seasonal_output(
     tsd = tsd_binomial,
@@ -142,7 +154,26 @@ test_that("Test that family argument works as expected", {
     family = "quasibinomial"
   )
   expect_equal(attr(combined_quasibinomial$burden_output, "burden_outcome"), "proportion")
+  expect_equal(combined_quasibinomial$burden_output$optim$family, "beta")
+  expect_equal(attr(combined_quasibinomial$onset_output, "model_outcome"), "proportion")
+  expect_equal(attr(combined_quasibinomial$onset_output, "family"), "quasibinomial")
 
+  tsd_incidence <- to_time_series(
+    cases = tsd_binomial$cases,
+    population = tsd_binomial$samples,
+    time = tsd_binomial$time
+  )
+
+  combined_incidence <- combined_seasonal_output(
+    tsd = tsd_incidence,
+    disease_threshold = 0.1,
+    family = "poisson",
+    family_quant = "weibull"
+  )
+  expect_equal(attr(combined_incidence$burden_output, "burden_outcome"), "incidence")
+  expect_equal(combined_incidence$burden_output$optim$family, "weibull")
+  expect_equal(attr(combined_incidence$onset_output, "model_outcome"), "incidence")
+  expect_equal(attr(combined_incidence$onset_output, "family"), "poisson")
 })
 
 test_that("Test that multiple waves feature works for only current season", {

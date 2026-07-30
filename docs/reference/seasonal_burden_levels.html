@@ -82,11 +82,11 @@ Observations will be incidence if <code>population</code> and <code>incidence</c
 
 
 <dt id="arg-family">family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>
-<dd><p>A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'beta' for proportional/binomial data. If <code>NULL</code>, defaults to 'beta' for proportional data and 'lnorm' otherwise. Proportional data must use 'beta'; non-proportional data cannot use 'beta'.</p></dd>
+<dd><p>A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'lnorm', 'weibull' or 'exp' for count data, or use 'beta' for proportional/binomial data.</p></dd>
 
 
-<dt id="arg-season-start-">season_start, <a class="anchor" aria-label="anchor" href="#arg-season-start-"></a></dt>
-<dd><p>season_end Integers giving the start and end weeks of the seasons to
+<dt id="arg-season-start-season-end">season_start, season_end<a class="anchor" aria-label="anchor" href="#arg-season-start-season-end"></a></dt>
+<dd><p>Integers giving the start and end weeks of the seasons to
 stratify the observations by.</p></dd>
 
 
@@ -160,8 +160,8 @@ objective function value from the optimisation. Smaller value equals better opti
 </ul></li>
 </ul></li>
 <li><p>'disease_threshold': The input disease threshold, which is also the very low level.</p></li>
-<li><p>'incidence_denominator': The observations per incidence-denominator.</p></li>
-<li><p>Attributes: <code>time_interval</code> and <code>incidence_denominator</code>.</p></li>
+<li><p>'incidence_denominator': only used for count data with population given.</p></li>
+<li><p>Attributes: <code>time_interval</code>, <code>incidence_denominator</code> and <code>burden_outcome</code>.</p></li>
 </ul></div>
 
     <div class="section level2">
@@ -228,10 +228,15 @@ objective function value from the optimisation. Smaller value equals better opti
 <span class="r-out co"><span class="r-pr">#&gt;</span> $incidence_denominator</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $burden_outcome</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "cases"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"time_interval")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "weeks"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"incidence_denominator")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"burden_outcome")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "cases"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "tsd_burden_levels" "list"             </span>
 </code></pre></div>
