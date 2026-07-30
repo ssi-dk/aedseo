@@ -328,7 +328,7 @@ number tested (`samples`). The following example generates five years of
 overdispersed binomial data. Supplying `samples` makes `generate_seasonal_data()`
 return the observed proportion in addition to the numerator and denominator;
 `noise_overdispersion = 5` generates beta-binomial variation and therefore provides
-a overdispersed example for quasi-binomial analysis.
+an overdispersed example for quasi-binomial analysis.
 
 ```{r, include = FALSE}
 withr::local_seed(333)
