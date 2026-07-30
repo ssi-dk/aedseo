@@ -132,7 +132,8 @@ test_that("Test that family argument works as expected", {
   combined_binomial <- combined_seasonal_output(
     tsd = tsd_binomial,
     disease_threshold = 0.1,
-    family = "binomial")
+    family = "binomial"
+  )
   expect_equal(attr(combined_binomial$burden_output, "burden_outcome"), "proportion")
 
   combined_quasibinomial <- combined_seasonal_output(
