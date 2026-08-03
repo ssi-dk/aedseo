@@ -423,3 +423,32 @@ test_that("Test that seasonal end feature works as expected when there are multi
 
   expect_equal(row_nr, row_nr_mult)
 })
+
+test_that("binomial seasonal offsets use proportions rather than case counts", {
+  skip_if_not_installed("withr")
+  withr::local_seed(333)
+  tsd_data <- generate_seasonal_data(
+    years = 5,
+    start_date = as.Date("2020-10-18"),
+    mean = 0.12,
+    amplitude = 0.10,
+    noise_overdispersion = 5,
+    relative_epidemic_concentration = 3,
+    samples = 250
+  )
+
+  output <- combined_seasonal_output(
+    tsd = tsd_data,
+    disease_threshold = 0.02,
+    family = "quasibinomial",
+    burden_level_decrease = "low",
+    steps_with_decrease = 2
+  )
+  offset_rows <- output$onset_output |>
+    dplyr::filter(.data$seasonal_offset)
+
+  expect_gt(nrow(offset_rows), 0)
+  expect_true(all(offset_rows$proportion < offset_rows$decrease_value))
+  expect_true(all(offset_rows$cases > offset_rows$decrease_value))
+  expect_equal(attr(output$onset_output, "model_outcome"), "proportion")
+})

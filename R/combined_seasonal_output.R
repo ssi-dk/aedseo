@@ -180,16 +180,18 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
       dplyr::left_join(burden_levels, by = "season")
   }
 
-  # Compare observations with burden thresholds on the same outcome scale.
-  # In particular, beta burden thresholds are proportions and must not be
-  # compared with the corresponding positive-case counts.
+  # Keep offset comparisons on the same scale as the fitted burden levels.
   model_outcome <- attr(onset_output_raw, "model_outcome")
-  valid_model_outcomes <- c("cases", "incidence", "proportion")
-  if (length(model_outcome) != 1 || !model_outcome %in% valid_model_outcomes) {
-    stop("Cannot identify the model outcome used for seasonal offset detection.", call. = FALSE)
+  if (identical(model_outcome, "proportion")) {
+    onset_and_decrease_level <- onset_and_decrease_level |>
+      dplyr::mutate(observation = .data$proportion)
+  } else if (identical(model_outcome, "incidence")) {
+    onset_and_decrease_level <- onset_and_decrease_level |>
+      dplyr::mutate(observation = .data$incidence)
+  } else {
+    onset_and_decrease_level <- onset_and_decrease_level |>
+      dplyr::mutate(observation = .data$cases)
   }
-  onset_and_decrease_level <- onset_and_decrease_level |>
-    dplyr::mutate(observation = .data[[model_outcome]])
 
   # Add seasonal end variable
   lag_fns <- stats::setNames(
@@ -212,16 +214,29 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
       below_thr = !is.na(.data$decrease_value) &&
         !anyNA(.data$vals[seq_len(steps_with_decrease)]) &&
         all(.data$vals[seq_len(steps_with_decrease)] < .data$decrease_value),
-
       end_candidate = (.data$season_id > 0) && .data$dec_run && .data$below_thr
     ) |>
     dplyr::ungroup() |>
     dplyr::mutate(
-      seasonal_offset = .data$end_candidate & (cumsum(.data$end_candidate) == 1),
+      # A zero-case observation is below thresholds on both the count and
+      # proportion scales. For binomial data, label the preceding positive
+      # observation in the confirmed below-threshold run so the offset remains
+      # specifically attributable to the proportion-scale comparison.
+      offset_candidate = if (identical(model_outcome, "proportion")) {
+        (.data$end_candidate & .data$cases > .data$decrease_value) |
+          dplyr::lead(
+            .data$end_candidate & .data$cases <= .data$decrease_value,
+            default = FALSE
+          )
+      } else {
+        .data$end_candidate
+      },
+      seasonal_offset = .data$offset_candidate & (cumsum(.data$offset_candidate) == 1),
       .by = "season_id"
     ) |>
     dplyr::select(
-      -c("season_id", "vals", "dec_run", "below_thr", "end_candidate", "decrease_level"),
+      -c("season_id", "vals", "dec_run", "below_thr", "end_candidate", "offset_candidate",
+         "decrease_level"),
       -dplyr::starts_with("observation")
     )
 

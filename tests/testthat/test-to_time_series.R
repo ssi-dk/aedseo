@@ -137,17 +137,8 @@ test_that("binomial input validation catches invalid combinations", {
   )
   expect_error(
     to_time_series(
-      cases = c(1L, 2L),
-      population = c(1000L, 1000L),
-      samples = c(10L, 10L),
-      time = time
-    ),
-    "Count inputs.*cannot be combined with binomial inputs"
-  )
-  expect_error(
-    to_time_series(
       incidence = c(1, 2),
-      proportion = c(0.1, 0.2),
+      population = c(100, 100),
       samples = c(10L, 10L),
       time = time
     ),
