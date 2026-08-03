@@ -92,7 +92,7 @@ A \code{tsd_onset} object containing:
 \item 'skipped_window': Logical. Was the window skipped due to missing observations?
 \item 'converged': Logical. Was the IWLS judged to have converged?
 \item 'seasonal_onset': Logical. The first detected seasonal onset in the season.
-\item Attributes: \code{time_interval}, \code{incidence_denominator} and \code{model_output}.
+\item Attributes: \code{time_interval}, \code{incidence_denominator} and \code{model_outcome}.
 }
 }
 \description{

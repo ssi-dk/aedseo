@@ -20,8 +20,9 @@
 #' A value of 1 gives the pure sinusoidal curve, and greater values concentrate the epidemic around the peak.
 #' @param time_interval `r rd_time_interval`
 #' @param lower_bound A numeric value that can be used to ensure that intensities are always greater than zero,
-#' which is needed when `noise_overdispersion` is different from zero.
-#' @param samples An optional positive integer specifying the number of samples tested at each time point.
+#' which is needed for noisy count data. Binomial probabilities are allowed to remain zero.
+#' @param samples An optional positive integer specifying a constant number of samples tested at each time point,
+#' or an integer vector with one value per generated time point.
 #' When supplied, `mean`, `amplitude`, and the resulting seasonal wave are interpreted as proportions,
 #' and cases are drawn from a binomial distribution. In this mode, `noise_overdispersion = 1` (or `NULL`)
 #' gives binomial variation, values greater than one give quasi-binomial variation using a beta-binomial
@@ -97,10 +98,7 @@ generate_seasonal_data <- function(
                                  noise_overdispersion > 0 & noise_overdispersion < 1), add = coll)
   checkmate::assert_numeric(relative_epidemic_concentration, len = 1, lower = 0)
   checkmate::assert_numeric(lower_bound, len = 1, lower = 0, add = coll)
-  checkmate::assert_integerish(samples, len = 1, lower = 1, null.ok = TRUE, add = coll)
-  if (!is.null(samples) && !is.null(noise_overdispersion) && noise_overdispersion >= samples) {
-    coll$push("`noise_overdispersion` must be less than `samples` when generating binomial data")
-  }
+  checkmate::assert_integerish(samples, lower = 1, null.ok = TRUE, add = coll)
   checkmate::reportAssertions(coll)
 
   # Throw an error if any of the inputs are not supported
@@ -117,6 +115,22 @@ generate_seasonal_data <- function(
   # Define time sequence
   t <- 1:(years * period)
 
+  if (!is.null(samples) && !(length(samples) %in% c(1, length(t)))) {
+    stop(
+      "`samples` must have length 1 or one value per generated time point (", length(t), ").",
+      call. = FALSE
+    )
+  }
+  if (!is.null(samples)) {
+    samples <- rep_len(samples, length(t))
+    if (!is.null(noise_overdispersion) && any(noise_overdispersion >= samples)) {
+      stop(
+        "`noise_overdispersion` must be less than every value in `samples` when generating binomial data.",
+        call. = FALSE
+      )
+    }
+  }
+
   # Generate the seasonal component
   seasonal_component <- mean + amplitude *
     (((sin(2 * pi * t / period + phase) + 1)^relative_epidemic_concentration) /
@@ -130,8 +144,9 @@ generate_seasonal_data <- function(
     seasonal_component <- seasonal_component * trend_component
   }
 
-  # Applying lower bound
-  seasonal_component <- pmax(seasonal_component, lower_bound)
+  # Counts require a positive intensity when noise is added. A binomial
+  # probability, however, may legitimately be exactly zero.
+  seasonal_component <- pmax(seasonal_component, if (is.null(samples)) lower_bound else 0)
 
   if (!is.null(samples) && any(seasonal_component > 1)) {
     stop("The generated proportion must be between zero and one when `samples` is supplied.", call. = FALSE)
@@ -139,7 +154,6 @@ generate_seasonal_data <- function(
 
   # Add random noise if specified
   if (!is.null(samples)) {
-    samples <- rep_len(samples, length(t))
     if (!is.null(noise_overdispersion) && noise_overdispersion == 0) {
       seasonal_component <- round(samples * seasonal_component)
     } else {

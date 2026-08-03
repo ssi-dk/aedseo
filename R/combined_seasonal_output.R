@@ -180,14 +180,16 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
       dplyr::left_join(burden_levels, by = "season")
   }
 
-  # Define observation based on input data
-  if (!all(is.na(onset_and_decrease_level$incidence))) {
-    onset_and_decrease_level <- onset_and_decrease_level |>
-      dplyr::mutate(observation = .data$incidence)
-  } else {
-    onset_and_decrease_level <- onset_and_decrease_level |>
-      dplyr::mutate(observation = .data$cases)
+  # Compare observations with burden thresholds on the same outcome scale.
+  # In particular, beta burden thresholds are proportions and must not be
+  # compared with the corresponding positive-case counts.
+  model_outcome <- attr(onset_output_raw, "model_outcome")
+  valid_model_outcomes <- c("cases", "incidence", "proportion")
+  if (length(model_outcome) != 1 || !model_outcome %in% valid_model_outcomes) {
+    stop("Cannot identify the model outcome used for seasonal offset detection.", call. = FALSE)
   }
+  onset_and_decrease_level <- onset_and_decrease_level |>
+    dplyr::mutate(observation = .data[[model_outcome]])
 
   # Add seasonal end variable
   lag_fns <- stats::setNames(
