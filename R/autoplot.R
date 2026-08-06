@@ -46,12 +46,12 @@ autoplot <- function(object, ...) {
 #' @method autoplot tsd
 #' @export
 autoplot.tsd <- function(
-    object,
-    line_width = 0.7,
-    obs_size = 2,
-    text_family = "sans",
-    time_interval_step = "5 weeks",
-    ...
+  object,
+  line_width = 0.7,
+  obs_size = 2,
+  text_family = "sans",
+  time_interval_step = "5 weeks",
+  ...
 ) {
   start_date <- min(object$time)
   end_date <- max(object$time)
@@ -124,16 +124,16 @@ autoplot.tsd <- function(
 #' @method autoplot tsd_onset
 #' @export
 autoplot.tsd_onset <- function(
-    object,
-    disease_color = "black",
-    line_width = 0.7,
-    obs_size = 2,
-    alpha_warning = 0.2,
-    alpha_ribbon = 0.1,
-    text_family = "sans",
-    legend_position = "bottom",
-    time_interval_step = "5 weeks",
-    ...
+  object,
+  disease_color = "black",
+  line_width = 0.7,
+  obs_size = 2,
+  alpha_warning = 0.2,
+  alpha_ribbon = 0.1,
+  text_family = "sans",
+  legend_position = "bottom",
+  time_interval_step = "5 weeks",
+  ...
 ) {
   start_date <- min(object$reference_time)
   end_date <- max(object$reference_time)
@@ -297,28 +297,28 @@ autoplot.tsd_onset <- function(
 #' @method autoplot tsd_onset_and_burden
 #' @export
 autoplot.tsd_onset_and_burden <- function(
-    object,
-    only_burden_levels = FALSE,
-    y_lower_bound = 5,
-    factor_to_max = 2,
-    disease_color = "#009DD1",
-    season_start = 21,
-    season_end = season_start - 1,
-    time_interval_step = "3 weeks",
-    text_burden_size = 10 / 2.8,
-    fill_alpha = c(0.45, 0.6, 0.75, 0.89, 1),
-    text_family = "sans",
-    line_color = "black",
-    line_type = "solid",
-    vline_color_onset = "#bf212f",
-    vline_linetype_onset = "dashed",
-    vline_color_offset = "#006f3c",
-    vline_linetype_offset = "dotted",
-    line_width = 1,
-    y_scale_labels = scales::label_comma(),
-    theme_custom = ggplot2::theme_bw(),
-    legend_position = "right",
-    ...
+  object,
+  only_burden_levels = FALSE,
+  y_lower_bound = 5,
+  factor_to_max = 2,
+  disease_color = "#009DD1",
+  season_start = 21,
+  season_end = season_start - 1,
+  time_interval_step = "3 weeks",
+  text_burden_size = 10 / 2.8,
+  fill_alpha = c(0.45, 0.6, 0.75, 0.89, 1),
+  text_family = "sans",
+  line_color = "black",
+  line_type = "solid",
+  vline_color_onset = "#bf212f",
+  vline_linetype_onset = "dashed",
+  vline_color_offset = "#006f3c",
+  vline_linetype_offset = "dotted",
+  line_width = 1,
+  y_scale_labels = scales::label_comma(),
+  theme_custom = ggplot2::theme_bw(),
+  legend_position = "right",
+  ...
 ) {
   # Check input arguments
   coll <- checkmate::makeAssertCollection()
@@ -562,14 +562,14 @@ autoplot.tsd_onset_and_burden <- function(
 #' @method autoplot tsd_growth_warning
 #' @export
 autoplot.tsd_growth_warning <- function(
-    object,
-    k = 5,
-    skip_current_season = TRUE,
-    line_width = 1,
-    text_family = "sans",
-    legend_position = "bottom",
-    breaks_y_axis = 8,
-    ...
+  object,
+  k = 5,
+  skip_current_season = TRUE,
+  line_width = 1,
+  text_family = "sans",
+  legend_position = "bottom",
+  breaks_y_axis = 8,
+  ...
 ) {
   # Use proportions for binomial data, incidence when available, or cases otherwise
   obs_name <- "cases"

@@ -208,7 +208,7 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
     dplyr::rowwise() |>
     dplyr::mutate(
       vals = list(c(.data$observation, dplyr::c_across(dplyr::starts_with("observation_lag")))),
-      # obs < lag1 < lag2 < ... < lag_steps  (continouse decrease)
+      # obs < lag1 < lag2 < ... < lag_steps  (continuous decrease)
       dec_run = !anyNA(.data$vals) && all(diff(.data$vals) > 0),
       # under decrease_value for the "decreased" obs: obs..lag_{steps-1}
       below_thr = !is.na(.data$decrease_value) &&

@@ -111,11 +111,12 @@ A value of 1 gives the pure sinusoidal curve, and greater values concentrate the
 
 <dt id="arg-lower-bound">lower_bound<a class="anchor" aria-label="anchor" href="#arg-lower-bound"></a></dt>
 <dd><p>A numeric value that can be used to ensure that intensities are always greater than zero,
-which is needed when <code>noise_overdispersion</code> is different from zero.</p></dd>
+which is needed for noisy count data. Binomial probabilities are allowed to remain zero.</p></dd>
 
 
 <dt id="arg-samples">samples<a class="anchor" aria-label="anchor" href="#arg-samples"></a></dt>
-<dd><p>An optional positive integer specifying the number of samples tested at each time point.
+<dd><p>An optional positive integer specifying a constant number of samples tested at each time point,
+or an integer vector with one value per generated time point.
 When supplied, <code>mean</code>, <code>amplitude</code>, and the resulting seasonal wave are interpreted as proportions,
 and cases are drawn from a binomial distribution. In this mode, <code>noise_overdispersion = 1</code> (or <code>NULL</code>)
 gives binomial variation, values greater than one give quasi-binomial variation using a beta-binomial
