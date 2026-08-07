@@ -298,7 +298,7 @@ estimate_disease_threshold <- function(
     if (is_binomial) {
       pmin(pmax(x, 0), 1)
     } else {
-      dplyr::if_else(dplyr::between(x, 0, 1), 1, x)
+      dplyr::if_else(x < 0, 0, x)
     }
   }
 
