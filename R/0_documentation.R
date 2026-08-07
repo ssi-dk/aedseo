@@ -57,7 +57,7 @@ rd_seasonal_onset_return <- paste(
   "- 'skipped_window': Logical. Was the window skipped due to missing observations?\n",
   "- 'converged': Logical. Was the IWLS judged to have converged?\n",
   "- 'seasonal_onset': Logical. The first detected seasonal onset in the season.\n",
-  "- Attributes: `time_interval`, `incidence_denominator` and `model_output`."
+  "- Attributes: `time_interval`, `incidence_denominator` and `model_outcome`."
 )
 rd_seasonal_burden_levels_return <- paste(
   "\nA `tsd_burden_levels` object containing:\n",

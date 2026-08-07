@@ -61,8 +61,8 @@ Output will be in incidence if <code>population</code> and <code>incidence</code
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">combined_seasonal_output</span><span class="op">(</span></span>
 <span>  <span class="va">tsd</span>,</span>
 <span>  disease_threshold <span class="op">=</span> <span class="fl">20</span>,</span>
-<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quasipoisson"</span>, <span class="st">"poisson"</span><span class="op">)</span>,</span>
-<span>  family_quant <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lnorm"</span>, <span class="st">"weibull"</span>, <span class="st">"exp"</span>, <span class="st">"beta"</span><span class="op">)</span>,</span>
+<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quasipoisson"</span>, <span class="st">"poisson"</span>, <span class="st">"quasibinomial"</span>, <span class="st">"binomial"</span><span class="op">)</span>,</span>
+<span>  family_quant <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  season_start <span class="op">=</span> <span class="fl">21</span>,</span>
 <span>  season_end <span class="op">=</span> <span class="va">season_start</span> <span class="op">-</span> <span class="fl">1</span>,</span>
 <span>  only_current_season <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -91,16 +91,17 @@ disease threshold that has to be surpassed for the observation to be included in
 
 <dt id="arg-family">family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>
 <dd><p>A character string, family-generator, or family object specifying the distribution family for growth-rate
-modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'binomial'
-or 'quasibinomial' for binomial data supplied as <code>successes</code> and <code>trials</code>.  This is passed to 'seasonal_onset()'.</p></dd>
+modeling. Choose between 'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use 'poisson' or
+'quasipoisson' for cases/incidences, and use 'binomial' or 'quasibinomial' for binomial data supplied as
+<code>cases</code> and <code>samples</code>.  This is passed to 'seasonal_onset()'.</p></dd>
 
 
 <dt id="arg-family-quant">family_quant<a class="anchor" aria-label="anchor" href="#arg-family-quant"></a></dt>
-<dd><p>A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'beta' for proportional/binomial data. If <code>NULL</code>, defaults to 'beta' for proportional data and 'lnorm' otherwise. Proportional data must use 'beta'; non-proportional data cannot use 'beta'.</p></dd>
+<dd><p>A character string specifying the family for modeling burden levels. Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'lnorm', 'weibull' or 'exp' for count data, or use 'beta' for proportional/binomial data.</p></dd>
 
 
-<dt id="arg-season-start">season_start<a class="anchor" aria-label="anchor" href="#arg-season-start"></a></dt>
-<dd><p>season_end Integers giving the start and end weeks of the seasons to
+<dt id="arg-season-start-season-end">season_start, season_end<a class="anchor" aria-label="anchor" href="#arg-season-start-season-end"></a></dt>
+<dd><p>Integers giving the start and end weeks of the seasons to
 stratify the observations by.</p></dd>
 
 
@@ -147,7 +148,7 @@ increase it could e.g. be due to testing).</p></dd>
 <li><p>'skipped_window': Logical. Was the window skipped due to missing observations?</p></li>
 <li><p>'converged': Logical. Was the IWLS judged to have converged?</p></li>
 <li><p>'seasonal_onset': Logical. The first detected seasonal onset in the season.</p></li>
-<li><p>Attributes: <code>time_interval</code> and <code>incidence_denominator</code>.</p></li>
+<li><p>Attributes: <code>time_interval</code>, <code>incidence_denominator</code> and <code>model_outcome</code>.</p></li>
 </ul><p>As extra the <code>tsd_onset</code> object will for each season contain a <code>seasonal_offset</code> variable:</p><ul><li><p>'seasonal_offset': Logical. The first detected seasonal offset in the season.</p></li>
 </ul><p>If multiple waves is selected the <code>tsd_onset</code> object will also contain:</p><ul><li><p>'wave_number': The wave number in the time series data.</p></li>
 <li><p>'wave_starts': Logical. Did a new wave start?</p></li>
@@ -180,8 +181,8 @@ objective function value from the optimisation. Smaller value equals better opti
 </ul></li>
 </ul></li>
 <li><p>'disease_threshold': The input disease threshold, which is also the very low level.</p></li>
-<li><p>'incidence_denominator': The observations per incidence-denominator.</p></li>
-<li><p>Attributes: <code>time_interval</code> and <code>incidence_denominator</code>.</p></li>
+<li><p>'incidence_denominator': only used for count data with population given.</p></li>
+<li><p>Attributes: <code>time_interval</code>, <code>incidence_denominator</code> and <code>burden_outcome</code>.</p></li>
 </ul><p>#' Attributes in the <code>tsd_onset_and_burden</code> object are:
 <code>burden_level_decrease</code>, <code>steps_with_decrease</code> and <code>multiple_waves</code>.</p>
     </div>
@@ -222,25 +223,25 @@ objective function value from the optimisation. Smaller value equals better opti
 <span class="r-in"><span><span class="va">combined_data</span> <span class="op">&lt;-</span> <span class="fu">combined_seasonal_output</span><span class="op">(</span><span class="va">tsd_data</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Print seasonal onset results</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">combined_data</span><span class="op">$</span><span class="va">onset_output</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 52 × 17</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    reference_time cases season    population incidence growth_rate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  <span style="color: #BCBCBC;">*</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 2023-05-28         6 2023/2024 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>            -<span style="color: #BB0000;">0.427</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 2023-06-04        81 2023/2024 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>            -<span style="color: #BB0000;">0.156</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 2023-06-11       121 2023/2024 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.083<span style="text-decoration: underline;">4</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 2023-06-18       145 2023/2024 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.287 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 2023-06-25       157 2023/2024 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.381 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 2023-07-02       199 2023/2024 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.197 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 2023-07-09       237 2023/2024 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.169 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 2023-07-16       385 2023/2024 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.256 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 2023-07-23       392 2023/2024 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.246 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 2023-07-30       430 2023/2024 <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>             0.191 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 52 × 19</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    reference_time cases season    population incidence proportion samples</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  <span style="color: #BCBCBC;">*</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 2023-05-28         6 2023/2024         <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 2023-06-04        81 2023/2024         <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 2023-06-11       121 2023/2024         <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 2023-06-18       145 2023/2024         <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 2023-06-25       157 2023/2024         <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 2023-07-02       199 2023/2024         <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 2023-07-09       237 2023/2024         <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 2023-07-16       385 2023/2024         <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 2023-07-23       392 2023/2024         <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 2023-07-30       430 2023/2024         <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>         <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 42 more rows</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 11 more variables: lower_growth_rate &lt;dbl&gt;, upper_growth_rate &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   growth_warning &lt;lgl&gt;, average_observations_window &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   average_observations_warning &lt;lgl&gt;, seasonal_onset_alarm &lt;lgl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   skipped_window &lt;lgl&gt;, converged &lt;lgl&gt;, seasonal_onset &lt;lgl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   decrease_value &lt;dbl&gt;, seasonal_offset &lt;lgl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 12 more variables: growth_rate &lt;dbl&gt;, lower_growth_rate &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   upper_growth_rate &lt;dbl&gt;, growth_warning &lt;lgl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   average_observations_window &lt;dbl&gt;, average_observations_warning &lt;lgl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   seasonal_onset_alarm &lt;lgl&gt;, skipped_window &lt;lgl&gt;, converged &lt;lgl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   seasonal_onset &lt;lgl&gt;, decrease_value &lt;dbl&gt;, seasonal_offset &lt;lgl&gt;</span></span>
 <span class="r-in"><span><span class="co"># Print burden level results</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">combined_data</span><span class="op">$</span><span class="va">burden_output</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $season</span>
@@ -273,10 +274,15 @@ objective function value from the optimisation. Smaller value equals better opti
 <span class="r-out co"><span class="r-pr">#&gt;</span> $incidence_denominator</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $burden_outcome</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "cases"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"time_interval")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "weeks"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"incidence_denominator")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"burden_outcome")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "cases"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "tsd_burden_levels" "list"             </span>
 </code></pre></div>

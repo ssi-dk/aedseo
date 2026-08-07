@@ -133,7 +133,7 @@ burden_levels_df |>
   ggplot2::scale_y_log10(
     breaks = y_tics,
     limits = range(y_tics),
-    labels = scales::label_comma(big.mark = ".", decimal.mark = ",")
+    labels = scales::label_comma()
   ) +
   ggplot2::guides(linetype = "none")
 ```
@@ -517,7 +517,7 @@ all_observations |>
   ggplot2::scale_y_log10(
     breaks   = y_tics,
     limits   = range(y_tics),
-    labels   = scales::label_comma(big.mark = ".", decimal.mark = ",")
+    labels   = scales::label_comma()
   ) +
   aedseo:::time_interval_x_axis(
     start_date         = min(all_observations$time),

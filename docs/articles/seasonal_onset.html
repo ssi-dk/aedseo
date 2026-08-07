@@ -158,12 +158,12 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 are overdispersion parameters.</p>
 <p>For binomial/proportional observations, create the <code>tsd</code>
-with <code>successes</code>/<code>trials</code> or
-<code>proportion</code>/<code>trials</code> and use
+with <code>cases</code>/<code>samples</code> or
+<code>proportion</code>/<code>samples</code> and use
 <code>family = "binomial"</code> or
 <code>family = "quasibinomial"</code>. The model then uses
-<code>trials</code> as the denominator (successes out of trials), and
-the rolling average is reported as a pooled proportion.</p>
+<code>samples</code> as the denominator (cases out of samples), and the
+rolling average is reported as a pooled proportion.</p>
 <p>If the background population changes during the time-span for
 count/incidence data, the growth rate estimations can be adjusted by
 applying population as offset in Poisson/quasi-Poisson models.</p>
@@ -273,7 +273,7 @@ analysis.</p>
 <span><span class="co">#&gt;         Average observations (in k window) at reference time point: 20.4</span></span>
 <span><span class="co">#&gt;         Growth rate estimate at reference time point:</span></span>
 <span><span class="co">#&gt;           Estimate   Lower (2.5%)   Upper (97.5%)</span></span>
-<span><span class="co">#&gt;             0.391     0.596          0.199</span></span>
+<span><span class="co">#&gt;             0.391     0.199          0.596</span></span>
 <span><span class="co">#&gt;         </span></span>
 <span><span class="co">#&gt;         Total number of growth warnings in the series: 52</span></span>
 <span><span class="co">#&gt;         Latest growth warning: 2023-10-08</span></span>

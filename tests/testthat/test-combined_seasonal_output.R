@@ -88,7 +88,7 @@ test_that("Test that default arguments can be overwritten", {
   )
 })
 
-test_that("Test that family argument works as expected", {
+test_that("Test that family and data type arguments works as expected", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
   # Generate seasonal data
@@ -122,6 +122,58 @@ test_that("Test that family argument works as expected", {
     family = "hello",
   ))
 
+  combined_count <- combined_seasonal_output(
+    tsd = tsd_data,
+    disease_threshold = 0.1
+  )
+  expect_equal(attr(combined_count$burden_output, "burden_outcome"), "cases")
+  expect_equal(combined_count$burden_output$optim$family, "lnorm")
+  expect_equal(attr(combined_count$onset_output, "model_outcome"), "cases")
+  expect_equal(attr(combined_count$onset_output, "family"), "quasipoisson")
+
+  tsd_binomial <- generate_seasonal_data(
+    years = 3,
+    mean = 0.3,
+    amplitude = 0.2,
+    samples = 100
+  )
+
+  combined_binomial <- combined_seasonal_output(
+    tsd = tsd_binomial,
+    disease_threshold = 0.1,
+    family = "binomial"
+  )
+  expect_equal(attr(combined_binomial$burden_output, "burden_outcome"), "proportion")
+  expect_equal(combined_binomial$burden_output$optim$family, "beta")
+  expect_equal(attr(combined_binomial$onset_output, "model_outcome"), "proportion")
+  expect_equal(attr(combined_binomial$onset_output, "family"), "binomial")
+
+  combined_quasibinomial <- combined_seasonal_output(
+    tsd = tsd_binomial,
+    disease_threshold = 0.1,
+    family = "quasibinomial"
+  )
+  expect_equal(attr(combined_quasibinomial$burden_output, "burden_outcome"), "proportion")
+  expect_equal(combined_quasibinomial$burden_output$optim$family, "beta")
+  expect_equal(attr(combined_quasibinomial$onset_output, "model_outcome"), "proportion")
+  expect_equal(attr(combined_quasibinomial$onset_output, "family"), "quasibinomial")
+
+  tsd_incidence <- to_time_series(
+    cases = tsd_binomial$cases,
+    population = tsd_binomial$samples,
+    time = tsd_binomial$time
+  )
+
+  combined_incidence <- combined_seasonal_output(
+    tsd = tsd_incidence,
+    disease_threshold = 0.1,
+    family = "poisson",
+    family_quant = "weibull"
+  )
+  expect_equal(attr(combined_incidence$burden_output, "burden_outcome"), "incidence")
+  expect_equal(combined_incidence$burden_output$optim$family, "weibull")
+  expect_equal(attr(combined_incidence$onset_output, "model_outcome"), "incidence")
+  expect_equal(attr(combined_incidence$onset_output, "family"), "poisson")
 })
 
 test_that("Test that multiple waves feature works for only current season", {
@@ -272,6 +324,35 @@ test_that("Test that seasonal end feature works as expected", {
   expect_equal(attributes(mult_waves)$multiple_waves, TRUE)
 })
 
+test_that("binomial seasonal offsets use proportions rather than case counts", {
+  skip_if_not_installed("withr")
+  withr::local_seed(333)
+  tsd_data <- generate_seasonal_data(
+    years = 5,
+    start_date = as.Date("2020-10-18"),
+    mean = 0.12,
+    amplitude = 0.10,
+    noise_overdispersion = 5,
+    relative_epidemic_concentration = 3,
+    samples = 250
+  )
+
+  output <- combined_seasonal_output(
+    tsd = tsd_data,
+    disease_threshold = 0.02,
+    family = "quasibinomial",
+    burden_level_decrease = "low",
+    steps_with_decrease = 2
+  )
+  offset_rows <- output$onset_output |>
+    dplyr::filter(.data$seasonal_offset)
+
+  expect_gt(nrow(offset_rows), 0)
+  expect_true(all(offset_rows$proportion < offset_rows$decrease_value))
+  expect_true(all(offset_rows$cases > offset_rows$decrease_value))
+  expect_equal(attr(output$onset_output, "model_outcome"), "proportion")
+})
+
 test_that("Test that seasonal end feature works as expected when there are multiple waves", {
   set.seed(123)
   tsd_data_monthly <- generate_seasonal_data(
@@ -341,4 +422,33 @@ test_that("Test that seasonal end feature works as expected when there are multi
     dplyr::pull()
 
   expect_equal(row_nr, row_nr_mult)
+})
+
+test_that("binomial seasonal offsets use proportions rather than case counts", {
+  skip_if_not_installed("withr")
+  withr::local_seed(333)
+  tsd_data <- generate_seasonal_data(
+    years = 5,
+    start_date = as.Date("2020-10-18"),
+    mean = 0.12,
+    amplitude = 0.10,
+    noise_overdispersion = 5,
+    relative_epidemic_concentration = 3,
+    samples = 250
+  )
+
+  output <- combined_seasonal_output(
+    tsd = tsd_data,
+    disease_threshold = 0.02,
+    family = "quasibinomial",
+    burden_level_decrease = "low",
+    steps_with_decrease = 2
+  )
+  offset_rows <- output$onset_output |>
+    dplyr::filter(.data$seasonal_offset)
+
+  expect_gt(nrow(offset_rows), 0)
+  expect_true(all(offset_rows$proportion < offset_rows$decrease_value))
+  expect_true(all(offset_rows$cases > offset_rows$decrease_value))
+  expect_equal(attr(output$onset_output, "model_outcome"), "proportion")
 })

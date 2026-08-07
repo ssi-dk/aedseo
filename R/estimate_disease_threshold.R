@@ -162,7 +162,7 @@ estimate_disease_threshold <- function(
   sign_warnings <- consecutive_growth_warnings(onset_output)
 
   # Peak time per season. Prefer incidence when it is available, because it
-  # accounts for population/trial denominators; otherwise use raw cases.
+  # accounts for population/sample denominators; otherwise use raw cases.
   peak_observation <- if (model_outcome == "incidence") {
     "incidence"
   } else {
@@ -340,7 +340,7 @@ estimate_disease_threshold <- function(
     dplyr::rename(observation = "start_average_observations_window")
 
   # For proportion-based data, account for binomial precision by up-weighting
-  # observations from larger trial counts.
+  # observations from larger sample counts.
   if (model_outcome == "proportion") {
     k_window <- attr(onset_output, "k")
     if (is.null(k_window) || !is.numeric(k_window) || length(k_window) != 1) {

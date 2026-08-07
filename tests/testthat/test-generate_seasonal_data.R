@@ -218,3 +218,129 @@ test_that("generate_seasonal_data() - test increasing relative epidemic concentr
 
   expect_gt(concentrated_0, sinusoidal_0)
 })
+
+test_that("generate_seasonal_data() generates binomial data", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+
+  binomial_data <- generate_seasonal_data(
+    years = 1,
+    mean = 0.3,
+    amplitude = 0.2,
+    samples = 100,
+    time_interval = "months"
+  )
+
+  expect_s3_class(binomial_data, "tsd")
+  expect_equal(nrow(binomial_data), 12)
+  expect_equal(binomial_data$samples, rep(100, 12))
+  expect_equal(binomial_data$proportion, binomial_data$cases / binomial_data$samples)
+  expect_true(all(binomial_data$cases <= binomial_data$samples))
+  expect_true("proportion" %in% attr(binomial_data, "outcome_type"))
+})
+
+test_that("generate_seasonal_data() generates overdispersed binomial data", {
+  skip_if_not_installed("withr")
+
+  binomial_variances <- vapply(c(1, 4), function(overdispersion) {
+    withr::with_seed(123, {
+      generated <- generate_seasonal_data(
+        years = 20,
+        mean = 0.3,
+        amplitude = 0,
+        samples = 100,
+        noise_overdispersion = overdispersion,
+        time_interval = "months"
+      )
+      stats::var(generated$cases)
+    })
+  }, numeric(1))
+
+  expect_gt(binomial_variances[[2]], binomial_variances[[1]])
+})
+
+test_that("generate_seasonal_data() can generate deterministic binomial data", {
+  deterministic <- generate_seasonal_data(
+    years = 1,
+    mean = 0.3,
+    amplitude = 0,
+    samples = 100,
+    noise_overdispersion = 0,
+    time_interval = "months"
+  )
+
+  expect_equal(deterministic$cases, rep(30, 12))
+})
+
+
+test_that("generate_seasonal_data() preserves a requested zero probability", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  zero_probability <- generate_seasonal_data(
+    years = 1,
+    mean = 0,
+    amplitude = 0,
+    samples = 1e6,
+    time_interval = "months"
+  )
+
+  expect_true(all(zero_probability$cases == 0))
+  expect_true(all(zero_probability$proportion == 0))
+})
+
+test_that("generate_seasonal_data() supports time-varying sample counts", {
+  sample_counts <- seq(50, 160, by = 10)
+  generated <- generate_seasonal_data(
+    years = 1,
+    mean = 0.3,
+    amplitude = 0,
+    samples = sample_counts,
+    noise_overdispersion = 0,
+    time_interval = "months"
+  )
+
+  expect_equal(generated$samples, sample_counts)
+  expect_equal(generated$cases, round(0.3 * sample_counts))
+  expect_equal(generated$proportion, generated$cases / sample_counts)
+})
+
+test_that("generate_seasonal_data() validates binomial arguments", {
+  expect_error(
+    generate_seasonal_data(mean = 0.5, amplitude = 0.25, samples = 0),
+    "samples"
+  )
+  expect_error(
+    generate_seasonal_data(mean = 1, amplitude = 1, samples = 100),
+    "between zero and one"
+  )
+  expect_error(
+    generate_seasonal_data(
+      mean = 0.5,
+      amplitude = 0.25,
+      samples = 100,
+      noise_overdispersion = 100
+    ),
+    "less than.*samples"
+  )
+  expect_error(
+    generate_seasonal_data(
+      years = 1,
+      mean = 0.5,
+      amplitude = 0.25,
+      samples = c(100, 200),
+      time_interval = "months"
+    ),
+    "length 1 or one value per generated time point"
+  )
+  expect_error(
+    generate_seasonal_data(
+      years = 1,
+      mean = 0.5,
+      amplitude = 0.25,
+      samples = c(100, rep(200, 11)),
+      noise_overdispersion = 100,
+      time_interval = "months"
+    ),
+    "less than every value"
+  )
+})

@@ -91,12 +91,7 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
     "quasibinomial",
     "binomial"
   ),
-  family_quant = c(
-    "lnorm",
-    "weibull",
-    "exp",
-    "beta"
-  ),
+  family_quant = NULL,
   season_start = 21,
   season_end = season_start - 1,
   only_current_season = TRUE,
@@ -118,8 +113,21 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
   if (is.character(family)) {
     family <- match.arg(family)
   }
-  if (is.character(family_quant)) {
-    family_quant <- match.arg(family_quant)
+  if (is.null(family_quant)) {
+    family_name <- if (is.character(family)) {
+      family
+    } else if (inherits(family, "family")) {
+      family$family
+    } else {
+      family()$family
+    }
+    family_quant <- if (family_name %in% c("binomial", "quasibinomial")) {
+      "beta"
+    } else {
+      "lnorm"
+    }
+  } else if (is.character(family_quant)) {
+    family_quant <- match.arg(family_quant, c("lnorm", "weibull", "exp", "beta"))
   }
 
   # Capture all extra arguments
@@ -172,8 +180,12 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
       dplyr::left_join(burden_levels, by = "season")
   }
 
-  # Define observation based on input data
-  if (!all(is.na(onset_and_decrease_level$incidence))) {
+  # Keep offset comparisons on the same scale as the fitted burden levels.
+  model_outcome <- attr(onset_output_raw, "model_outcome")
+  if (identical(model_outcome, "proportion")) {
+    onset_and_decrease_level <- onset_and_decrease_level |>
+      dplyr::mutate(observation = .data$proportion)
+  } else if (identical(model_outcome, "incidence")) {
     onset_and_decrease_level <- onset_and_decrease_level |>
       dplyr::mutate(observation = .data$incidence)
   } else {
@@ -196,22 +208,35 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
     dplyr::rowwise() |>
     dplyr::mutate(
       vals = list(c(.data$observation, dplyr::c_across(dplyr::starts_with("observation_lag")))),
-      # obs < lag1 < lag2 < ... < lag_steps  (continouse decrease)
+      # obs < lag1 < lag2 < ... < lag_steps  (continuous decrease)
       dec_run = !anyNA(.data$vals) && all(diff(.data$vals) > 0),
       # under decrease_value for the "decreased" obs: obs..lag_{steps-1}
       below_thr = !is.na(.data$decrease_value) &&
         !anyNA(.data$vals[seq_len(steps_with_decrease)]) &&
         all(.data$vals[seq_len(steps_with_decrease)] < .data$decrease_value),
-
       end_candidate = (.data$season_id > 0) && .data$dec_run && .data$below_thr
     ) |>
     dplyr::ungroup() |>
     dplyr::mutate(
-      seasonal_offset = .data$end_candidate & (cumsum(.data$end_candidate) == 1),
+      # A zero-case observation is below thresholds on both the count and
+      # proportion scales. For binomial data, label the preceding positive
+      # observation in the confirmed below-threshold run so the offset remains
+      # specifically attributable to the proportion-scale comparison.
+      offset_candidate = if (identical(model_outcome, "proportion")) {
+        (.data$end_candidate & .data$cases > .data$decrease_value) |
+          dplyr::lead(
+            .data$end_candidate & .data$cases <= .data$decrease_value,
+            default = FALSE
+          )
+      } else {
+        .data$end_candidate
+      },
+      seasonal_offset = .data$offset_candidate & (cumsum(.data$offset_candidate) == 1),
       .by = "season_id"
     ) |>
     dplyr::select(
-      -c("season_id", "vals", "dec_run", "below_thr", "end_candidate", "decrease_level"),
+      -c("season_id", "vals", "dec_run", "below_thr", "end_candidate", "offset_candidate",
+         "decrease_level"),
       -dplyr::starts_with("observation")
     )
 

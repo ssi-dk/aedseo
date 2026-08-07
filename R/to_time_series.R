@@ -5,6 +5,7 @@
 #' This function takes observations and the corresponding date vector (`time`) and converts them into a `tsd` object,
 #' which is a time series data structure that can be used for time series analysis. For count data, supply `cases`
 #' or `incidence` with given `population`. For binomial data, supply `samples` and `cases` or `proportion`.
+#' Count and binomial inputs are mutually exclusive.
 #'
 #' Options:
 #'  - `incidence` can be calculated if also supplying `cases`, `population`, and `incidence_denominator`.
@@ -84,6 +85,15 @@ to_time_series <- function(                                     # nolint: cycloc
   checkmate::assert_numeric(proportion, null.ok = TRUE, add = coll)
   checkmate::assert_integerish(samples, null.ok = TRUE, add = coll)
 
+  has_count_inputs <- !is.null(incidence) || !is.null(population)
+  has_binomial_inputs <- !is.null(proportion) || !is.null(samples)
+  if (has_count_inputs && has_binomial_inputs) {
+    stop(
+      "Count inputs (`incidence` or `population`) cannot be combined with binomial inputs (`proportion` or `samples`).",
+      call. = FALSE
+    )
+  }
+
   # Defining output types to be used for asserting and completing columns
   outcome_type <- NULL
   if (!is.null(population) || !is.null(incidence)) {
@@ -96,11 +106,11 @@ to_time_series <- function(                                     # nolint: cycloc
   outcome_type <- ifelse(is.null(outcome_type), "cases", outcome_type)
 
   # Enforcing incidence denominator as 1 when proportion is the only outcome_type
-  if (outcome_type == "proportion") {
+  if (identical(outcome_type, "proportion")) {
     incidence_denominator <- 1
   }
 
-  if ("proportion" %in% outcome_type) {
+  if (identical(outcome_type, "proportion")) {
     if (is.null(samples))
       coll$push("Assuming binomial data as 'proportion' is provided. In this case 'samples' has to be provided.")
     checkmate::assert_true(all(samples > 0, na.rm = TRUE), add = coll)

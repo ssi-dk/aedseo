@@ -51,6 +51,7 @@ A \code{tsd} object containing:
 This function takes observations and the corresponding date vector (\code{time}) and converts them into a \code{tsd} object,
 which is a time series data structure that can be used for time series analysis. For count data, supply \code{cases}
 or \code{incidence} with given \code{population}. For binomial data, supply \code{samples} and \code{cases} or \code{proportion}.
+Count and binomial inputs are mutually exclusive.
 
 Options:
 \itemize{
