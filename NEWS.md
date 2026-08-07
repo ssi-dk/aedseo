@@ -7,6 +7,10 @@ the family arguments `binomial` or `quasibinomial` and in the `seasonal_burden_l
 Attributes; `outcome_type`, `model_outcome` and `burden_outcome` have been added to the object classes of `to_time_series()`, `seasonal_onset()` and `seasonal_burden_levels()` functions to always be able to track if the results are based on count/incidence or binomial data (#100, #101, #103).
 * `summary.tsd_onset()` now reports proportional observations on the proportion scale and prints an explicit `NA` reference when no seasonal onset was detected, instead of producing no output (#103).
 
+## Fixes
+* The `estimate_disease_threshold()` function defaulted to 1 if the selected observation was below 1. Since the package has the possibility to use incidence as
+an input there is a need for allowing values below 1. This was fixed in #106.
+
 # aedseo 1.1.0
 
 ## Features

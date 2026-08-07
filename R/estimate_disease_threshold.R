@@ -3,7 +3,7 @@
 #' @description
 #'
 #' This function estimates the disease specific threshold, based on previous seasons.
-#' For count/incidence data, thresholds estimated between ]0:1] are set to 1.
+#' For count/incidence data, thresholds estimated below 0 are set to 0.
 #' For binomial/proportional data, thresholds remain on the proportion scale and beta percentiles are used by default.
 #'
 #' @param tsd `r rd_tsd`
@@ -281,18 +281,6 @@ estimate_disease_threshold <- function(
       dplyr::ungroup()
   }
 
-  # If average observations in the start of the window is 0 it will be converted to 1
-  if (any(per_season_sequence$start_average_observations_window <= 0)) {
-    per_season_sequence <- per_season_sequence |>
-      dplyr::mutate(
-        start_average_observations_window = dplyr::if_else(
-          .data$start_average_observations_window <= 0,
-          1,
-          .data$start_average_observations_window
-        )
-      )
-  }
-
   # Function to normalize the threshold based on count or binomial data
   normalize_threshold <- function(x, is_binomial) {
     if (is_binomial) {
@@ -302,11 +290,10 @@ estimate_disease_threshold <- function(
     }
   }
 
-  # If there is only one season with observation that will be the threshold
-  # If all observations are 1, the disease threshold will be 1
+  # If there is only one season with an observation that will be the threshold
+  # If observations in all seasons are equal, the disease threshold will be that observation
   if (nrow(per_season_sequence) == 1 ||
-        length(unique(per_season_sequence$start_average_observations_window)) == 1 ||
-        all(unique(per_season_sequence$start_average_observations_window) == 1)) {
+        length(unique(per_season_sequence$start_average_observations_window)) == 1) {
 
     disease_threshold <- unique(per_season_sequence$start_average_observations_window)
 

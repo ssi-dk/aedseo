@@ -321,3 +321,52 @@ test_that("Average observations in window are correctly calculated", {
 
   purrr::walk2(average_observations_window_output, tsd_data_inc_avg_obs, ~ expect_equal(.x, .y))
 })
+
+test_that("test that incidence disease threshold is used correctly in seasonal onset", {
+  skip_if_not_installed("withr")
+  withr::local_seed(111)
+  tsd_data <- generate_seasonal_data(
+    years = 6,
+    start_date = as.Date("2021-01-01"),
+    noise_overdispersion = 3,
+    phase = 2
+  )
+
+  tsd_data_pop <- to_time_series(
+    cases = tsd_data$cases,
+    population = 10000000,
+    incidence_denominator = 1000,
+    time = tsd_data$time
+  )
+
+  disease_threshold <- estimate_disease_threshold(
+    tsd_data_pop,
+    family = "poisson",
+    burden_family = "weibull",
+    use_prev_seasons_num = 5,
+    skip_current_season = FALSE
+  )
+
+  onset_data <- seasonal_onset(
+    tsd = tsd_data_pop,
+    disease_threshold = disease_threshold$disease_threshold,
+    season_start = 21,
+    only_current_season = TRUE
+  )
+
+  expect_equal(attr(onset_data, "model_outcome"), "incidence")
+  expect_lt(disease_threshold$disease_threshold, 1)
+})
+
+test_that("test that seasonal onset works with disease threshold set to 0", {
+  skip_if_not_installed("withr")
+  withr::local_seed(111)
+  tsd_data <- generate_seasonal_data()
+
+  expect_no_message(seasonal_onset(
+    tsd = tsd_data,
+    disease_threshold = 0,
+    season_start = 21,
+    only_current_season = TRUE
+  ))
+})
