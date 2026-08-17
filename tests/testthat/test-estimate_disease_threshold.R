@@ -204,3 +204,32 @@ test_that("family arguments are routed to onset and percentile fits", {
   expect_equal(attr(disease_threshold$onset_output, "family"), "poisson")
   expect_equal(disease_threshold$optim$family, "weibull")
 })
+
+test_that("test that incidence disease threshold can be below 1", {
+  skip_if_not_installed("withr")
+  withr::local_seed(111)
+  tsd_data <- generate_seasonal_data(
+    years = 6,
+    start_date = as.Date("2021-01-01"),
+    noise_overdispersion = 3,
+    phase = 2
+  )
+
+  tsd_data_pop <- to_time_series(
+    cases = tsd_data$cases,
+    population = 10000000,
+    incidence_denominator = 1000,
+    time = tsd_data$time
+  )
+
+  disease_threshold <- estimate_disease_threshold(
+    tsd_data_pop,
+    family = "poisson",
+    burden_family = "weibull",
+    use_prev_seasons_num = 5,
+    skip_current_season = FALSE
+  )
+
+  expect_equal(attr(disease_threshold, "model_outcome"), "incidence")
+  expect_lt(disease_threshold$disease_threshold, 1)
+})

@@ -97,7 +97,7 @@ A \code{tsd_onset} object containing:
 }
 \description{
 This function estimates the disease specific threshold, based on previous seasons.
-For count/incidence data, thresholds estimated between ]0:1] are set to 1.
+For count/incidence data, thresholds estimated below 0 are set to 0.
 For binomial/proportional data, thresholds remain on the proportion scale and beta percentiles are used by default.
 }
 \examples{
