@@ -227,7 +227,7 @@ seasonal_onset <- function(
   }
 
   # Estimate growth rates for all possible intervals
-  for (i in k:n) {
+  for (i in seq_len(n)) {
 
     # Ensure continuous time steps within the k window
     current_time <- tsd$time[i]
@@ -239,6 +239,11 @@ seasonal_onset <- function(
       weeks = current_time - lubridate::weeks((k - 1):0),
       months = lubridate::`%m-%`(current_time, lubridate::period(months = (k - 1):0))
     )
+
+    # Do not evaluate until a complete k window exist in the data
+    if (expected_time[1] < tsd$time[1]) {
+      next
+    }
 
     # Create complete k-window
     # Use match instead of left_join to reduce computation time
