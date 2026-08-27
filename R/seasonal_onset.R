@@ -229,7 +229,7 @@ seasonal_onset <- function(
   # Estimate growth rates for all possible intervals
   for (i in k:n) {
 
-    # Ensure continuous time steps within the k window with maximum of na_fraction_allowed
+    # Ensure continuous time steps within the k window
     current_time <- tsd$time[i]
 
     # Define expected time points within the k-window
@@ -247,7 +247,7 @@ seasonal_onset <- function(
     obs_iter <- tsd[idx, ]
     obs_iter$time <- expected_time
 
-    # Evaluate NA and zero values in windows
+    # Evaluate NA and zero values in windows with maximum of na_fraction_allowed
     if (sum(is.na(obs_iter$observation) | obs_iter$observation == 0) > k * na_fraction_allowed) {
       skipped_window[i] <- TRUE
       # Set fields to NA since the window is skipped
