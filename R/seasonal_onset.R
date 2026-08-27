@@ -186,8 +186,16 @@ seasonal_onset <- function(
   res <- tibble::tibble()
   skipped_window <- base::rep(FALSE, base::nrow(tsd))
 
+  # Determine the earliest expected time point in a k-window ending at the last observation
+  first_expected_time <- switch(
+    time_interval,
+    days = tsd$time[n] - lubridate::days(k - 1),
+    weeks = tsd$time[n] - lubridate::weeks(k - 1),
+    months = lubridate::`%m-%`(tsd$time[n], lubridate::period(months = k - 1))
+  )
+
   # Return NA if the tsd is too short for the window size
-  if (n < k) {
+  if (first_expected_time < tsd$time[1]) {
     res <- tibble::tibble(
       reference_time = tsd$time,
       cases = tsd$cases,
