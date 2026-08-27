@@ -132,13 +132,15 @@ seasonal_onset <- function(
   }
   checkmate::reportAssertions(coll)
 
+  # Save the time_interval from the original tsd object
+  time_interval <- attr(tsd, "time_interval")
+
   # Add the seasons to tsd if available
   if (!is.null(season_start)) {
     tsd <- tsd |> dplyr::mutate(season = epi_calendar(.data$time, start = season_start, end = season_end))
   } else {
     tsd <- tsd |> dplyr::mutate(season = "not_defined")
   }
-
 
   # Define observation as cases in `tsd`.
   tsd <- tsd |>
@@ -161,19 +163,20 @@ seasonal_onset <- function(
     }
 
     # Create the combined data frame:
-    tsd <- dplyr::bind_rows(
-      # If a previous season exists, use its last k-1 rows
-      if (!is.na(prev_season)) {
+    # If a previous season exists, use its last k-1 rows
+    # or else use the current season
+    if (!is.na(prev_season)) {
+      tsd <- dplyr::bind_rows(
         tsd |>
           dplyr::filter(.data$season == prev_season) |>
-          dplyr::slice_tail(n = k - 1)
-      } else {
-        tibble::tibble()
-      },
-      # Bind all rows from the current season
-      tsd |>
+          dplyr::slice_tail(n = k - 1),
+        tsd |>
+          dplyr::filter(.data$season == current_season)
+      )
+    } else {
+      tsd <- tsd |>
         dplyr::filter(.data$season == current_season)
-    )
+    }
   }
 
   # Extract the length of the series
@@ -225,15 +228,30 @@ seasonal_onset <- function(
 
   # Estimate growth rates for all possible intervals
   for (i in k:n) {
-    # Index observations for this iteration
-    obs_iter <- tsd[(i - k + 1):i, ]
+
+    # Ensure continuous time steps within the k window with maximum of na_fraction_allowed
+    current_time <- tsd$time[i]
+
+    # Define expected time points within the k-window
+    expected_time <- switch(
+      time_interval,
+      days = current_time - lubridate::days((k - 1):0),
+      weeks = current_time - lubridate::weeks((k - 1):0),
+      months = lubridate::`%m-%`(current_time, lubridate::period(months = (k - 1):0))
+    )
+
+    # Create complete k-window
+    # Use match instead of left_join to reduce computation time
+    # Missing time points are represented by NA
+    idx <- match(expected_time, tsd$time)
+    obs_iter <- tsd[idx, ]
+    obs_iter$time <- expected_time
 
     # Evaluate NA and zero values in windows
     if (sum(is.na(obs_iter$observation) | obs_iter$observation == 0) > k * na_fraction_allowed) {
       skipped_window[i] <- TRUE
       # Set fields to NA since the window is skipped
-      growth_rates <- list(estimate = c(NA, NA, NA),
-                           fit = list(converged = FALSE))
+      growth_rates <- list(estimate = c(NA, NA, NA), fit = list(converged = FALSE))
     } else {
       # Estimate growth rates
       growth_rates <- fit_growth_rate(
