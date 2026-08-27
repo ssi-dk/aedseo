@@ -370,3 +370,100 @@ test_that("test that seasonal onset works with disease threshold set to 0", {
     only_current_season = TRUE
   ))
 })
+
+test_that("Growth windows allow missing weekly time points", {
+  tsd <- to_time_series(
+    time = as.Date(c(
+      "2021-05-19", # Outside final 5-week window
+      "2021-05-26",
+      "2021-06-09",
+      "2021-06-23"
+    )),
+    cases = c(100, 110, 130, 150)
+  )
+
+  result <- seasonal_onset(tsd, k = 5, na_fraction_allowed = 0.4)
+
+  # Expected window for 2021-06-23:
+  # 2021-05-26, 2021-06-02, 2021-06-09, 2021-06-16, 2021-06-23
+  #
+  # Two of five time points are missing and therefore allowed.
+  expect_false(result$skipped_window[result$reference_time == as.Date("2021-06-23")])
+})
+
+test_that("Observations outside weekly growth windows are not used", {
+  tsd <- to_time_series(
+    time = as.Date(c(
+      "2021-05-19", # Outside final 5-week window
+      "2021-05-26",
+      "2021-06-09",
+      "2021-06-23"
+    )),
+    cases = c(100, 110, 130, 150)
+  )
+
+  result <- seasonal_onset(tsd, k = 5, na_fraction_allowed = 0.2)
+
+  # Two expected time points are missing.
+  # 2021-05-19 must not be used in the window, leaving only 3 out of 5 accepted observations.
+  expect_true(result$skipped_window[result$reference_time == as.Date("2021-06-23")])
+})
+
+test_that("Growth windows handle missing daily time points", {
+  tsd <- to_time_series(
+    time = as.Date(c(
+      "2021-05-19", # Outside final 5-day window
+      "2021-05-20",
+      "2021-05-22",
+      "2021-05-24"
+    )),
+    cases = c(100, 110, 130, 150),
+    time_interval = "days"
+  )
+
+  result <- seasonal_onset(tsd, k = 5, na_fraction_allowed = 0.4)
+
+  # Expected: 2021-05-20, 2021-05-21, 2021-05-22, 2021-05-23, 2021-05-24
+  expect_false(result$skipped_window[result$reference_time == as.Date("2021-05-24")]
+  )
+})
+
+test_that("Growth windows handle missing monthly time points", {
+  tsd <- to_time_series(
+    time = as.Date(c(
+      "2020-12-31", # Outside final 5-month window
+      "2021-01-31",
+      "2021-03-31",
+      "2021-05-31"
+    )),
+    cases = c(100, 110, 130, 150),
+    time_interval = "months"
+  )
+
+  # Expected: 2021-01-31, 2021-02-28, 2021-03-31, 2021-04-30, 2021-05-31
+  # 0.4 will pass and 0.2 will fail as February and April are missing.
+
+  result <- seasonal_onset(tsd, k = 5, na_fraction_allowed = 0.4)
+
+  expect_false(result$skipped_window[result$reference_time == as.Date("2021-05-31")])
+
+  result_2 <- seasonal_onset(tsd, k = 5, na_fraction_allowed = 0.2)
+
+  expect_true(result_2$skipped_window[result_2$reference_time == as.Date("2021-05-31")])
+})
+
+test_that("Time series shorter than growth window returns skipped windows", {
+  tsd <- to_time_series(
+    time = as.Date(c(
+      "2021-05-26",
+      "2021-06-02",
+      "2021-06-09"
+    )),
+    cases = c(100, 120, 140)
+  )
+
+  result <- seasonal_onset(tsd, k = 5, na_fraction_allowed = 0.4)
+
+  expect_true(all(result$skipped_window))
+  expect_true(all(is.na(result$growth_rate)))
+})
