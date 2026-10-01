@@ -181,10 +181,19 @@ to_time_series <- function(                                     # nolint: cycloc
   )) |>
     tibble::as_tibble()
 
+  expected_time <- switch(
+    time_interval,
+    days = seq.Date(min(time), max(time), by = "day"),
+    weeks = seq.Date(min(time), max(time), by = "week"),
+    months = seq.Date(min(time), max(time), by = "month")
+  )
+
+  # Fill missing time points in the time series with NA
+  tsd <- tbl |> tidyr::complete(time = expected_time)
 
   # Create the time series data object
   tibble::new_tibble(
-    x = tbl,
+    x = tsd,
     class = "tsd",
     time_interval = time_interval,
     incidence_denominator = incidence_denominator,
