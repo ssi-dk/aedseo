@@ -467,3 +467,17 @@ test_that("Time series shorter than growth window returns skipped windows", {
   expect_true(all(result$skipped_window))
   expect_true(all(is.na(result$growth_rate)))
 })
+
+test_that("A season does not use previous season if it has larger time gap than na_fraction_allowed", {
+  tsd <- to_time_series(
+    time = c(
+      seq.Date(from = as.Date("2020-05-26"), by = "1 week", length.out = 5),
+      seq.Date(from = as.Date("2021-05-26"), by = "1 week", length.out = 5)
+    ),
+    cases = rep(c(100, 110, 130, 150, 180), 2)
+  )
+
+  result <- seasonal_onset(tsd, k = 5, na_fraction_allowed = 0.4)
+
+  expect_true(result$skipped_window[result$reference_time == as.Date("2021-05-26")])
+})
