@@ -370,3 +370,16 @@ test_that("test that seasonal onset works with disease threshold set to 0", {
     only_current_season = TRUE
   ))
 })
+
+test_that("Zero cases are valid observations for binomial models", {
+  tsd <- to_time_series(
+    time = seq.Date(from = as.Date("2021-05-26"), by = "week", length.out = 5),
+    cases = c(0, 0, 0, 1, 3),
+    samples = c(5000, 5100, 4900, 5000, 5200)
+  )
+
+  result <- seasonal_onset(tsd = tsd, family = "binomial")
+
+  expect_false(result$skipped_window)
+  expect_false(is.na(result$growth_rate))
+})
