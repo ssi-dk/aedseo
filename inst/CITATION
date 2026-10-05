@@ -1,0 +1,18 @@
+bibentry(
+  bibtype = "Article",
+  title = "Evaluation of the Automated and Early Detection of Seasonal Epidemic Onset and Burden Levels (AEDSEO) method for respiratory surveillance using data from 21 European countries",
+  author = c(
+  person(given = "Sofia Myrup", family = "Otero"),
+  person(given = "Hanne-Dorthe", family = "Emborg"),
+  person(given = "Kasper Schou", family = "Telkamp"),
+  person(given = "Ida Rask", family = "Moustsen-Helms"),
+  person(given = "Bolette", family = "Søborg"),
+  person(given = "Lasse Engbo", family = "Christiansen")
+  ),
+  journal = "Eurosurveillance",
+  year = "2026",
+  volume = "31",
+  number = "30",
+  pages = "2500896",
+  doi = "10.2807/1560-7917.ES.2026.31.30.2500896"
+)
