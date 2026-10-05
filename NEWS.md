@@ -9,6 +9,7 @@ Attributes; `outcome_type`, `model_outcome` and `burden_outcome` have been added
 * `summary.tsd_onset()` now reports proportional observations on the proportion scale and prints an explicit `NA` reference when no seasonal onset was detected, instead of producing no output (#103).
 
 ## Fixes
+* The `to_time_series()` function now fills the `tsd` object with time and NA's if some time steps according to the `time_interval` do not have values in the data provided by the user (#108).
 * The `estimate_disease_threshold()` function defaulted to 1 if the selected observation was below 1. Since the package has the possibility to use incidence as
 an input there is a need for allowing values below 1. This was fixed in #106.
 
