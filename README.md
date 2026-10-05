@@ -56,7 +56,29 @@ To quickly get started with `aedseo`, follow these steps:
 ## Vignette
 
 For a more detailed introduction to the workflow of this package, see
-the `Get Started` vignette or run; `vignette("aedseo")`.
+the `Get Started` vignette or run;
+
+``` r
+vignette("aedseo")
+```
+
+## Citation
+
+The AEDSEO method is described and externally evaluated in:
+
+Otero Sofia Myrup, Emborg Hanne-Dorthe, Telkamp Kasper Schou,
+Moustsen-Helms Ida Rask, Søborg Bolette, Christiansen Lasse Engbo.
+**\[Evaluation of the Automated and Early Detection of Seasonal Epidemic
+Onset and Burden Levels (AEDSEO) method for respiratory surveillance
+using data from 21 European countries\]**. *Eurosurveillance*.
+2026;31(30):2500896.
+<https://doi.org/10.2807/1560-7917.ES.2026.31.30.2500896>
+
+To cite the `aedseo` package and method, run:
+
+``` r
+citation("aedseo")
+```
 
 ## Contributing
 

@@ -47,7 +47,7 @@ test_that("Test that default arguments can be overwritten", {
   default_args <- combined_seasonal_output(tsd_data)
   changed_conf_levels <- combined_seasonal_output(
     tsd_data,
-    conf_levels = 0.975
+    conf_levels = 0.95
   )
 
   expect_false(default_args$burden_output$values[["high"]] == changed_conf_levels$burden_output$values[["high"]])

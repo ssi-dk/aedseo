@@ -79,10 +79,10 @@ seasonal_burden_levels <- function(
   season_start = 21,
   season_end = season_start - 1,
   method = c("intensity_levels", "peak_levels"),
-  conf_levels = 0.95,
+  conf_levels = 0.975,
   decay_factor = 0.8,
   disease_threshold = 20,
-  n_peak = 6,
+  n_peak = 3,
   only_current_season = TRUE,
   ...
 ) {
