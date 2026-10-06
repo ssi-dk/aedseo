@@ -125,6 +125,11 @@ to_time_series <- function(                                     # nolint: cycloc
       coll$push("`proportion` must be between 0 and 1 or a percentage between 1 and 100")
     }
 
+    # A proportion is undefined when samples == 0
+    if (!is.null(proportion) && !is.null(samples) && any(samples == 0 & !is.na(proportion), na.rm = TRUE)) {
+      coll$push("`proportion` must be `NA` when `samples` is 0.")
+    }
+
     # Calculate cases if needed
     if (is.null(cases) && !is.null(proportion)) {
       cases <- round(proportion * samples)

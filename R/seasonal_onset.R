@@ -228,8 +228,14 @@ seasonal_onset <- function(
     # Index observations for this iteration
     obs_iter <- tsd[(i - k + 1):i, ]
 
-    # Evaluate NA and zero values in windows
-    if (sum(is.na(obs_iter$observation) | obs_iter$observation == 0) > k * na_fraction_allowed) {
+    # Identify observations that cannot contribute to the model based on input data
+    if (model_outcome == "proportion") {
+      invalid_observation <- is.na(obs_iter$observation) | is.na(obs_iter$samples) | obs_iter$samples <= 0
+    } else {
+      invalid_observation <- is.na(obs_iter$observation) | obs_iter$observation == 0
+    }
+
+    if (sum(invalid_observation) > k * na_fraction_allowed) {
       skipped_window[i] <- TRUE
       # Set fields to NA since the window is skipped
       growth_rates <- list(estimate = c(NA, NA, NA),
