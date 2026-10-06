@@ -382,6 +382,8 @@ test_that("Zero cases are valid observations for binomial models", {
 
   expect_false(result$skipped_window)
   expect_false(is.na(result$growth_rate))
+})
+
 test_that("Growth windows allow missing weekly time points", {
   tsd <- to_time_series(
     time = as.Date(c(
