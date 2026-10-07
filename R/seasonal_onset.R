@@ -46,6 +46,7 @@ seasonal_onset <- function(
   k = 5,
   level = 0.95,
   disease_threshold = NA_real_,
+  growth_estimator = c("glm", "firth"),
   family = c(
     "quasipoisson",
     "poisson",
@@ -62,6 +63,7 @@ seasonal_onset <- function(
   coll <- checkmate::makeAssertCollection()
   checkmate::assert_data_frame(tsd, add = coll)
   checkmate::assert_class(tsd, "tsd", add = coll)
+  growth_estimator <- rlang::arg_match(growth_estimator)
 
   checkmate::assert_names(
     colnames(tsd),
@@ -113,6 +115,10 @@ seasonal_onset <- function(
     model_outcome <- "incidence"
   } else if ("cases" %in% attr(tsd, "outcome_type") && family_char %in% c("poisson", "quasipoisson")) {
     model_outcome <- "cases"
+  }
+
+  if (growth_estimator == "firth" && (family_char != "binomial" || model_outcome != "proportion")) {
+    coll$push(paste0("growth_estimator firth requires binomial family and data."))
   }
 
   if (is.null(model_outcome)) {
@@ -242,18 +248,26 @@ seasonal_onset <- function(
                            fit = list(converged = FALSE))
     } else {
       # Estimate growth rates
-      growth_rates <- fit_growth_rate(
-        cases = obs_iter$observation,
-        denominator = if (model_outcome == "proportion") {
-          obs_iter$samples
-        } else if (model_outcome == "incidence") {
-          obs_iter$population
-        } else {
-          NULL
-        },
-        level = level,
-        family = family
-      )
+      if (growth_estimator == "firth") {
+        growth_rates <- fit_growth_rate_logistf(
+          cases = obs_iter$observation,
+          denominator = obs_iter$samples,
+          level = level
+        )
+      } else {
+        growth_rates <- fit_growth_rate(
+          cases = obs_iter$observation,
+          denominator = if (model_outcome == "proportion") {
+            obs_iter$samples
+          } else if (model_outcome == "incidence") {
+            obs_iter$population
+          } else {
+            NULL
+          },
+          level = level,
+          family = family
+        )
+      }
     }
 
     # See if the growth rate is significantly higher than zero
