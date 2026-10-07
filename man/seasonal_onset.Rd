@@ -9,6 +9,7 @@ seasonal_onset(
   k = 5,
   level = 0.95,
   disease_threshold = NA_real_,
+  growth_estimator = c("glm", "firth"),
   family = c("quasipoisson", "poisson", "quasibinomial", "binomial"),
   na_fraction_allowed = 0.4,
   season_start = NULL,
