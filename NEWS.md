@@ -1,4 +1,4 @@
-# aedseo (development version)
+# aedseo 1.2.0
 
 ## Features
 * Citation of the article evaluating the aedseo package and method has been added (#109).
