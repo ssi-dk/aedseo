@@ -1,5 +1,5 @@
 ## R CMD check results
 
-0 errors | 0 warning | 1 note
+ Status: OK
 
 ## Message to CRAN
