@@ -21,9 +21,10 @@ series data in a `tsd`, `tsd_onset`, `tsd_onset_and_burden` or
 
 - Generates a line connecting the observations in the current season,
   along with colored regions representing different burdens levels and a
-  vertical line indicating seasonal onset. The y-axis is scaled with
-  [`ggplot2::scale_y_log10`](https://ggplot2.tidyverse.org/reference/scale_continuous.html)
-  to give better visualisation of the burden levels.
+  vertical line indicating seasonal onset. The y-axis is log-scaled for
+  counts and incidence to improve visualisation of the burden levels.
+  Proportions use a linear y-axis starting at zero so that zero
+  observations remain visible.
 
 ## Usage
 
@@ -57,6 +58,7 @@ autoplot(
 # S3 method for class 'tsd_onset_and_burden'
 autoplot(
   object,
+  only_burden_levels = FALSE,
   y_lower_bound = 5,
   factor_to_max = 2,
   disease_color = "#009DD1",
@@ -73,7 +75,7 @@ autoplot(
   vline_color_offset = "#006f3c",
   vline_linetype_offset = "dotted",
   line_width = 1,
-  y_scale_labels = scales::label_comma(big.mark = ".", decimal.mark = ","),
+  y_scale_labels = scales::label_comma(),
   theme_custom = ggplot2::theme_bw(),
   legend_position = "right",
   ...
@@ -139,9 +141,15 @@ autoplot(
 
   A character specifying the position of the legend on the plot.
 
+- only_burden_levels:
+
+  a character specifying if only burden levels and observations should
+  be shown on the plot
+
 - y_lower_bound:
 
-  A numeric specifying the lower bound of the y-axis.
+  A numeric specifying the lower bound of the log-scaled y-axis. Ignored
+  for proportions, which always start at zero on a linear scale.
 
 - factor_to_max:
 
@@ -226,10 +234,6 @@ set.seed(345)
 # Create an example `tsd` object
 time_series <- generate_seasonal_data()
 autoplot(time_series)
-#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-#> ℹ Please use `linewidth` instead.
-#> ℹ The deprecated feature was likely used in the aedseo package.
-#>   Please report the issue at <https://github.com/ssi-dk/aedseo/issues>.
 
 
 # Create an `tsd_onset` object

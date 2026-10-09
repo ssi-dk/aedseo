@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Seasonal Burden Levels">
 </head>
@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">aedseo</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Seasonal Burden Levels</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ssi-dk/aedseo/blob/v1.1.0/vignettes/burden_levels.Rmd" class="external-link"><code>vignettes/burden_levels.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ssi-dk/aedseo/blob/v1.2.0/vignettes/burden_levels.Rmd" class="external-link"><code>vignettes/burden_levels.Rmd</code></a></small>
       <div class="d-none name"><code>burden_levels.Rmd</code></div>
     </div>
 
@@ -96,23 +96,26 @@ for the burden levels, and are visualised on following plot.</p>
 <h2 id="methodology">Methodology<a class="anchor" aria-label="anchor" href="#methodology"></a>
 </h2>
 <p>The methodology used to define the burden levels of seasonal
-epidemics is based on observations (cases or incidence) from previous
-seasons. Historical data from all available seasons is used to establish
-the levels for the current season. This is done by:</p>
+epidemics is based on observations (cases, incidence, or proportions)
+from previous seasons. Historical data from all available seasons is
+used to establish the levels for the current season. This is done
+by:</p>
 <ul>
-<li>Using either cases or incidence as observations (default is
+<li>Using cases, incidence, or proportions as observations (default is
 <code>cases</code>, but if <code>incidence</code> is in the
-<code>tsd</code> object it will be used instead).</li>
+<code>tsd</code> object it will be used instead; binomial/proportional
+input remains on the proportion scale).</li>
 <li>Using <code>n</code> highest (peak) observations from each
 season.</li>
 <li>Selecting only observations if they surpass the disease-specific
 threshold.</li>
 <li>Weighting the observations such that recent observations have a
 greater influence than older observations.</li>
-<li>A proper distribution (log-normal, weibull and exponential are
-currently implemented) is fitted to the weighted <code>n</code> peak
-observations. The selected distribution with the fitted parameters is
-used to calculate percentiles to be used as breakpoints.</li>
+<li>A proper distribution (log-normal, Weibull, exponential, or beta for
+proportional/binomial observations) is fitted to the weighted
+<code>n</code> peak observations. The selected distribution with the
+fitted parameters is used to calculate percentiles to be used as
+breakpoints.</li>
 <li>Burden levels can be defined by two methods:
 <ul>
 <li>
@@ -171,10 +174,14 @@ dramatic shifts from one season to the next, a lower
 </h4>
 <p>The <code>family</code> argument is used to select which distribution
 the <code>n_peak</code> observations should be fitted to, users can
-choose between <code>lnorm</code>, <code>weibull</code> and
-<code>exp</code> distributions. The log-normal distribution
-theoretically aligns well with the nature of epidemic data, which often
-exhibits multiplicative growth patterns. In our optimisation process, we
+choose between <code>lnorm</code>, <code>weibull</code>,
+<code>exp</code>, and <code>beta</code> distributions. Use
+<code>beta</code> for proportional/binomial observations on the
+<code>[0, 1]</code> scale; if <code>family = NULL</code>, proportional
+data default to <code>beta</code> and non-proportional data default to
+<code>lnorm</code>. The log-normal distribution theoretically aligns
+well with the nature of epidemic data, which often exhibits
+multiplicative growth patterns. In our optimisation process, we
 evaluated the distributions to determine their performance in fitting
 Danish non-sentinel cases and hospitalisation data for RSV, SARS-CoV-2
 and Influenza (A and B). All three distributions had comparable weighted
@@ -255,9 +262,9 @@ for the current season.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Breakpoint estimates:</span></span>
 <span><span class="co">#&gt;       very low : 10.000000</span></span>
-<span><span class="co">#&gt;       low: 53.267535</span></span>
-<span><span class="co">#&gt;       medium: 283.743033</span></span>
-<span><span class="co">#&gt;       high: 1511.429206</span></span>
+<span><span class="co">#&gt;       low: 53.757439</span></span>
+<span><span class="co">#&gt;       medium: 288.986228</span></span>
+<span><span class="co">#&gt;       high: 1553.515963</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     The season for the burden levels:</span></span>
 <span><span class="co">#&gt;       2025/2026</span></span>
@@ -419,7 +426,7 @@ monitoring of observations in the current season.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

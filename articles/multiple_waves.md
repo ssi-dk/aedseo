@@ -1,6 +1,7 @@
 # Multiple waves
 
 ``` r
+
 library(aedseo)
 ```
 
@@ -19,13 +20,13 @@ The
 [`combined_seasonal_output()`](https://ssi-dk.github.io/aedseo/reference/combined_seasonal_output.md)
 function implements this functionality via:
 
-- $\text{multiple\_waves}$: Logical. Should multiple waves be estimated
-  within each season?
-- $\text{burden\_level\_decrease}$: Character. The burden breakpoint
+- $`\text{multiple\_waves}`$: Logical. Should multiple waves be
+  estimated within each season?
+- $`\text{burden\_level\_decrease}`$: Character. The burden breakpoint
   that observations must fall below before a subsequent increase can be
   interpreted as the start of a new wave (provided onset criteria are
   met). Choose one of `"very low"`, `"low"`, `"medium"`, or `"high"`.
-- $\text{steps\_with\_decrease}$: Integer. The number of consecutive
+- $`\text{steps\_with\_decrease}`$: Integer. The number of consecutive
   time steps (days, weeks, months) with decreasing observations while
   below `burden_level_decrease` required to declare a wave end and start
   searching for the next wave onset.
@@ -38,6 +39,7 @@ function. Then we rescale time from monthly to weekly observations to
 get multiple waves.
 
 ``` r
+
 set.seed(222)
 tsd_data_monthly <- generate_seasonal_data(
   years = 14,
@@ -66,6 +68,7 @@ plot(tsd_data)
 Then we estimate the disease-specific threshold.
 
 ``` r
+
 disease_threshold <- estimate_disease_threshold(tsd_data)
 disease_threshold$disease_threshold
 #> [1] 30.37079
@@ -79,6 +82,7 @@ end the wave. A new wave can then start if observations fulfill the
 seasonal onset criteria.
 
 ``` r
+
 multiple_waves <- combined_seasonal_output(
   tsd_data,
   disease_threshold = disease_threshold$disease_threshold,

@@ -1,16 +1,17 @@
-# Fit a growth rate model to time series cases.
+# Fit a growth rate model to time series observations.
 
-This function fits a growth rate model to time series cases and provides
-parameter estimates along with confidence intervals.
+This function fits a growth rate model to time series observations and
+provides parameter estimates along with confidence intervals. For
+binomial data use `family = "binomial"` or `family = "quasibinomial"`.
 
 ## Usage
 
 ``` r
 fit_growth_rate(
   cases,
-  population = NULL,
+  denominator = NULL,
   level = 0.95,
-  family = c("quasipoisson", "poisson")
+  family = c("quasipoisson", "poisson", "quasibinomial", "binomial")
 )
 ```
 
@@ -18,11 +19,12 @@ fit_growth_rate(
 
 - cases:
 
-  An integer vector containing the time series cases.
+  An integer vector containing cases.
 
-- population:
+- denominator:
 
-  An integer vector containing the time series background population.
+  An integer vector containing population or binomial sample size. This
+  is mandatory for binomial models
 
 - level:
 
@@ -31,9 +33,12 @@ fit_growth_rate(
 
 - family:
 
-  A character string specifying the family for modeling. Choose between
-  'poisson', or 'quasipoisson'. Must be one of: character,
-  family-generator, or family object.
+  A character string, family-generator, or family object specifying the
+  distribution family for growth-rate modeling. Choose between
+  'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use
+  'poisson' or 'quasipoisson' for cases/incidences, and use 'binomial'
+  or 'quasibinomial' for binomial data supplied as `cases` and
+  `samples`.
 
 ## Value
 
@@ -60,8 +65,8 @@ fit_growth_rate(
 )
 #> $fit
 #> 
-#> Call:  stats::glm(formula = stats::reformulate(response = "cases", termlabels = terms), 
-#>     family = fam_obj, data = growth_data)
+#> Call:  stats::glm(formula = stats::as.formula(paste(response, "~", paste(terms, 
+#>     collapse = " + "))), family = fam_obj, data = growth_data)
 #> 
 #> Coefficients:
 #> (Intercept)  growth_rate  
@@ -74,6 +79,33 @@ fit_growth_rate(
 #> $estimate
 #> growth_rate       2.5 %      97.5 % 
 #>   0.1992211   0.1624836   0.2362807 
+#> 
+#> $level
+#> [1] 0.95
+#> 
+
+# Fit a binomial growth rate model to successes out of trials
+fit_growth_rate(
+  cases = c(1, 2, 3, 4),
+  denominator = c(10, 10, 10, 10),
+  family = "binomial"
+)
+#> $fit
+#> 
+#> Call:  stats::glm(formula = stats::as.formula(paste(response, "~", paste(terms, 
+#>     collapse = " + "))), family = fam_obj, data = growth_data)
+#> 
+#> Coefficients:
+#> (Intercept)  growth_rate  
+#>     -2.6137       0.5666  
+#> 
+#> Degrees of Freedom: 3 Total (i.e. Null);  2 Residual
+#> Null Deviance:       2.8 
+#> Residual Deviance: 0.05243   AIC: 13.75
+#> 
+#> $estimate
+#> growth_rate       2.5 %      97.5 % 
+#>   0.5666205  -0.1000528   1.3345240 
 #> 
 #> $level
 #> [1] 0.95

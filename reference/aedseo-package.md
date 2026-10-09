@@ -28,6 +28,9 @@ Useful links:
 
 Authors:
 
+- Lasse Engbo Christiansen <lsec@ssi.dk>
+  ([ORCID](https://orcid.org/0000-0001-5019-1931))
+
 - Sofia Myrup Otero <smot@ssi.dk>
   ([ORCID](https://orcid.org/0009-0006-4953-614X))
 

@@ -1,8 +1,8 @@
 # Fits weighted observations to distribution and returns percentiles
 
-This function estimates the percentiles of weighted time series cases or
-incidences. The output contains the percentiles from the fitted
-distribution.
+This function estimates the percentiles of weighted time series cases,
+incidences, or proportions. The output contains the percentiles from the
+fitted distribution.
 
 ## Usage
 
@@ -10,7 +10,7 @@ distribution.
 fit_percentiles(
   weighted_observations,
   conf_levels = c(0.5, 0.9, 0.95),
-  family = c("lnorm", "weibull", "exp"),
+  family = NULL,
   optim_method = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN", "Brent"),
   lower_optim = -Inf,
   upper_optim = Inf
@@ -22,7 +22,7 @@ fit_percentiles(
 - weighted_observations:
 
   A tibble containing two columns of length n; `observation`, which
-  contains either cases or incidences, and `weight`, which is the
+  contains cases, incidences, or proportions, and `weight`, which is the
   importance assigned to the observation. Higher weights indicate that
   an observation has more influence on the model outcome, while lower
   weights reduce its impact.
@@ -35,9 +35,10 @@ fit_percentiles(
 
 - family:
 
-  A character string specifying the family for modeling. Choose between
-  'poisson', or 'quasipoisson'. Must be one of: character,
-  family-generator, or family object.
+  A character string specifying the family for modeling burden levels.
+  Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'lnorm',
+  'weibull' or 'exp' for count data, or use 'beta' for
+  proportional/binomial data.
 
 - optim_method:
 
@@ -72,6 +73,8 @@ A list containing:
 
     - For 'exp': Rate parameter (rate).
 
+    - For 'beta': First shape parameter.
+
   - 'par_2':
 
     - For 'weibull': Scale parameter (scale).
@@ -80,6 +83,8 @@ A list containing:
       observations.
 
     - For 'exp': Not applicable (set to NA).
+
+    - For 'beta': Second shape parameter.
 
 - 'obj_value': The value of the objective function - (negative
   log-likelihood), which represent the minimized objective function
@@ -94,6 +99,9 @@ A list containing:
   - 'lnorm': Uses the Log-normal distribution for fitting.
 
   - 'exp': Uses the Exponential distribution for fitting.
+
+  - 'beta': Uses the Beta distribution for proportional/binomial
+    observations.
 
 ## Examples
 
@@ -114,19 +122,19 @@ data_input <- tibble::tibble(
 fit_percentiles(
   weighted_observations = data_input,
   conf_levels = c(0.50, 0.90, 0.95),
-  family= "weibull"
+  family = "weibull"
 )
 #> $conf_levels
 #> [1] 0.50 0.90 0.95
 #> 
 #> $values
-#> [1]  9.730574 10.535239 10.720326
+#> [1]  9.988505 10.900076 11.110752
 #> 
 #> $par
-#> [1] 15.110158  9.969485
+#> [1] 13.74647 10.25840
 #> 
 #> $obj_value
-#> [1] 21.63893
+#> [1] 24.44745
 #> 
 #> $converged
 #> [1] TRUE

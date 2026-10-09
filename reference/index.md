@@ -22,7 +22,7 @@
   : Estimate the disease specific threshold of your time series data
 
 - [`fit_growth_rate()`](https://ssi-dk.github.io/aedseo/reference/fit_growth_rate.md)
-  : Fit a growth rate model to time series cases.
+  : Fit a growth rate model to time series observations.
 
 - [`fit_percentiles()`](https://ssi-dk.github.io/aedseo/reference/fit_percentiles.md)
   : Fits weighted observations to distribution and returns percentiles

@@ -1,6 +1,7 @@
 # Seasonal Burden Levels
 
 ``` r
+
 library(aedseo)
 ```
 
@@ -27,19 +28,20 @@ levels, and are visualised on following plot.
 ## Methodology
 
 The methodology used to define the burden levels of seasonal epidemics
-is based on observations (cases or incidence) from previous seasons.
-Historical data from all available seasons is used to establish the
-levels for the current season. This is done by:
+is based on observations (cases, incidence, or proportions) from
+previous seasons. Historical data from all available seasons is used to
+establish the levels for the current season. This is done by:
 
-- Using either cases or incidence as observations (default is `cases`,
-  but if `incidence` is in the `tsd` object it will be used instead).
+- Using cases, incidence, or proportions as observations (default is
+  `cases`, but if `incidence` is in the `tsd` object it will be used
+  instead; binomial/proportional input remains on the proportion scale).
 - Using `n` highest (peak) observations from each season.
 - Selecting only observations if they surpass the disease-specific
   threshold.
 - Weighting the observations such that recent observations have a
   greater influence than older observations.
-- A proper distribution (log-normal, weibull and exponential are
-  currently implemented) is fitted to the weighted `n` peak
+- A proper distribution (log-normal, Weibull, exponential, or beta for
+  proportional/binomial observations) is fitted to the weighted `n` peak
   observations. The selected distribution with the fitted parameters is
   used to calculate percentiles to be used as breakpoints.
 - Burden levels can be defined by two methods:
@@ -72,7 +74,7 @@ As time progresses, the relevance of older seasons may decrease due to
 changes in factors like testing recommendations, population immunity,
 virus mutations, or intervention strategies. Weighting older seasons
 less reflects this reduced relevance. From time-series analysis,
-$\frac{1}{1 - \text{decay\_factor}}$ is often used as an approximate
+$`\frac{1}{1-\text{decay_factor}}`$ is often used as an approximate
 “effective memory”. Hence, with the default `decay_factor` = 0.8 the
 effective memory is five seasons. (See mentioned by [Hyndman &
 Athanasopoulos](https://otexts.com/fpp3/ses.html#ses) for an
@@ -89,7 +91,10 @@ the data exhibit dramatic shifts from one season to the next, a lower
 
 The `family` argument is used to select which distribution the `n_peak`
 observations should be fitted to, users can choose between `lnorm`,
-`weibull` and `exp` distributions. The log-normal distribution
+`weibull`, `exp`, and `beta` distributions. Use `beta` for
+proportional/binomial observations on the `[0, 1]` scale; if
+`family = NULL`, proportional data default to `beta` and
+non-proportional data default to `lnorm`. The log-normal distribution
 theoretically aligns well with the nature of epidemic data, which often
 exhibits multiplicative growth patterns. In our optimisation process, we
 evaluated the distributions to determine their performance in fitting
@@ -161,6 +166,7 @@ provides a concise summary of your comprehensive seasonal burden level
 analysis, including breakpoints for the current season.
 
 ``` r
+
 intensity_levels_n <- seasonal_burden_levels(
   tsd = tsd_data_noise,
   disease_threshold = 10,
@@ -172,9 +178,9 @@ summary(intensity_levels_n)
 #> 
 #>     Breakpoint estimates:
 #>       very low : 10.000000
-#>       low: 53.267535
-#>       medium: 283.743033
-#>       high: 1511.429206
+#>       low: 53.757439
+#>       medium: 288.986228
+#>       high: 1553.515963
 #> 
 #>     The season for the burden levels:
 #>       2025/2026
@@ -193,6 +199,7 @@ period to fit the parameters of the distribution, where
 we use `n_peak = 8`
 
 ``` r
+
 peak_levels_n <- seasonal_burden_levels(
   tsd = tsd_data_noise,
   disease_threshold = 10,
@@ -223,6 +230,7 @@ summary(peak_levels_n)
 [mem](https://github.com/lozalojo/mem) is run with default arguments.
 
 ``` r
+
 # Remove current season such as previous seasons predict for newest season
 previous_seasons <- tsd_data_all |>
   dplyr::mutate(season = epi_calendar(time)) |>

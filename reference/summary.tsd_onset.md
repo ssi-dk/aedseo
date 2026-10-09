@@ -51,7 +51,7 @@ summary(tsd_onset)
 #>         Average observations (in k window) at reference time point: 112
 #>         Growth rate estimate at reference time point:
 #>           Estimate   Lower (2.5%)   Upper (97.5%)
-#>             0.107     0.114          0.101
+#>             0.107     0.101          0.114
 #>         
 #>         Total number of growth warnings in the series: 25
 #>         Latest growth warning: 2024-05-15
@@ -63,29 +63,6 @@ summary(tsd_onset)
 #> 
 #>       Model settings:
 #>         Called using distributional family: quasipoisson
-#>         Window size: 3
-#>         The time interval for the observations: weeks
-#>         Disease specific threshold: 100
-#>         Incidence denominator: NA Summary of tsd_onset object with disease_threshold
-#> 
-#>       Model output:
-#>         Reference time point (first seasonal onset alarm in season): 2023-05-31
-#>         Observations at reference time point: 124
-#>         Average observations (in k window) at reference time point: 112
-#>         Growth rate estimate at reference time point:
-#>           Estimate   Lower (2.5%)   Upper (97.5%)
-#>             0.107     0.114          0.101
-#>         
-#>         Total number of growth warnings in the series: 25
-#>         Latest growth warning: 2024-05-15
-#>         Latest average observations warning: 2023-11-15
-#>         Latest seasonal onset alarm: 2023-08-16
-#> 
-#>       The season for reference time point:
-#>         2023/2024
-#> 
-#>       Model settings:
-#>         Called using distributional family: poisson
 #>         Window size: 3
 #>         The time interval for the observations: weeks
 #>         Disease specific threshold: 100

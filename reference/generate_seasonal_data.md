@@ -17,7 +17,8 @@ generate_seasonal_data(
   noise_overdispersion = NULL,
   relative_epidemic_concentration = 1,
   time_interval = c("weeks", "days", "months"),
-  lower_bound = 1e-06
+  lower_bound = 1e-06,
+  samples = NULL
 )
 ```
 
@@ -54,8 +55,9 @@ generate_seasonal_data(
 - noise_overdispersion:
 
   A numeric value specifying the overdispersion of the generated data. 0
-  means deterministic, 1 is pure poisson and for values \> 1 a negative
-  binomial is assumed.
+  means deterministic, 1 gives Poisson or binomial noise, and values
+  greater than one use a negative binomial distribution for count data
+  or a beta-binomial distribution for binomial data.
 
 - relative_epidemic_concentration:
 
@@ -71,8 +73,20 @@ generate_seasonal_data(
 - lower_bound:
 
   A numeric value that can be used to ensure that intensities are always
-  greater than zero, which is needed when `noise_overdispersion` is
-  different from zero.
+  greater than zero, which is needed for noisy count data. Binomial
+  probabilities are allowed to remain zero.
+
+- samples:
+
+  An optional positive integer specifying a constant number of samples
+  tested at each time point, or an integer vector with one value per
+  generated time point. When supplied, `mean`, `amplitude`, and the
+  resulting seasonal wave are interpreted as proportions, and cases are
+  drawn from a binomial distribution. In this mode,
+  `noise_overdispersion = 1` (or `NULL`) gives binomial variation,
+  values greater than one give quasi-binomial variation using a
+  beta-binomial distribution, and zero gives deterministic rounded
+  counts.
 
 ## Value
 
@@ -81,6 +95,11 @@ A `tsd` object with simulated data containing:
 - 'time': The time point for the corresponding data.
 
 - 'cases': The number of cases at the time point.
+
+- 'proportion': The proportion of positive samples for binomial data.
+  (optional)
+
+- 'samples': The number of samples tested for binomial data. (optional)
 
 ## Examples
 
@@ -100,6 +119,11 @@ plot(trend_sim)
 #With noise
 noise_sim <- generate_seasonal_data(noise_overdispersion = 2)
 plot(noise_sim)
+
+
+# With binomial data (positive samples out of samples tested)
+binomial_sim <- generate_seasonal_data(mean = 0.3, amplitude = 0.2, samples = 100)
+plot(binomial_sim)
 
 
 #With distinct parameters, trend and noise

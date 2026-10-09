@@ -20,16 +20,22 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/ssi-dk/aedseo/blob/v1.1.0/DESCRIPTION)
+[`inst/CITATION`](https://github.com/ssi-dk/aedseo/blob/v1.2.0/inst/CITATION)
 
-Myrup Otero S, Schou Telkamp K, Christiansen L (2026). *aedseo:
-Automated and Early Detection of Seasonal Epidemic Onset and Burden
-Levels*. R package version 1.1.0, <https://github.com/ssi-dk/aedseo>.
+Otero S, Emborg H, Telkamp K, Moustsen-Helms I, Søborg B, Christiansen L
+(2026). “Evaluation of the Automated and Early Detection of Seasonal
+Epidemic Onset and Burden Levels (AEDSEO) method for respiratory
+surveillance using data from 21 European countries.” *Eurosurveillance*,
+**31**(30), 2500896.
+[doi:10.2807/1560-7917.ES.2026.31.30.2500896](https://doi.org/10.2807/1560-7917.ES.2026.31.30.2500896).
 
-    @Manual{,
-      title = {aedseo: Automated and Early Detection of Seasonal Epidemic Onset and Burden Levels},
-      author = {Sofia {Myrup Otero} and Kasper {Schou Telkamp} and Lasse Engbo Christiansen},
+    @Article{,
+      title = {Evaluation of the Automated and Early Detection of Seasonal Epidemic Onset and Burden Levels (AEDSEO) method for respiratory surveillance using data from 21 European countries},
+      author = {Sofia Myrup Otero and Hanne-Dorthe Emborg and Kasper Schou Telkamp and Ida Rask Moustsen-Helms and Bolette Søborg and Lasse Engbo Christiansen},
+      journal = {Eurosurveillance},
       year = {2026},
-      note = {R package version 1.1.0},
-      url = {https://github.com/ssi-dk/aedseo},
+      volume = {31},
+      number = {30},
+      pages = {2500896},
+      doi = {10.2807/1560-7917.ES.2026.31.30.2500896},
     }

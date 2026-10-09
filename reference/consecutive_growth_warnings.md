@@ -58,23 +58,24 @@ tsd_onset <- seasonal_onset(
 
 # Get consecutive significant observations
 consecutive_growth_warnings(tsd_onset)
-#> # A tibble: 256 × 18
-#>    reference_time cases season    population incidence growth_rate
-#>    <date>         <dbl> <chr>     <lgl>      <lgl>           <dbl>
-#>  1 2022-06-23        95 2022/2023 NA         NA             0.263 
-#>  2 2022-06-30       139 2022/2023 NA         NA             0.330 
-#>  3 2022-07-07       134 2022/2023 NA         NA             0.230 
-#>  4 2022-07-14       139 2022/2023 NA         NA             0.131 
-#>  5 2022-07-21       186 2022/2023 NA         NA             0.132 
-#>  6 2022-07-28       186 2022/2023 NA         NA             0.0935
-#>  7 2022-08-04       230 2022/2023 NA         NA             0.138 
-#>  8 2022-08-11       193 2022/2023 NA         NA             0.0816
-#>  9 2022-08-18       237 2022/2023 NA         NA             0.0529
-#> 10 2022-08-25       204 2022/2023 NA         NA             0.0205
+#> # A tibble: 256 × 21
+#>    reference_time cases season    population incidence proportion samples
+#>    <date>         <dbl> <chr>          <dbl>     <dbl>      <dbl>   <dbl>
+#>  1 2022-06-23       101 2022/2023         NA        NA         NA      NA
+#>  2 2022-06-30       113 2022/2023         NA        NA         NA      NA
+#>  3 2022-07-07       159 2022/2023         NA        NA         NA      NA
+#>  4 2022-07-14       152 2022/2023         NA        NA         NA      NA
+#>  5 2022-07-21       155 2022/2023         NA        NA         NA      NA
+#>  6 2022-07-28       201 2022/2023         NA        NA         NA      NA
+#>  7 2022-08-04       197 2022/2023         NA        NA         NA      NA
+#>  8 2022-08-11       237 2022/2023         NA        NA         NA      NA
+#>  9 2022-08-18       196 2022/2023         NA        NA         NA      NA
+#> 10 2022-08-25       235 2022/2023         NA        NA         NA      NA
 #> # ℹ 246 more rows
-#> # ℹ 12 more variables: lower_growth_rate <dbl>, upper_growth_rate <dbl>,
-#> #   growth_warning <lgl>, average_observations_window <dbl>,
-#> #   average_observations_warning <lgl>, seasonal_onset_alarm <lgl>,
-#> #   skipped_window <lgl>, converged <lgl>, counter <dbl>, changeFlag <lgl>,
-#> #   groupID <int>, significant_counter <dbl>
+#> # ℹ 14 more variables: growth_rate <dbl>, lower_growth_rate <dbl>,
+#> #   upper_growth_rate <dbl>, growth_warning <lgl>,
+#> #   average_observations_window <dbl>, average_observations_warning <lgl>,
+#> #   seasonal_onset_alarm <lgl>, skipped_window <lgl>, converged <lgl>,
+#> #   seasonal_onset <lgl>, counter <dbl>, changeFlag <lgl>, groupID <int>,
+#> #   significant_counter <dbl>
 ```

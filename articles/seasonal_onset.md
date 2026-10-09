@@ -1,6 +1,7 @@
 # Seasonal Epidemic Onset
 
 ``` r
+
 library(aedseo)
 ```
 
@@ -9,15 +10,15 @@ library(aedseo)
 The methodology used to detect the seasonal onset of epidemics, can be
 divided into two essential criteria:
 
-1.  The local estimate of the exponential growth rate, $r$, is
+1.  The local estimate of the exponential growth rate, $`r`$, is
     significantly greater than zero.
-2.  The average observation count over the past $k$ units of time
+2.  The average observation count over the past $`k`$ units of time
     exceeds a disease-specific threshold.
 
-Here, $k$ denotes the window size employed to obtain the local estimate
-of the exponential growth rate and SoC. When both of these criteria are
-met, an alarm is triggered and the onset of the seasonal epidemic is
-detected.
+Here, $`k`$ denotes the window size employed to obtain the local
+estimate of the exponential growth rate and SoC. When both of these
+criteria are met, an alarm is triggered and the onset of the seasonal
+epidemic is detected.
 
 The model is implemented in the
 [`seasonal_onset()`](https://ssi-dk.github.io/aedseo/reference/seasonal_onset.md)
@@ -27,43 +28,61 @@ the `average_observation_warning` in the output is `TRUE`.
 
 ### Exponential growth rate
 
-The exponential growth rate, denoted as $r$, represents the per capita
+The exponential growth rate, denoted as $`r`$, represents the per capita
 change in the number of new cases per unit of time. Given that number of
 cases are integer-valued, the proposed method relies on generalized
 linear models (GLM). For count data, the Poisson distribution is a
-suitable choice as a model. Hence, the cases denoted as $Y$ are assumed
-to follow a Poisson distribution
+suitable choice as a model. Hence, the cases denoted as $`Y`$ are
+assumed to follow a Poisson distribution
 
-$$Y \sim {Pois}(\lambda)$$
+``` math
+\begin{equation}
+ Y \sim \mathrm{Pois}(\lambda)
+\end{equation}
+```
 
-Here, the link function, $\log{()}$, connects the linear predictor to
+Here, the link function, $`\log()`$, connects the linear predictor to
 the expected value of the data point, expressed as
-$\log(\lambda) = \mu$. Given a single continuous covariate $t$, the mean
-$\mu$ can be expressed as
+$`\log(\lambda)=\mu`$. Given a single continuous covariate $`t`$, the
+mean $`\mu`$ can be expressed as
 
-$$\mu = \alpha + rt$$
+``` math
+\begin{equation}
+  \mu = \alpha + r t
+\end{equation}
+```
 
-This is equivalent to a multiplicative model for $\lambda$, i.e.
+This is equivalent to a multiplicative model for $`\lambda`$, i.e.
 
-$$\lambda = \exp(\alpha + rt) = \exp(\alpha)\exp(rt)$$
+``` math
+\begin{equation}
+  \lambda = \exp(\alpha + r t) = \exp(\alpha) \exp(r t)
+\end{equation}
+```
 
-Intuitively, negative values of $r$ result in a decline in the number of
-observed cases, while $r = 0$ represents stability, and positive values
-of $r$ indicate an increase.
+Intuitively, negative values of $`r`$ result in a decline in the number
+of observed cases, while $`r=0`$ represents stability, and positive
+values of $`r`$ indicate an increase.
 
 It is important to note that the Poisson distribution assumes that the
 mean and variance are equal. In reality, real data often deviate from
-this assumption, with the variance ($v$) being significantly larger than
-the mean. This biological phenomenon, known as overdispersion, can be
-addressed within a model in various ways. One approach is to employ
-quasi-Poisson regression, which assumes $v = \sigma\lambda$, or to use
+this assumption, with the variance ($`v`$) being significantly larger
+than the mean. This biological phenomenon, known as overdispersion, can
+be addressed within a model in various ways. One approach is to employ
+quasi-Poisson regression, which assumes $`v=\sigma\lambda`$, or to use
 negative binomial regression (not implemented yet), which assumes
-$v = \lambda + \lambda^{2}/\theta$, where both $\sigma$ and $\theta$ are
+$`v=\lambda+\lambda^2/\theta`$, where both $`\sigma`$ and $`\theta`$ are
 overdispersion parameters.
 
-If the background population changes during the time-span for the cases,
-the growth rate estimations can be adjusted by applying population as
-offset in the model.
+For binomial/proportional observations, create the `tsd` with
+`cases`/`samples` or `proportion`/`samples` and use
+`family = "binomial"` or `family = "quasibinomial"`. The model then uses
+`samples` as the denominator (cases out of samples), and the rolling
+average is reported as a pooled proportion.
+
+If the background population changes during the time-span for
+count/incidence data, the growth rate estimations can be adjusted by
+applying population as offset in Poisson/quasi-Poisson models.
 
 ## Applying the seasonal_onset algorithm
 
@@ -72,6 +91,7 @@ First we generate cases in a `tsd` object, with the
 function.
 
 ``` r
+
 # Construct an 'tsd' object with time series data
 set.seed(222)
 tsd_data <- generate_seasonal_data(
@@ -108,6 +128,7 @@ incidence and the model will use `population` as offset in each time
 point.
 
 ``` r
+
 seasonal_onset_results <- seasonal_onset(
   tsd = tsd_data,
   k = 5,
@@ -131,6 +152,7 @@ generated by utilizing the
 with objects of the `tsd_onset` class.
 
 ``` r
+
 plot(seasonal_onset_results)
 ```
 
@@ -144,6 +166,7 @@ based on the estimated growth rates. Following is an example of
 predicted cases for the next 5 weekly time steps.
 
 ``` r
+
 prediction <- predict(seasonal_onset_results, n_step = 5)
 ```
 
@@ -169,6 +192,7 @@ total number of growth warnings in the series and latest warnings
 analysis.
 
 ``` r
+
 summary(seasonal_onset_results)
 #> Summary of tsd_onset object with disease_threshold
 #> 
@@ -178,7 +202,7 @@ summary(seasonal_onset_results)
 #>         Average observations (in k window) at reference time point: 20.4
 #>         Growth rate estimate at reference time point:
 #>           Estimate   Lower (2.5%)   Upper (97.5%)
-#>             0.391     0.596          0.199
+#>             0.391     0.199          0.596
 #>         
 #>         Total number of growth warnings in the series: 52
 #>         Latest growth warning: 2023-10-08

@@ -1,6 +1,7 @@
 # Automated Detection of Seasonal Epidemic Onset and Burden Levels in R
 
 ``` r
+
 library(aedseo)
 ```
 
@@ -23,30 +24,41 @@ evaluating the burden of current observations based on previous seasons.
 ### Seasonal data
 
 To apply the `aedseo` algorithm, data needs to be transformed into a
-`tsd` object. If you have your own data, the
+`tsd` object. If you have your own count data, the
 [`to_time_series()`](https://ssi-dk.github.io/aedseo/reference/to_time_series.md)
-function can be used with the arguments: `cases`, `incidence`,
-`population`, `incidence_denominator`, `time` and `time_interval`. As
-default both
+function can be used with `cases`, or with `incidence`, `population` and
+`incidence_denominator` to calculate cases or incidence. For binomial or
+proportional data, use `cases` together with `samples`, or `proportion`
+together with `samples`. The `time` argument is always required,
+regardless of whether the observations are cases, incidences, or
+proportions. The `time_interval` argument is optional: if it is not
+specified, weekly spacing is assumed; specify it only when the
+observations are recorded at another supported interval, such as days or
+months. As default both
 [`seasonal_onset()`](https://ssi-dk.github.io/aedseo/reference/seasonal_onset.md)
 and
 [`seasonal_burden_levels()`](https://ssi-dk.github.io/aedseo/reference/seasonal_burden_levels.md)
-use `cases`, but if `incidence` is in the `tsd` object the output will
-be in `incidence` instead. If `population` is additionally given as
-arguments the function will calculate the `incidence` per 100.000
-(default for `incidence_denominator` which can be changed in input). In
-the following section, the application of the algorithm is shown with
-simulated cases created with the
+use `cases`, but if `incidence` is in the `tsd` object (for count data)
+the output will be in `incidence` instead; proportional input is kept on
+the proportion scale. If `population` is additionally given as arguments
+(for count data) the function will calculate the `incidence` per 100,000
+(default for `incidence_denominator` which can be changed in input). For
+binomial inputs, `samples` supplies the denominator and
+`incidence_denominator` is set to 1. In the following section, the
+application of the algorithm is shown with simulated cases created with
+the
 [`generate_seasonal_data()`](https://ssi-dk.github.io/aedseo/reference/generate_seasonal_data.md)function.
 More information about the function can be found in the
 [`vignette("generate_seasonal_wave")`](https://ssi-dk.github.io/aedseo/articles/generate_seasonal_wave.md).
 
-In the following figure simulated data (solid circles) are visualised as
-cases over time (weeks). The solid line connects these circles,
-representing the underlying mean trend over five years of weekly data.
+In the following figure simulated count data (solid circles) are
+visualised as cases over time (weeks). The solid line connects these
+circles, representing the underlying mean trend over five years of
+weekly data.
 
 ``` r
-plot(tsd_data)
+
+autoplot(tsd_data, time_interval_step = "6 months")
 ```
 
 ![](aedseo_files/figure-html/unnamed-chunk-3-1.png)
@@ -77,8 +89,8 @@ Significant weeks are defined as those with a case count that has a
 significant positive growth rate.
 
 To capture short-term changes and fluctuations in the cases, a rolling
-window of size $k = 5$ is used to create subsets of the cases for model
-fitting, and the `quasipoisson` family is used to account for
+window of size $`k = 5`$ is used to create subsets of the cases for
+model fitting, and the `quasipoisson` family is used to account for
 overdispersion.
 
 The
@@ -96,6 +108,7 @@ threshold. As default it uses;
   diminishes exponentially.
 
 ``` r
+
 dth <- estimate_disease_threshold(tsd_data)
 dth$disease_threshold
 #> [1] 28.90435
@@ -117,6 +130,7 @@ cases over a five-week window, which is used to define the
 disease-specific threshold.
 
 ``` r
+
 tsd_onset <- seasonal_onset(
   tsd = tsd_data,
   k = 5,
@@ -166,6 +180,7 @@ positive growth rate.
 Inspect the exact conditions around each detected season start
 
 ``` r
+
 consecutive_gr_warn |>
   dplyr::filter(!is.na(significant_counter)) |>
   dplyr::filter(season != max(consecutive_gr_warn$season)) |>
@@ -207,6 +222,7 @@ and
 [`vignette("burden_levels")`](https://ssi-dk.github.io/aedseo/articles/burden_levels.md).
 
 ``` r
+
 seasonal_output <- combined_seasonal_output(
   tsd = tsd_data,
   disease_threshold = 22,
@@ -221,7 +237,7 @@ the `only_current_season` argument should be set to `FALSE`.
 
 *Note:* Burden levels can not be estimated for the first season and
 needs at least two seasons of data as the estimations are based on data
-from previous seasons.\\
+from previous seasons.
 
 ### Seasonal offset and multiple waves
 
@@ -267,6 +283,7 @@ specifically designed for objects of the `aedseo` package.
 Seasonal onset output can be extracted by:
 
 ``` r
+
 summary(seasonal_output$onset_output)
 #> Summary of tsd_onset object with disease_threshold
 #> 
@@ -276,7 +293,7 @@ summary(seasonal_output$onset_output)
 #>         Average observations (in k window) at reference time point: 24.6
 #>         Growth rate estimate at reference time point:
 #>           Estimate   Lower (2.5%)   Upper (97.5%)
-#>             0.584     0.902          0.303
+#>             0.584     0.303          0.902
 #>         Reference-offset time point (first seasonal offset alarm in season): 2025-04-06
 #>       Observations at reference-offset time point: 24
 #>       Average observations (in k window) at reference-offset time point: 70.8 
@@ -299,14 +316,15 @@ summary(seasonal_output$onset_output)
 Seasonal burden output can be extracted by:
 
 ``` r
+
 summary(seasonal_output$burden_output)
 #> Summary of tsd_burden_levels object
 #> 
 #>     Breakpoint estimates:
 #>       very low : 22.000000
-#>       low: 56.189649
-#>       medium: 143.512574
-#>       high: 366.541871
+#>       low: 58.850904
+#>       medium: 157.428586
+#>       high: 421.127938
 #> 
 #>     The season for the burden levels:
 #>       2024/2025
@@ -326,14 +344,16 @@ complete visualisation of the
 analysis of the current season.
 
 ``` r
+
 # Adjust y_lower_bound dynamically to remove noisy small values
 disease_threshold <- 22
 y_lower_bound <- ifelse(disease_threshold < 10, 1, 5)
 
-plot(
-  x = seasonal_output,
+autoplot(
+  object = seasonal_output,
   y_lower_bound = y_lower_bound,
-  time_interval = "3 weeks"
+  time_interval_step = "6 weeks",
+  legend_position = "bottom"
 )
 ```
 
@@ -366,6 +386,7 @@ advisable to revisit the method used to define the disease-specific
 threshold, as it might need some adjustment.
 
 ``` r
+
 # Get `tsd_onset` object
 tsd_onset <- seasonal_onset(
   tsd = tsd_data,
@@ -392,10 +413,11 @@ historical_summary(tsd_onset)
 ## Example with incidence
 
 In the `tsd` object from previous example we add that the population is
-1.000.000 and increases with 1000 each week. The default incidence
-denominator (100.000) is used.
+1,000,000 and increases with 1,000 each week. The default incidence
+denominator (100,000) is used.
 
 ``` r
+
 tsd_incidence <- to_time_series(
   cases = tsd_data$cases,
   time = tsd_data$time,
@@ -409,6 +431,7 @@ Determine the disease-specific threshold:
 Run the main algorithm:
 
 ``` r
+
 seasonal_output_incidence <- combined_seasonal_output(
   tsd = tsd_incidence,
   disease_threshold = 2,
@@ -417,19 +440,319 @@ seasonal_output_incidence <- combined_seasonal_output(
 )
 ```
 
-*NOTE:* Since the population changes during the time series this is
+*Note:* Since the population changes during the time series this is
 adjusted for in the growth rate estimations in
 [`seasonal_onset()`](https://ssi-dk.github.io/aedseo/reference/seasonal_onset.md)
 by adding it as offset to the model.
 
-Plot results for the current season with cases pr. 100.000 (incidence):
+Plot results for the current season with cases per 100,000 (incidence):
 
 ``` r
-plot(
-  x = seasonal_output_incidence,
+
+autoplot(
+  object = seasonal_output_incidence,
   y_lower_bound = 1,
-  time_interval = "3 weeks"
+  time_interval_step = "6 weeks",
+  legend_position = "bottom"
 )
 ```
 
 ![](aedseo_files/figure-html/unnamed-chunk-15-1.png)
+
+## Example with binomial and quasi-binomial models
+
+Binomial observations consist of a number of positive samples (`cases`)
+out of a number tested (`samples`). The following example generates five
+years of overdispersed binomial data. Supplying `samples` makes
+[`generate_seasonal_data()`](https://ssi-dk.github.io/aedseo/reference/generate_seasonal_data.md)
+return the observed proportion in addition to the numerator and
+denominator; `noise_overdispersion = 5` generates beta-binomial
+variation and therefore provides an overdispersed example for
+quasi-binomial analysis.
+
+In the following figure the simulated data are visualised as the
+proportion of positive samples over time (weeks).
+
+``` r
+
+autoplot(tsd_quasibinomial, time_interval_step = "6 months")
+```
+
+![](aedseo_files/figure-html/unnamed-chunk-17-1.png)
+
+As in the Poisson example, the disease-specific threshold can be
+estimated from the historical seasons. Since the observations are
+proportions, the estimated threshold is also given as a proportion. The
+threshold is estimated for both the binomial and the quasi-binomial
+analysis.
+
+``` r
+
+binomial_dth <- estimate_disease_threshold(
+  tsd = tsd_quasibinomial,
+  family = "binomial"
+)
+
+quasibinomial_dth <- estimate_disease_threshold(
+  tsd = tsd_quasibinomial,
+  family = "quasibinomial"
+)
+
+c(
+  binomial = binomial_dth$disease_threshold,
+  quasibinomial = quasibinomial_dth$disease_threshold
+)
+#>      binomial quasibinomial 
+#>    0.06131882    0.10985654
+```
+
+The main algorithm with the binomial model and the quasi-binomial model
+can be run. The quasi-binomial model accounts for the extra variation
+added to the simulated data.
+
+``` r
+
+seasonal_output_binomial <- combined_seasonal_output(
+  tsd = tsd_quasibinomial,
+  disease_threshold = binomial_dth$disease_threshold,
+  method = "intensity_levels",
+  family = "binomial"
+)
+
+seasonal_output_quasibinomial <- combined_seasonal_output(
+  tsd = tsd_quasibinomial,
+  disease_threshold = quasibinomial_dth$disease_threshold,
+  method = "intensity_levels",
+  family = "quasibinomial"
+)
+```
+
+Seasonal onset output from the binomial analysis can be extracted by:
+
+``` r
+
+summary(seasonal_output_binomial$onset_output)
+#> Summary of tsd_onset object with disease_threshold
+#> 
+#>       Model output:
+#>         Reference time point (first seasonal onset alarm in season): 2024-10-20
+#>         Observations at reference time point: 0.14
+#>         Average observations (in k window) at reference time point: 0.0648
+#>         Growth rate estimate at reference time point:
+#>           Estimate   Lower (2.5%)   Upper (97.5%)
+#>             0.392     0.222          0.570
+#>         Reference-offset time point (first seasonal offset alarm in season): 2025-03-30
+#>       Observations at reference-offset time point: 0.064
+#>       Average observations (in k window) at reference-offset time point: 0.1376 
+#>         Total number of growth warnings in the series: 16
+#>         Latest growth warning: 2025-01-05
+#>         Latest average observations warning: 2025-05-04
+#>         Latest seasonal onset alarm: 2025-01-05
+#> 
+#>       The season for reference time point:
+#>         2024/2025
+#> 
+#>       Model settings:
+#>         Called using distributional family: binomial
+#>         Window size: 5
+#>         The time interval for the observations: weeks
+#>         Disease specific threshold: 0.0613188
+#>         Incidence denominator: 1
+```
+
+Seasonal burden output from the binomial analysis can be extracted by:
+
+``` r
+
+summary(seasonal_output_binomial$burden_output)
+#> Summary of tsd_burden_levels object
+#> 
+#>     Breakpoint estimates:
+#>       very low : 0.061319
+#>       low: 0.123584
+#>       medium: 0.249076
+#>       high: 0.501996
+#> 
+#>     The season for the burden levels:
+#>       2024/2025
+#> 
+#>     Model settings:
+#>       Disease specific threshold: 0.0613188
+#>       Incidence denominator: 1
+#>       Called using distributional family: beta
+```
+
+The same can be done for the quasi-binomial analysis:
+
+``` r
+
+summary(seasonal_output_quasibinomial$onset_output)
+#> Summary of tsd_onset object with disease_threshold
+#> 
+#>       Model output:
+#>         Reference time point (first seasonal onset alarm in season): 2024-11-03
+#>         Observations at reference time point: 0.244
+#>         Average observations (in k window) at reference time point: 0.1296
+#>         Growth rate estimate at reference time point:
+#>           Estimate   Lower (2.5%)   Upper (97.5%)
+#>             0.475     0.343          0.612
+#>         Reference-offset time point (first seasonal offset alarm in season): 2025-03-23
+#>       Observations at reference-offset time point: 0.112
+#>       Average observations (in k window) at reference-offset time point: 0.152 
+#>         Total number of growth warnings in the series: 5
+#>         Latest growth warning: 2024-12-15
+#>         Latest average observations warning: 2025-04-06
+#>         Latest seasonal onset alarm: 2024-12-15
+#> 
+#>       The season for reference time point:
+#>         2024/2025
+#> 
+#>       Model settings:
+#>         Called using distributional family: quasibinomial
+#>         Window size: 5
+#>         The time interval for the observations: weeks
+#>         Disease specific threshold: 0.109857
+#>         Incidence denominator: 1
+summary(seasonal_output_quasibinomial$burden_output)
+#> Summary of tsd_burden_levels object
+#> 
+#>     Breakpoint estimates:
+#>       very low : 0.109857
+#>       low: 0.182299
+#>       medium: 0.302512
+#>       high: 0.501996
+#> 
+#>     The season for the burden levels:
+#>       2024/2025
+#> 
+#>     Model settings:
+#>       Disease specific threshold: 0.109857
+#>       Incidence denominator: 1
+#>       Called using distributional family: beta
+```
+
+The two analyses can also be compared visually to see how accounting for
+overdispersion affects the estimates.
+
+Plot the results from the binomial analysis:
+
+``` r
+
+autoplot(
+  object = seasonal_output_binomial,
+  time_interval_step = "3 weeks",
+  legend_position = "bottom"
+)
+```
+
+![](aedseo_files/figure-html/unnamed-chunk-23-1.png)
+
+Plot the results from the quasi-binomial analysis:
+
+``` r
+
+autoplot(
+  object = seasonal_output_quasibinomial,
+  time_interval_step = "3 weeks",
+  legend_position = "bottom"
+)
+```
+
+![](aedseo_files/figure-html/unnamed-chunk-24-1.png) Finally, we can
+compare with a quasi-Poisson analysis of the same data. First the
+disease threshold is estimated to be:
+
+``` r
+
+tsd_quasibinomial_cases <- to_time_series(cases = tsd_quasibinomial$cases, time = tsd_quasibinomial$time)
+quasipoisson_bin_dth <- estimate_disease_threshold(
+  tsd = tsd_quasibinomial_cases,
+  family = "quasipoisson"
+)
+quasipoisson_bin_dth$disease_threshold
+#> [1] 21.6643
+```
+
+``` r
+
+seasonal_output_quasipoisson <- combined_seasonal_output(
+  tsd = tsd_quasibinomial_cases,
+  disease_threshold = quasipoisson_bin_dth$disease_threshold,
+  method = "intensity_levels",
+  family = "quasipoisson"
+)
+```
+
+Summaries of the output:
+
+``` r
+
+summary(seasonal_output_quasipoisson$onset_output)
+#> Summary of tsd_onset object with disease_threshold
+#> 
+#>       Model output:
+#>         Reference time point (first seasonal onset alarm in season): 2024-10-27
+#>         Observations at reference time point: 40
+#>         Average observations (in k window) at reference time point: 22.6
+#>         Growth rate estimate at reference time point:
+#>           Estimate   Lower (2.5%)   Upper (97.5%)
+#>             0.370     0.208          0.539
+#>         Reference-offset time point (first seasonal offset alarm in season): 2025-03-23
+#>       Observations at reference-offset time point: 28
+#>       Average observations (in k window) at reference-offset time point: 38 
+#>         Total number of growth warnings in the series: 5
+#>         Latest growth warning: 2024-12-15
+#>         Latest average observations warning: 2025-04-20
+#>         Latest seasonal onset alarm: 2024-12-15
+#> 
+#>       The season for reference time point:
+#>         2024/2025
+#> 
+#>       Model settings:
+#>         Called using distributional family: quasipoisson
+#>         Window size: 5
+#>         The time interval for the observations: weeks
+#>         Disease specific threshold: 21.6643
+#>         Incidence denominator: NA
+summary(seasonal_output_quasipoisson$burden_output)
+#> Summary of tsd_burden_levels object
+#> 
+#>     Breakpoint estimates:
+#>       very low : 21.664300
+#>       low: 39.543155
+#>       medium: 72.176858
+#>       high: 131.742112
+#> 
+#>     The season for the burden levels:
+#>       2024/2025
+#> 
+#>     Model settings:
+#>       Disease specific threshold: 21.6643
+#>       Incidence denominator: NA
+#>       Called using distributional family: lnorm
+```
+
+Plot the results from the quasi-Poisson analysis:
+
+``` r
+
+autoplot(
+  object = seasonal_output_quasipoisson,
+  time_interval_step = "3 weeks",
+  legend_position = "bottom"
+)
+```
+
+![](aedseo_files/figure-html/unnamed-chunk-28-1.png) The seasonal onset
+alarm for the quasi-Poisson model is in the week between the two
+binomial models and the disease threshold should be divided by the
+number of samples (250) to compare which also places this in between. So
+in this case where the number of samples is constant over time the
+different models yield comparable results. In a more real life setting
+where the number of samples changes over time it is important to know
+the reason for the changes. If it reflects changes in surveillance
+effort, e.g. variations in number of contribution doctors in a sentinel
+system, then the (quasi-)binomial family should be preferred. If the
+reason is that more people are sick and a constant fraction of all
+individuals with symptoms are tested then the (quasi-)Poisson family is
+likely to be more appropriate.

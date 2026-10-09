@@ -15,8 +15,8 @@ in input.
 combined_seasonal_output(
   tsd,
   disease_threshold = 20,
-  family = c("quasipoisson", "poisson"),
-  family_quant = c("lnorm", "weibull", "exp"),
+  family = c("quasipoisson", "poisson", "quasibinomial", "binomial"),
+  family_quant = NULL,
   season_start = 21,
   season_end = season_start - 1,
   only_current_season = TRUE,
@@ -48,14 +48,19 @@ combined_seasonal_output(
 
 - family:
 
-  A character string specifying the family for modeling. Choose between
-  'poisson', or 'quasipoisson'. Must be one of: character,
-  family-generator, or family object. This is passed to
-  'seasonal_onset()'.
+  A character string, family-generator, or family object specifying the
+  distribution family for growth-rate modeling. Choose between
+  'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use
+  'poisson' or 'quasipoisson' for cases/incidences, and use 'binomial'
+  or 'quasibinomial' for binomial data supplied as `cases` and
+  `samples`. This is passed to 'seasonal_onset()'.
 
 - family_quant:
 
   A character string specifying the family for modeling burden levels.
+  Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'lnorm',
+  'weibull' or 'exp' for count data, or use 'beta' for
+  proportional/binomial data.
 
 - season_start, season_end:
 
@@ -123,8 +128,8 @@ A `tsd_onset` object containing:
 - 'growth_warning': Logical. Is the growth rate significantly higher
   than zero?
 
-- 'average_observation_window': The average of cases or incidence within
-  the time window.
+- 'average_observation_window': The average of cases/incidence, or
+  pooled proportion, within the time window.
 
 - 'average_observation_warning': Logical. Does the average observations
   exceed the disease threshold?
@@ -139,7 +144,8 @@ A `tsd_onset` object containing:
 - 'seasonal_onset': Logical. The first detected seasonal onset in the
   season.
 
-- Attributes: `time_interval` and `incidence_denominator`.
+- Attributes: `time_interval`, `incidence_denominator` and
+  `model_outcome`.
 
 As extra the `tsd_onset` object will for each season contain a
 `seasonal_offset` variable:
@@ -188,6 +194,8 @@ A `tsd_burden_levels` object containing:
 
       - For 'exp': Rate parameter.
 
+      - For 'beta': First shape parameter.
+
     - 'par_2':
 
       - For 'weibull': Scale parameter.
@@ -196,6 +204,8 @@ A `tsd_burden_levels` object containing:
         observations.
 
       - For 'exp': Not applicable (set to NA).
+
+      - For 'beta': Second shape parameter.
 
   - 'obj_value': The value of the objective function - (negative
     log-likelihood), which represent the minimised objective function
@@ -212,12 +222,17 @@ A `tsd_burden_levels` object containing:
 
     - 'exp': Uses the Exponential distribution for fitting.
 
+    - 'beta': Uses the Beta distribution for proportional/binomial
+      observations.
+
 - 'disease_threshold': The input disease threshold, which is also the
   very low level.
 
-- 'incidence_denominator': The observations per incidence-denominator.
+- 'incidence_denominator': only used for count data with population
+  given.
 
-- Attributes: `time_interval` and `incidence_denominator`.
+- Attributes: `time_interval`, `incidence_denominator` and
+  `burden_outcome`.
 
 \#' Attributes in the `tsd_onset_and_burden` object are:
 `burden_level_decrease`, `steps_with_decrease` and `multiple_waves`.
@@ -259,25 +274,25 @@ tsd_data <- to_time_series(
 combined_data <- combined_seasonal_output(tsd_data)
 # Print seasonal onset results
 print(combined_data$onset_output)
-#> # A tibble: 52 × 17
-#>    reference_time cases season    population incidence growth_rate
-#>  * <date>         <dbl> <chr>     <lgl>      <lgl>           <dbl>
-#>  1 2023-05-28         6 2023/2024 NA         NA            -0.427 
-#>  2 2023-06-04        81 2023/2024 NA         NA            -0.156 
-#>  3 2023-06-11       121 2023/2024 NA         NA             0.0834
-#>  4 2023-06-18       145 2023/2024 NA         NA             0.287 
-#>  5 2023-06-25       157 2023/2024 NA         NA             0.381 
-#>  6 2023-07-02       237 2023/2024 NA         NA             0.241 
-#>  7 2023-07-09       385 2023/2024 NA         NA             0.309 
-#>  8 2023-07-16       392 2023/2024 NA         NA             0.284 
-#>  9 2023-07-23       430 2023/2024 NA         NA             0.224 
-#> 10 2023-07-30       540 2023/2024 NA         NA             0.166 
+#> # A tibble: 52 × 19
+#>    reference_time cases season    population incidence proportion samples
+#>  * <date>         <dbl> <chr>          <dbl>     <dbl>      <dbl>   <dbl>
+#>  1 2023-05-28         6 2023/2024         NA        NA         NA      NA
+#>  2 2023-06-04        81 2023/2024         NA        NA         NA      NA
+#>  3 2023-06-11       121 2023/2024         NA        NA         NA      NA
+#>  4 2023-06-18       145 2023/2024         NA        NA         NA      NA
+#>  5 2023-06-25       157 2023/2024         NA        NA         NA      NA
+#>  6 2023-07-02       199 2023/2024         NA        NA         NA      NA
+#>  7 2023-07-09       237 2023/2024         NA        NA         NA      NA
+#>  8 2023-07-16       385 2023/2024         NA        NA         NA      NA
+#>  9 2023-07-23       392 2023/2024         NA        NA         NA      NA
+#> 10 2023-07-30       430 2023/2024         NA        NA         NA      NA
 #> # ℹ 42 more rows
-#> # ℹ 11 more variables: lower_growth_rate <dbl>, upper_growth_rate <dbl>,
-#> #   growth_warning <lgl>, average_observations_window <dbl>,
-#> #   average_observations_warning <lgl>, seasonal_onset_alarm <lgl>,
-#> #   skipped_window <lgl>, converged <lgl>, seasonal_onset <lgl>,
-#> #   decrease_value <dbl>, seasonal_offset <lgl>
+#> # ℹ 12 more variables: growth_rate <dbl>, lower_growth_rate <dbl>,
+#> #   upper_growth_rate <dbl>, growth_warning <lgl>,
+#> #   average_observations_window <dbl>, average_observations_warning <lgl>,
+#> #   seasonal_onset_alarm <lgl>, skipped_window <lgl>, converged <lgl>,
+#> #   seasonal_onset <lgl>, decrease_value <dbl>, seasonal_offset <lgl>
 # Print burden level results
 print(combined_data$burden_output)
 #> $season
@@ -285,20 +300,20 @@ print(combined_data$burden_output)
 #> 
 #> $values
 #>   very low        low     medium       high 
-#>   20.00000   77.41445  299.64984 1159.86133 
+#>   20.00000   78.21533  305.88189 1196.23264 
 #> 
 #> $optim
 #> $optim$par
-#> [1] 6.94863952 0.06530442
+#> [1] 7.00429030 0.04216513
 #> 
 #> $optim$obj_value
-#> [1] 33.83299
+#> [1] 15.7705
 #> 
 #> $optim$converged
 #> [1] TRUE
 #> 
 #> $optim$high_conf_level
-#> [1] 0.95
+#> [1] 0.975
 #> 
 #> $optim$family
 #> [1] "lnorm"
@@ -310,10 +325,15 @@ print(combined_data$burden_output)
 #> $incidence_denominator
 #> [1] NA
 #> 
+#> $burden_outcome
+#> [1] "cases"
+#> 
 #> attr(,"time_interval")
 #> [1] "weeks"
 #> attr(,"incidence_denominator")
 #> [1] NA
+#> attr(,"burden_outcome")
+#> [1] "cases"
 #> attr(,"class")
 #> [1] "tsd_burden_levels" "list"             
 ```

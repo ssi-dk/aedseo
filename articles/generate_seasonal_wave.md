@@ -1,6 +1,7 @@
 # Simulate Seasonal Epidemic Waves
 
 ``` r
+
 library(aedseo)
 ```
 
@@ -13,23 +14,30 @@ fluctuations, such as dayly, weekly or monthly cycles, while also
 incorporating optional exponential trend and random noise. This makes it
 suitable for modeling more realistic phenomena like infection rates. The
 wave is defined by the following equation:
-$$\text{E[SeasonalWave}(t)\text{]} = \text{mean} + \text{amplitude} \cdot \left( \frac{\left( \sin\left( \frac{2\pi t}{\text{period}} + \text{phase} \right) + 1 \right)^{\text{relative\_epidemic\_concentration}}}{2^{\text{relative\_epidemic\_concentration} - 1}} - 1 \right) \cdot e^{\log{(\text{trend\_rate})} \cdot t}$$
+``` math
+\text{E[SeasonalWave}(t)\text{]} =
+\text{mean} + \text{amplitude} \cdot \left(
+\frac{\left(\sin\left(\frac{2\pi t}{\text{period}} + \text{phase}\right) + 1\right)^{\text{relative_epidemic_concentration}}}
+{2^{\text{relative_epidemic_concentration} - 1}} - 1
+\right)
+\cdot e^{\log(\text{trend_rate}) \cdot t}
+```
 
 Where:
 
-- $t$: The time variable (e.g., weeks or months, represented on the
+- $`t`$: The time variable (e.g., weeks or months, represented on the
   x-axis).
-- $\text{amplitude}$: Controls the height of the oscillations; the
-  output varies between **$\text{mean} \pm \text{amplitude}$**.
-- $\text{mean}$: The baseline value around which the seasonal wave
+- $`\text{amplitude}`$: Controls the height of the oscillations; the
+  output varies between **$`\text{mean} \pm \text{amplitude}`$**.
+- $`\text{mean}`$: The baseline value around which the seasonal wave
   oscillates. Must be greater than or equal to the amplitude.
-- $\text{period}$: Defines the cycle length (e.g., 52 weeks for yearly
+- $`\text{period}`$: Defines the cycle length (e.g., 52 weeks for yearly
   seasonality) (is calculated based on `time_interval`).
-- $\text{phase}$: Adjusts the horizontal position of the wave on the
+- $`\text{phase}`$: Adjusts the horizontal position of the wave on the
   x-axis.
-- $\text{trend\_rate}$: Controls the exponential growth or decay of the
+- $`\text{trend_rate}`$: Controls the exponential growth or decay of the
   trend over time.
-- $\text{relative\_epidemic\_concentration}$: Transforms the reference
+- $`\text{relative_epidemic_concentration}`$: Transforms the reference
   sinusoidal season. A value of 1 gives the pure sinusoidal curve, and
   greater values concentrate the epidemic around the peak.
 
@@ -50,6 +58,7 @@ function.
   choose between “day,” “week,” or “month.”
 
 ``` r
+
 seasonal_wave_sim_weekly <- generate_seasonal_data(
   years = 3,
   start_date = as.Date("2021-05-26"),
@@ -79,6 +88,7 @@ simulated observations. In this simulation there is a positive
 exponentially across seasons.
 
 ``` r
+
 plot(seasonal_wave_sim_weekly, time_interval = "5 weeks")
 ```
 
@@ -92,6 +102,7 @@ simulated observations. In this simulation there is a negative
 exponentially across seasons.
 
 ``` r
+
 seasonal_wave_sim_monthly <- generate_seasonal_data(
   years = 4,
   start_date = as.Date("2021-05-26"),
@@ -115,6 +126,7 @@ The x-axis shows the days, months, years, while the y-axis represents
 the simulated observations. In this simulation there is no trend.
 
 ``` r
+
 seasonal_wave_sim_daily <- generate_seasonal_data(
   years = 3,
   start_date = as.Date("2021-05-26"),
@@ -141,6 +153,7 @@ the rise and fall of the sine wave happens later compared to a wave with
 no phase shift.
 
 ``` r
+
 seasonal_wave_sim_daily_phase_shift <- generate_seasonal_data(
   years = 3,
   start_date = as.Date("2021-05-26"),
@@ -168,6 +181,7 @@ observations, instead of smoothly transitioning between observations.
 #### Deterministic (no noise)
 
 ``` r
+
 sim_no_noise <- generate_seasonal_data(
   years = 3,
   start_date = as.Date("2021-05-26"),
@@ -187,6 +201,7 @@ plot(
 #### Poisson-distributed noise
 
 ``` r
+
 sim_poisson_noise <- generate_seasonal_data(
   years = 3,
   start_date = as.Date("2021-05-26"),
@@ -206,6 +221,7 @@ plot(
 #### Negative binomial-distributed noise (high overdispersion)
 
 ``` r
+
 sim_nb_noise <- generate_seasonal_data(
   years = 3,
   start_date = as.Date("2021-05-26"),
@@ -227,6 +243,7 @@ plot(
 #### Pure sinusoidal season
 
 ``` r
+
 sim_sinus <- generate_seasonal_data(
   years = 2,
   start_date = as.Date("2021-05-26"),
@@ -254,6 +271,7 @@ several weeks with no or low infection rates and a shorter epidemic
 period.
 
 ``` r
+
 sim_conc <- generate_seasonal_data(
   years = 2,
   start_date = as.Date("2021-05-26"),

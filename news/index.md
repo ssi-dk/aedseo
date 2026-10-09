@@ -1,5 +1,59 @@
 # Changelog
 
+## aedseo 1.2.0
+
+CRAN release: 2026-10-09
+
+### Features
+
+- Citation of the article evaluating the aedseo package and method has
+  been added ([\#109](https://github.com/ssi-dk/aedseo/issues/109)).
+- The `aedseo` package now allows for modelling of binomial data.
+  [`to_time_series()`](https://ssi-dk.github.io/aedseo/reference/to_time_series.md)
+  now accepts `samples` and `proportion` as arguments. The `proportion`
+  argument is the proportion of `cases` in the total tested `samples` at
+  every time point. These variables can be used in the
+  [`seasonal_onset()`](https://ssi-dk.github.io/aedseo/reference/seasonal_onset.md)
+  function with the family arguments `binomial` or `quasibinomial` and
+  in the
+  [`seasonal_burden_levels()`](https://ssi-dk.github.io/aedseo/reference/seasonal_burden_levels.md)
+  function with the family argument `beta`. Attributes; `outcome_type`,
+  `model_outcome` and `burden_outcome` have been added to the object
+  classes of
+  [`to_time_series()`](https://ssi-dk.github.io/aedseo/reference/to_time_series.md),
+  [`seasonal_onset()`](https://ssi-dk.github.io/aedseo/reference/seasonal_onset.md)
+  and
+  [`seasonal_burden_levels()`](https://ssi-dk.github.io/aedseo/reference/seasonal_burden_levels.md)
+  functions to always be able to track if the results are based on
+  count/incidence or binomial data
+  ([\#100](https://github.com/ssi-dk/aedseo/issues/100),
+  [\#101](https://github.com/ssi-dk/aedseo/issues/101),
+  [\#103](https://github.com/ssi-dk/aedseo/issues/103)).
+- [`summary.tsd_onset()`](https://ssi-dk.github.io/aedseo/reference/summary.tsd_onset.md)
+  now reports proportional observations on the proportion scale and
+  prints an explicit `NA` reference when no seasonal onset was detected,
+  instead of producing no output
+  ([\#103](https://github.com/ssi-dk/aedseo/issues/103)).
+
+### Fixes
+
+- Default values for `n_peak` and `conf_levels` values in the
+  [`seasonal_burden_levels()`](https://ssi-dk.github.io/aedseo/reference/seasonal_burden_levels.md)
+  function have been adjusted accordingly to the `AEDSEO` methods paper
+  ([\#110](https://github.com/ssi-dk/aedseo/issues/110)).
+- The
+  [`to_time_series()`](https://ssi-dk.github.io/aedseo/reference/to_time_series.md)
+  function now fills the `tsd` object with time and NA’s if some time
+  steps according to the `time_interval` do not have values in the data
+  provided by the user
+  ([\#108](https://github.com/ssi-dk/aedseo/issues/108)).
+- The
+  [`estimate_disease_threshold()`](https://ssi-dk.github.io/aedseo/reference/estimate_disease_threshold.md)
+  function defaulted to 1 if the selected observation was below 1. Since
+  the package has the possibility to use incidence as an input there is
+  a need for allowing values below 1. This was fixed in
+  [\#106](https://github.com/ssi-dk/aedseo/issues/106).
+
 ## aedseo 1.1.0
 
 CRAN release: 2026-01-23

@@ -2,10 +2,12 @@
 
 This function performs automated and early detection of seasonal
 epidemic onsets on a `tsd` object. It estimates growth rates and
-calculates the average sum of cases in consecutive time intervals (`k`).
-If the time series data includes `population` it will be used as offset
-to adjust the growth rate in the glm, additionally the output will
-include incidence, population and average sum of incidence.
+calculates the average observation in consecutive time intervals (`k`).
+For count/incidence data, Poisson/quasi-Poisson models use `population`
+as an offset when available. For binomial data created with `samples`
+and `cases` or `proportion`, use `family = "binomial"` or
+`family = "quasibinomial"`; `samples` is used as the denominator and the
+rolling window is reported as a pooled proportion.
 
 ## Usage
 
@@ -15,7 +17,7 @@ seasonal_onset(
   k = 5,
   level = 0.95,
   disease_threshold = NA_real_,
-  family = c("quasipoisson", "poisson"),
+  family = c("quasipoisson", "poisson", "quasibinomial", "binomial"),
   na_fraction_allowed = 0.4,
   season_start = NULL,
   season_end = season_start - 1,
@@ -51,9 +53,12 @@ seasonal_onset(
 
 - family:
 
-  A character string specifying the family for modeling. Choose between
-  'poisson', or 'quasipoisson'. Must be one of: character,
-  family-generator, or family object.
+  A character string, family-generator, or family object specifying the
+  distribution family for growth-rate modeling. Choose between
+  'poisson', 'quasipoisson', 'binomial', or 'quasibinomial'. Use
+  'poisson' or 'quasipoisson' for cases/incidences, and use 'binomial'
+  or 'quasibinomial' for binomial data supplied as `cases` and
+  `samples`.
 
 - na_fraction_allowed:
 
@@ -97,8 +102,8 @@ A `tsd_onset` object containing:
 - 'growth_warning': Logical. Is the growth rate significantly higher
   than zero?
 
-- 'average_observation_window': The average of cases or incidence within
-  the time window.
+- 'average_observation_window': The average of cases/incidence, or
+  pooled proportion, within the time window.
 
 - 'average_observation_warning': Logical. Does the average observations
   exceed the disease threshold?
@@ -113,7 +118,8 @@ A `tsd_onset` object containing:
 - 'seasonal_onset': Logical. The first detected seasonal onset in the
   season.
 
-- Attributes: `time_interval` and `incidence_denominator`.
+- Attributes: `time_interval`, `incidence_denominator` and
+  `model_outcome`.
 
 ## Examples
 
@@ -135,14 +141,15 @@ seasonal_onset(
   season_end = 20,
   only_current_season = FALSE
 )
-#> # A tibble: 4 × 15
-#>   reference_time cases season population incidence growth_rate lower_growth_rate
-#> * <date>         <dbl> <chr>  <lgl>      <lgl>           <dbl>             <dbl>
-#> 1 2023-01-15       150 2022/… NA         NA              0.204             0.178
-#> 2 2023-01-22       180 2022/… NA         NA              0.201             0.175
-#> 3 2023-01-29       220 2022/… NA         NA              0.192             0.180
-#> 4 2023-02-05       270 2022/… NA         NA              0.203             0.200
-#> # ℹ 8 more variables: upper_growth_rate <dbl>, growth_warning <lgl>,
+#> # A tibble: 4 × 17
+#>   reference_time cases season    population incidence proportion samples
+#> * <date>         <dbl> <chr>          <dbl>     <dbl>      <dbl>   <dbl>
+#> 1 2023-01-15       150 2022/2023         NA        NA         NA      NA
+#> 2 2023-01-22       180 2022/2023         NA        NA         NA      NA
+#> 3 2023-01-29       220 2022/2023         NA        NA         NA      NA
+#> 4 2023-02-05       270 2022/2023         NA        NA         NA      NA
+#> # ℹ 10 more variables: growth_rate <dbl>, lower_growth_rate <dbl>,
+#> #   upper_growth_rate <dbl>, growth_warning <lgl>,
 #> #   average_observations_window <dbl>, average_observations_warning <lgl>,
 #> #   seasonal_onset_alarm <lgl>, skipped_window <lgl>, converged <lgl>,
 #> #   seasonal_onset <lgl>

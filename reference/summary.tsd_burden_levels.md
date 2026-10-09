@@ -41,9 +41,9 @@ summary(tsd_burden_levels)
 #> 
 #>     Breakpoint estimates:
 #>       very low : 20.000000
-#>       low: 43.155941
-#>       medium: 93.121762
-#>       high: 200.937862
+#>       low: 43.107221
+#>       medium: 92.911626
+#>       high: 200.258102
 #> 
 #>     The season for the burden levels:
 #>       2023/2024

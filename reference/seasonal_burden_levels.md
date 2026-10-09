@@ -13,14 +13,14 @@ current season. Observations will be incidence if `population` and
 ``` r
 seasonal_burden_levels(
   tsd,
-  family = c("lnorm", "weibull", "exp"),
+  family = c("lnorm", "weibull", "exp", "beta"),
   season_start = 21,
   season_end = season_start - 1,
   method = c("intensity_levels", "peak_levels"),
-  conf_levels = 0.95,
+  conf_levels = 0.975,
   decay_factor = 0.8,
   disease_threshold = 20,
-  n_peak = 6,
+  n_peak = 3,
   only_current_season = TRUE,
   ...
 )
@@ -34,9 +34,10 @@ seasonal_burden_levels(
 
 - family:
 
-  A character string specifying the family for modeling. Choose between
-  'poisson', or 'quasipoisson'. Must be one of: character,
-  family-generator, or family object.
+  A character string specifying the family for modeling burden levels.
+  Choose between 'lnorm', 'weibull', 'exp', or 'beta'. Use 'lnorm',
+  'weibull' or 'exp' for count data, or use 'beta' for
+  proportional/binomial data.
 
 - season_start, season_end:
 
@@ -131,6 +132,8 @@ A `tsd_burden_levels` object containing:
 
       - For 'exp': Rate parameter.
 
+      - For 'beta': First shape parameter.
+
     - 'par_2':
 
       - For 'weibull': Scale parameter.
@@ -139,6 +142,8 @@ A `tsd_burden_levels` object containing:
         observations.
 
       - For 'exp': Not applicable (set to NA).
+
+      - For 'beta': Second shape parameter.
 
   - 'obj_value': The value of the objective function - (negative
     log-likelihood), which represent the minimised objective function
@@ -155,12 +160,17 @@ A `tsd_burden_levels` object containing:
 
     - 'exp': Uses the Exponential distribution for fitting.
 
+    - 'beta': Uses the Beta distribution for proportional/binomial
+      observations.
+
 - 'disease_threshold': The input disease threshold, which is also the
   very low level.
 
-- 'incidence_denominator': The observations per incidence-denominator.
+- 'incidence_denominator': only used for count data with population
+  given.
 
-- Attributes: `time_interval` and `incidence_denominator`.
+- Attributes: `time_interval`, `incidence_denominator` and
+  `burden_outcome`.
 
 ## Examples
 
@@ -202,20 +212,20 @@ seasonal_burden_levels(tsd_data, family = "lnorm")
 #> 
 #> $values
 #>   very low        low     medium       high 
-#>   20.00000   77.96614  303.93594 1184.83559 
+#>   20.00000   78.75546  310.12111 1221.18650 
 #> 
 #> $optim
 #> $optim$par
-#> [1] 6.97243417 0.06378995
+#> [1] 7.02675650 0.04123632
 #> 
 #> $optim$obj_value
-#> [1] 33.83526
+#> [1] 15.77152
 #> 
 #> $optim$converged
 #> [1] TRUE
 #> 
 #> $optim$high_conf_level
-#> [1] 0.95
+#> [1] 0.975
 #> 
 #> $optim$family
 #> [1] "lnorm"
@@ -227,10 +237,15 @@ seasonal_burden_levels(tsd_data, family = "lnorm")
 #> $incidence_denominator
 #> [1] NA
 #> 
+#> $burden_outcome
+#> [1] "cases"
+#> 
 #> attr(,"time_interval")
 #> [1] "weeks"
 #> attr(,"incidence_denominator")
 #> [1] NA
+#> attr(,"burden_outcome")
+#> [1] "cases"
 #> attr(,"class")
 #> [1] "tsd_burden_levels" "list"             
 ```
