@@ -260,6 +260,35 @@ test_that("Test that multiple waves feature works for all seasons in tsd", {
   )
 })
 
+test_that("Test that multiple waves are tracked across weeks with a missing observation", {
+  skip_if_not_installed("withr")
+  withr::local_seed(123)
+  tsd_data <- generate_seasonal_data(
+    years = 5,
+    start_date = as.Date("2021-01-04"),
+    noise_overdispersion = 100,
+    phase = 4
+  )
+  # A reporting gap: rows kept, observations missing
+  gap <- 150:155
+  tsd_data$cases[gap] <- NA
+
+  mult_waves <- combined_seasonal_output(
+    tsd_data,
+    disease_threshold = 5,
+    only_current_season = FALSE,
+    multiple_waves = TRUE,
+    burden_level_decrease = "low",
+    steps_with_decrease = 2
+  )
+
+  # A missing week is no decrease, so it neither extends nor ends a wave
+  onset <- mult_waves$onset_output
+  expect_true(all(onset$decrease_counter[onset$reference_time %in% tsd_data$time[gap]] == 0))
+  # Waves after the gap are still found
+  expect_true(any(onset$wave_starts[onset$reference_time > max(tsd_data$time[gap])]))
+})
+
 test_that("Test that seasonal end feature works as expected", {
   skip_if_not_installed("withr")
   withr::local_seed(123)
