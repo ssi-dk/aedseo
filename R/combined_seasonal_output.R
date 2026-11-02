@@ -264,10 +264,11 @@ combined_seasonal_output <- function(         # nolint: cyclocomp_linter.
           onset_data$wave_starts[i] <- FALSE
         }
         # Check if the current observation is decreasing compared to the previous row
-        # and falls below the decrease_below threshold.
+        # and falls below the decrease_below threshold. A missing observation is no decrease.
         prev_obs <- if (i > 1) onset_data$observation[i - 1] else NA_real_
         if (
-          !is.na(prev_obs) &&
+          !is.na(onset_data$observation[i]) &&
+            !is.na(prev_obs) &&
             !is.na(onset_data$decrease_value[i]) &&
             onset_data$observation[i] < prev_obs &&
             onset_data$observation[i] < onset_data$decrease_value[i]

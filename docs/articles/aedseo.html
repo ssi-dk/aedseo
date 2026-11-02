@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Automated Detection of Seasonal Epidemic Onset and Burden Levels in R">
 </head>
@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">aedseo</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -355,9 +355,9 @@ package. <code><a href="https://rdrr.io/r/stats/predict.html" class="external-li
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Breakpoint estimates:</span></span>
 <span><span class="co">#&gt;       very low : 22.000000</span></span>
-<span><span class="co">#&gt;       low: 56.189649</span></span>
-<span><span class="co">#&gt;       medium: 143.512574</span></span>
-<span><span class="co">#&gt;       high: 366.541871</span></span>
+<span><span class="co">#&gt;       low: 58.850904</span></span>
+<span><span class="co">#&gt;       medium: 157.428586</span></span>
+<span><span class="co">#&gt;       high: 421.127938</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     The season for the burden levels:</span></span>
 <span><span class="co">#&gt;       2024/2025</span></span>
@@ -541,7 +541,9 @@ by:</p>
 <span><span class="co">#&gt;         Growth rate estimate at reference time point:</span></span>
 <span><span class="co">#&gt;           Estimate   Lower (2.5%)   Upper (97.5%)</span></span>
 <span><span class="co">#&gt;             0.392     0.222          0.570</span></span>
-<span><span class="co">#&gt;         </span></span>
+<span><span class="co">#&gt;         Reference-offset time point (first seasonal offset alarm in season): 2025-03-30</span></span>
+<span><span class="co">#&gt;       Observations at reference-offset time point: 0.064</span></span>
+<span><span class="co">#&gt;       Average observations (in k window) at reference-offset time point: 0.1376 </span></span>
 <span><span class="co">#&gt;         Total number of growth warnings in the series: 16</span></span>
 <span><span class="co">#&gt;         Latest growth warning: 2025-01-05</span></span>
 <span><span class="co">#&gt;         Latest average observations warning: 2025-05-04</span></span>
@@ -564,9 +566,9 @@ by:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Breakpoint estimates:</span></span>
 <span><span class="co">#&gt;       very low : 0.061319</span></span>
-<span><span class="co">#&gt;       low: 0.118481</span></span>
-<span><span class="co">#&gt;       medium: 0.228931</span></span>
-<span><span class="co">#&gt;       high: 0.442343</span></span>
+<span><span class="co">#&gt;       low: 0.123584</span></span>
+<span><span class="co">#&gt;       medium: 0.249076</span></span>
+<span><span class="co">#&gt;       high: 0.501996</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     The season for the burden levels:</span></span>
 <span><span class="co">#&gt;       2024/2025</span></span>
@@ -587,7 +589,9 @@ by:</p>
 <span><span class="co">#&gt;         Growth rate estimate at reference time point:</span></span>
 <span><span class="co">#&gt;           Estimate   Lower (2.5%)   Upper (97.5%)</span></span>
 <span><span class="co">#&gt;             0.475     0.343          0.612</span></span>
-<span><span class="co">#&gt;         </span></span>
+<span><span class="co">#&gt;         Reference-offset time point (first seasonal offset alarm in season): 2025-03-23</span></span>
+<span><span class="co">#&gt;       Observations at reference-offset time point: 0.112</span></span>
+<span><span class="co">#&gt;       Average observations (in k window) at reference-offset time point: 0.152 </span></span>
 <span><span class="co">#&gt;         Total number of growth warnings in the series: 5</span></span>
 <span><span class="co">#&gt;         Latest growth warning: 2024-12-15</span></span>
 <span><span class="co">#&gt;         Latest average observations warning: 2025-04-06</span></span>
@@ -607,9 +611,9 @@ by:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Breakpoint estimates:</span></span>
 <span><span class="co">#&gt;       very low : 0.109857</span></span>
-<span><span class="co">#&gt;       low: 0.174771</span></span>
-<span><span class="co">#&gt;       medium: 0.278045</span></span>
-<span><span class="co">#&gt;       high: 0.442343</span></span>
+<span><span class="co">#&gt;       low: 0.182299</span></span>
+<span><span class="co">#&gt;       medium: 0.302512</span></span>
+<span><span class="co">#&gt;       high: 0.501996</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     The season for the burden levels:</span></span>
 <span><span class="co">#&gt;       2024/2025</span></span>
@@ -687,9 +691,9 @@ First the disease threshold is estimated to be:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Breakpoint estimates:</span></span>
 <span><span class="co">#&gt;       very low : 21.664300</span></span>
-<span><span class="co">#&gt;       low: 37.667029</span></span>
-<span><span class="co">#&gt;       medium: 65.490464</span></span>
-<span><span class="co">#&gt;       high: 113.866184</span></span>
+<span><span class="co">#&gt;       low: 39.543155</span></span>
+<span><span class="co">#&gt;       medium: 72.176858</span></span>
+<span><span class="co">#&gt;       high: 131.742112</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     The season for the burden levels:</span></span>
 <span><span class="co">#&gt;       2024/2025</span></span>
@@ -730,7 +734,7 @@ likely to be more appropriate.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

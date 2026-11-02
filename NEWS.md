@@ -1,5 +1,10 @@
 # aedseo (development version)
 
+## Fixes
+* `combined_seasonal_output()` with `multiple_waves = TRUE` no longer fails with "missing value where TRUE/FALSE needed" when the series has a missing observation, as `to_time_series()` produces for a reporting gap. A missing observation is no decrease, so it resets the run of decreasing steps, as it breaks the run when `multiple_waves = FALSE`.
+
+# aedseo 1.2.0
+
 ## Features
 * Citation of the article evaluating the aedseo package and method has been added (#109).
 * The `aedseo` package now allows for modelling of binomial data. `to_time_series()` now accepts `samples` and `proportion` as arguments. The `proportion`
